@@ -127,6 +127,11 @@
     nextLink.href = `#phase-${next.groupId}`;
   };
 
+  const itemNote = (note) => {
+    if (!note) return null;
+    return el("p", { className: "item-note", text: note });
+  };
+
   const checkItem = (id, labelKids, extras = []) => {
     const input = el("input", {
       type: "checkbox",
@@ -203,7 +208,7 @@
       el(
         "li",
         {},
-        checkItem(item.id, [item.text], [extLink(item.link), templateLinks(item.templates)])
+        checkItem(item.id, [item.text], [itemNote(item.note), extLink(item.link), templateLinks(item.templates)])
       )
     );
 

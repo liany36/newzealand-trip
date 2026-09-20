@@ -58,14 +58,14 @@ window.HANDBOOK = {
     {
       id: "week2",
       when: "2026-09-22 ~ 09-26",
-      title: "翻译、准假与行程材料",
+      title: "翻译、在职与行程材料",
       start: "2026-09-22",
       end: "2026-09-26",
       items: [
         {
           id: "tl-hr",
-          text: "由用人单位出具英文在职及准假信",
-          templates: ["03"],
+          text: "请用人单位出具在职说明（含放假/准假安排）",
+          note: "用途：证明你在国内有稳定工作，出行期间离岗合理，结束后会返岗，用来支撑「短期旅游、会按时回国」。适用范围：有正式工作的申请人。公司集体放假或个人请假均可；用公司自有模板即可，一般需写明职位、在职情况、放假/准假起止日、返岗日及公司联系方式。仅有「在职证明」、不写行程相关日期通常不够。学生、待业、自由职业等不适用此项，改用学业、生意或其他回国约束材料。",
         },
         {
           id: "tl-translate",
@@ -119,7 +119,7 @@ window.HANDBOOK = {
         },
         {
           id: "tl-consistency",
-          text: "核对姓名、出生日期、护照号及行程、航班、住宿、准假日期全文一致",
+          text: "核对姓名、出生日期、护照号及行程、航班、住宿、在职信所载日期全文一致",
         },
         { id: "tl-pay", text: "完成缴费，保存回执与申请编号" },
       ],
@@ -222,14 +222,14 @@ window.HANDBOOK = {
         "户口簿",
         "纸质银行流水（如有）",
         "收入证明纸质件（如有）",
-        "已开具的在职准假信（如有）",
+        "已开具的在职说明（如有）",
         "已签署的 INZ 1027（如有）",
       ],
       tasks: [
         "护照资料页 ×2（含 MRZ）",
         "身份证正反面 ×2",
         "户口簿封面、户主页及两名申请人本人页",
-        "纸质流水、收入证明、准假信、INZ 1027（按实际持有扫描）",
+        "纸质流水、收入证明、在职说明、INZ 1027（按实际持有扫描）",
         "将全部电子文件拷贝至手机或存储介质",
       ],
     },
@@ -247,13 +247,12 @@ window.HANDBOOK = {
   ],
 
   templateIndex: {
-    "01": { label: "01 个人旅行说明信", file: "01-个人旅行说明信模板.md" },
-    "02": { label: "02 Group共同说明信", file: "02-Group共同说明信模板.md" },
-    "03": { label: "03 英文在职准假信", file: "03-英文在职准假信模板.md" },
-    "04": { label: "04 费用承担说明", file: "04-费用承担说明模板.md" },
-    "05": { label: "05 旅行行程表", file: "05-旅行行程表模板.md" },
-    "06": { label: "06 翻译人员声明", file: "06-翻译人员声明模板.md" },
-    "07": { label: "07 常用材料英文翻译", file: "07-常用材料英文翻译模板.md" },
+    "01": { label: "01 个人旅行说明信", file: "01-个人旅行说明信模板.pdf" },
+    "02": { label: "02 Group共同说明信", file: "02-Group共同说明信模板.pdf" },
+    "04": { label: "04 费用承担说明", file: "04-费用承担说明模板.pdf" },
+    "05": { label: "05 旅行行程表", file: "05-旅行行程表模板.pdf" },
+    "06": { label: "06 翻译人员声明", file: "06-翻译人员声明模板.pdf" },
+    "07": { label: "07 常用材料英文翻译", file: "07-常用材料英文翻译模板.pdf" },
   },
 
   docs: [
@@ -263,7 +262,14 @@ window.HANDBOOK = {
     { id: "doc-hukou", title: "户口簿", detail: "封面、户主页、本人页 + 翻译", upload: "Identity / Translation", channel: "扫描复印 → 翻译" },
     { id: "doc-bank", title: "银行流水", detail: "近连续6个月；优先英文或双语", upload: "Funds", channel: "银行" },
     { id: "doc-income", title: "收入证明", detail: "与流水入账相符", upload: "Funds / Employment", channel: "用人单位 / 税务" },
-    { id: "doc-leave", title: "在职及准假信", detail: "英文出具", upload: "Employment", channel: "用人单位", templates: ["03"] },
+    {
+      id: "doc-leave",
+      title: "在职说明（含放假/准假安排）",
+      detail:
+        "用途：证明在职，并说明出行期间离岗合理、结束后返岗，以支撑会按时回国。适用范围：有正式工作的申请人；公司集体放假或个人请假均可，用公司自有格式。学生/待业/自由职业不适用。",
+      upload: "Employment",
+      channel: "用人单位",
+    },
     { id: "doc-1027", title: "INZ 1027", detail: "年满17岁每人一份，签署后扫描", upload: "Supplementary form", channel: "自行填写 → 扫描" },
     { id: "doc-cover", title: "个人旅行说明信", detail: "英文，1–2页", upload: "Cover letter", channel: "自行撰写", templates: ["01"] },
     { id: "doc-itin", title: "旅行行程表", detail: "两人共用同一版本", upload: "Travel plans", channel: "自行撰写", templates: ["05"] },
@@ -317,7 +323,7 @@ window.HANDBOOK = {
 
   preflight: [
     { id: "pf-names", text: "姓名、出生日期、护照号在全部文件中保持一致" },
-    { id: "pf-dates", text: "行程、航班、住宿与准假日期保持一致" },
+    { id: "pf-dates", text: "行程、航班、住宿与在职信所载日期保持一致" },
     { id: "pf-trans", text: "中文材料均附完整英文翻译" },
     { id: "pf-pdf", text: "每个 PDF 小于 10MB，可正常打开且未加密" },
     { id: "pf-bank", text: "银行流水连续6个月，无不具合理解释的大额临时入账" },

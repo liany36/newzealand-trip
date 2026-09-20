@@ -421,6 +421,16 @@ label {
   display: block;
 }
 
+.item-note {
+  margin: 0.45rem 0 0;
+  padding: 0.55rem 0.65rem;
+  background: var(--row);
+  border-radius: 6px;
+  color: var(--fg-dim);
+  font-size: 0.86rem;
+  line-height: 1.7;
+}
+
 .extra {
   display: flex;
   flex-wrap: wrap;
