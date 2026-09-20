@@ -117,7 +117,7 @@
       meta.prepend(
         el("span", {
           className: "cloud-warn",
-          text: "云端进度暂不可用（请在 Cloudflare 绑定 PROGRESS KV）。",
+          text: "进度暂时存不上。",
         }),
         el("br", {})
       );
