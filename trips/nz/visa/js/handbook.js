@@ -48,13 +48,21 @@
     location.reload();
   };
 
-  const progressUrl = (who) => `/api/progress?who=${encodeURIComponent(who)}`;
+  const progressUrl = (who) => `${location.origin}/api/progress?who=${encodeURIComponent(who)}`;
 
   const loadChecks = async (who) => {
     const res = await fetch(progressUrl(who), { cache: "no-store" });
     if (!res.ok) throw new Error(`load failed: ${res.status}`);
     const body = await res.json();
     return body && typeof body === "object" && !Array.isArray(body) ? body : {};
+  };
+
+  const readLegacyLocal = (who) => {
+    try {
+      return JSON.parse(localStorage.getItem(`nz-visa-handbook-checks-v4:${who}`) || "{}");
+    } catch {
+      return {};
+    }
   };
 
   let person = findPerson(readWhoFromUrl()) || findPerson(localStorage.getItem(WHO_KEY));
@@ -83,9 +91,21 @@
   let checks = {};
   let saveTimer = null;
   let cloudReady = true;
+  let syncing = false;
 
   try {
     checks = await loadChecks(person.id);
+    const legacy = readLegacyLocal(person.id);
+    if (!Object.keys(checks).length && Object.keys(legacy).length) {
+      checks = legacy;
+      // 把本机旧进度迁到云端一次
+      const res = await fetch(progressUrl(person.id), {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(checks),
+      });
+      if (!res.ok) throw new Error(`migrate failed: ${res.status}`);
+    }
   } catch (err) {
     cloudReady = false;
     console.error(err);
@@ -105,7 +125,7 @@
       } catch (err) {
         console.error(err);
       }
-    }, 250);
+    }, 200);
   };
 
   const personNameEl = document.querySelector("[data-person-name]");
@@ -251,9 +271,11 @@
       type: "checkbox",
       className: "check",
       id: domId,
+      "data-check-id": id,
       checked: !!checks[id],
       onChange: (e) => {
         checks[id] = e.target.checked;
+        if (!e.target.checked) delete checks[id];
         save();
         updateCurrent();
         refreshPhaseBadges();
@@ -360,6 +382,38 @@
       }
     });
   };
+
+  const applyChecksToDom = () => {
+    document.querySelectorAll("input.check[data-check-id]").forEach((input) => {
+      const id = input.getAttribute("data-check-id");
+      input.checked = !!checks[id];
+    });
+    updateCurrent();
+    refreshPhaseBadges();
+  };
+
+  const syncFromCloud = async () => {
+    if (!cloudReady || syncing || document.hidden) return;
+    syncing = true;
+    try {
+      const remote = await loadChecks(person.id);
+      const a = JSON.stringify(checks);
+      const b = JSON.stringify(remote);
+      if (a === b) return;
+      checks = remote;
+      applyChecksToDom();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      syncing = false;
+    }
+  };
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") syncFromCloud();
+  });
+  window.addEventListener("focus", syncFromCloud);
+  window.setInterval(syncFromCloud, 5000);
 
   updateCurrent();
 
