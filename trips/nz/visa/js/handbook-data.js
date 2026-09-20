@@ -6,6 +6,11 @@ window.HANDBOOK = {
     asOf: "2026-09-19",
   },
 
+  people: [
+    { id: "ting", name: "陈听听" },
+    { id: "tao", name: "陆陶陶" },
+  ],
+
   timeline: [
     {
       id: "prep",

@@ -1,14 +1,144 @@
-(() => {
+(async () => {
   const data = window.HANDBOOK;
   if (!data) return;
 
-  const KEY = "nz-visa-handbook-checks-v3";
-  let checks = {};
-  try {
-    checks = JSON.parse(localStorage.getItem(KEY) || "{}");
-  } catch {}
+  const people = data.people || [];
+  const WHO_KEY = "nz-visa-handbook-who";
 
-  const save = () => localStorage.setItem(KEY, JSON.stringify(checks));
+  const el = (tag, attrs = {}, kids = []) => {
+    const n = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) {
+      if (v == null || v === false) continue;
+      if (k === "className") n.className = v;
+      else if (k === "text") n.textContent = v;
+      else if (k.startsWith("on") && typeof v === "function") n.addEventListener(k.slice(2).toLowerCase(), v);
+      else n.setAttribute(k, v === true ? "" : v);
+    }
+    for (const c of kids.flat()) {
+      if (c == null) continue;
+      n.append(typeof c === "string" ? document.createTextNode(c) : c);
+    }
+    return n;
+  };
+
+  const gate = document.querySelector("[data-gate]");
+  const app = document.querySelector("[data-app]");
+  const gateChoices = document.querySelector("[data-gate-choices]");
+
+  const findPerson = (id) => people.find((p) => p.id === id) || null;
+
+  const readWhoFromUrl = () => {
+    try {
+      return new URLSearchParams(location.search).get("who");
+    } catch {
+      return null;
+    }
+  };
+
+  const persistWho = (id) => {
+    localStorage.setItem(WHO_KEY, id);
+    const url = new URL(location.href);
+    url.searchParams.set("who", id);
+    history.replaceState(null, "", url);
+  };
+
+  const selectWho = (id) => {
+    if (!findPerson(id)) return;
+    persistWho(id);
+    location.reload();
+  };
+
+  const progressUrl = (who) => `/api/progress?who=${encodeURIComponent(who)}`;
+
+  const loadChecks = async (who) => {
+    const res = await fetch(progressUrl(who), { cache: "no-store" });
+    if (!res.ok) throw new Error(`load failed: ${res.status}`);
+    const body = await res.json();
+    return body && typeof body === "object" && !Array.isArray(body) ? body : {};
+  };
+
+  let person = findPerson(readWhoFromUrl()) || findPerson(localStorage.getItem(WHO_KEY));
+
+  people.forEach((p) => {
+    gateChoices.append(
+      el("button", {
+        type: "button",
+        className: "gate__btn",
+        text: p.name,
+        onClick: () => selectWho(p.id),
+      })
+    );
+  });
+
+  if (!person) {
+    gate.hidden = false;
+    app.hidden = true;
+    return;
+  }
+
+  gate.hidden = true;
+  app.hidden = false;
+  persistWho(person.id);
+
+  let checks = {};
+  let saveTimer = null;
+  let cloudReady = true;
+
+  try {
+    checks = await loadChecks(person.id);
+  } catch (err) {
+    cloudReady = false;
+    console.error(err);
+  }
+
+  const save = () => {
+    if (!cloudReady) return;
+    window.clearTimeout(saveTimer);
+    saveTimer = window.setTimeout(async () => {
+      try {
+        const res = await fetch(progressUrl(person.id), {
+          method: "PUT",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(checks),
+        });
+        if (!res.ok) throw new Error(`save failed: ${res.status}`);
+      } catch (err) {
+        console.error(err);
+      }
+    }, 250);
+  };
+
+  const personNameEl = document.querySelector("[data-person-name]");
+  if (personNameEl) personNameEl.textContent = person.name;
+
+  if (!cloudReady) {
+    const meta = document.querySelector(".page .meta");
+    if (meta) {
+      meta.prepend(
+        el("span", {
+          className: "cloud-warn",
+          text: "云端进度暂不可用（请在 Cloudflare 绑定 PROGRESS KV）。",
+        }),
+        el("br", {})
+      );
+    }
+  }
+
+  const switchRoot = document.querySelector("[data-person-switch]");
+  people.forEach((p) => {
+    switchRoot.append(
+      el("button", {
+        type: "button",
+        className: `person-bar__btn${p.id === person.id ? " is-active" : ""}`,
+        text: p.name,
+        "aria-pressed": p.id === person.id ? "true" : "false",
+        onClick: () => {
+          if (p.id === person.id) return;
+          selectWho(p.id);
+        },
+      })
+    );
+  });
 
   const today = (() => {
     const d = new Date();
@@ -20,7 +150,6 @@
 
   const phaseComplete = (phase) => phase.items.every((item) => checks[item.id]);
 
-  // 状态只跟勾选进度走；日期仅作参考，不参与判定
   const computeStatus = (phase) => {
     if (phaseComplete(phase)) return "done";
     const firstIncomplete = data.timeline.find((p) => !phaseComplete(p));
@@ -41,22 +170,6 @@
       groupId: g.id,
     }))
   );
-
-  const el = (tag, attrs = {}, kids = []) => {
-    const n = document.createElement(tag);
-    for (const [k, v] of Object.entries(attrs)) {
-      if (v == null || v === false) continue;
-      if (k === "className") n.className = v;
-      else if (k === "text") n.textContent = v;
-      else if (k.startsWith("on") && typeof v === "function") n.addEventListener(k.slice(2).toLowerCase(), v);
-      else n.setAttribute(k, v === true ? "" : v);
-    }
-    for (const c of kids.flat()) {
-      if (c == null) continue;
-      n.append(typeof c === "string" ? document.createTextNode(c) : c);
-    }
-    return n;
-  };
 
   const tplHref = (file) => encodeURI(`templates/${file}`);
 
@@ -133,10 +246,11 @@
   };
 
   const checkItem = (id, labelKids, extras = []) => {
+    const domId = `${person.id}--${id}`;
     const input = el("input", {
       type: "checkbox",
       className: "check",
-      id,
+      id: domId,
       checked: !!checks[id],
       onChange: (e) => {
         checks[id] = e.target.checked;
@@ -145,7 +259,7 @@
         refreshPhaseBadges();
       },
     });
-    const label = el("label", { for: id }, Array.isArray(labelKids) ? labelKids : [labelKids]);
+    const label = el("label", { for: domId }, Array.isArray(labelKids) ? labelKids : [labelKids]);
     const body = el("div", { className: "item-body" }, [label, ...extras.filter(Boolean)]);
     return [input, body];
   };
@@ -154,6 +268,7 @@
   document.querySelector("[data-asof]").textContent = `排期基准日 ${data.meta.asOf}`;
   document.querySelector("[data-reviewed]").textContent = `材料核对日 ${data.meta.lastReviewed}`;
   document.querySelector("[data-today]").textContent = today;
+  document.title = `${person.name} · 新西兰访客签证办理清单`;
 
   const phaseStatuses = {};
   data.timeline.forEach((g) => {
@@ -164,7 +279,6 @@
     data.timeline.find((g) => phaseStatuses[g.id] === "now")?.id ||
     data.timeline[data.timeline.length - 1].id;
 
-  // 侧栏导航
   const sidenav = document.querySelector("[data-sidenav]");
   sidenav.append(el("div", { className: "sidenav__title", text: "导航" }));
 
@@ -258,7 +372,6 @@
     focusEl.scrollIntoView({ block: "start", behavior: "auto" });
   });
 
-  // 点击立刻高亮；滚动时按可视区块更新
   sidenav.addEventListener("click", (e) => {
     const a = e.target.closest("a.sidenav__link");
     if (!a) return;
@@ -286,7 +399,7 @@
 
   const syncNavFromScroll = () => {
     if (scrollLock) return;
-    const marker = window.innerWidth <= 860 ? 72 : 96;
+    const marker = window.innerWidth <= 860 ? 110 : 96;
     let current = sectionIds[0];
     for (const id of sectionIds) {
       const node = document.getElementById(id);

@@ -6,56 +6,75 @@
     <meta name="color-scheme" content="dark" />
     <title>新西兰访客签证办理清单</title>
     <base href="/trips/nz/visa/" />
-    <link rel="stylesheet" href="css/handbook.css?v=leave1" />
+    <link rel="stylesheet" href="css/handbook.css?v=who4" />
   </head>
   <body>
-    <div class="shell">
-      <nav class="sidenav" aria-label="页面导航" data-sidenav></nav>
-
-      <div class="page">
-        <h1>新西兰访客签证办理清单</h1>
-        <p class="meta">
-          <span data-subtitle></span><br />
-          <span data-asof></span>
-          · <span data-reviewed></span>
-          · 今日 <span data-today></span>
-        </p>
-
-        <p class="next" data-next>
-          当前事项：<a href="#"><strong data-next-text></strong></a>
-        </p>
-
-        <h2 id="sec-timeline">办理排期</h2>
-        <p class="meta">按勾选进度推进；标注日期仅供参考。勾选后，「当前事项」指向下一项未完成任务。</p>
-        <div data-timeline></div>
-
-        <h2 id="sec-batches">外勤合并建议</h2>
-        <p class="meta">以下非排期本身，仅用于减少往返次数：同一地点可一次办结的事项。</p>
-        <div data-batches></div>
-
-        <h2 id="sec-templates">模板文件</h2>
-        <p class="meta">「打开」为在线预览，「下载」为保存至本地。</p>
-        <ul class="tpl-list" data-templates></ul>
-
-        <h2 id="sec-docs">材料一览</h2>
-        <p class="meta">普通文件：PDF，单个不超过 10MB，不得加密。照片：JPG/JPEG，竖版 3:4。</p>
-        <ul class="doc-table" data-docs></ul>
-
-        <h2 id="sec-funds">资金要求</h2>
-        <ul class="zebra" data-funds></ul>
-
-        <h2 id="sec-paths">申请路径</h2>
-        <div data-paths></div>
-
-        <h2 id="sec-preflight">递交前核对</h2>
-        <ul class="checks" data-preflight></ul>
-
-        <h2 id="sec-links">官方链接</h2>
-        <ul class="zebra links" data-links></ul>
+    <div class="gate" data-gate hidden>
+      <div class="gate__card">
+        <p class="gate__kicker">新西兰访客签证</p>
+        <h1 class="gate__title">你是谁？</h1>
+        <p class="gate__hint">两人进度各自独立，保存在云端；换手机也能接着勾。</p>
+        <div class="gate__choices" data-gate-choices></div>
       </div>
     </div>
 
-    <script src="js/handbook-data.js?v=leave1"></script>
-    <script src="js/handbook.js?v=leave1"></script>
+    <div class="app" data-app hidden>
+      <header class="person-bar" data-person-bar>
+        <div class="person-bar__inner">
+          <span class="person-bar__label">当前</span>
+          <div class="person-bar__switch" data-person-switch role="group" aria-label="切换身份"></div>
+        </div>
+      </header>
+
+      <div class="shell">
+        <nav class="sidenav" aria-label="页面导航" data-sidenav></nav>
+
+        <div class="page">
+          <h1>新西兰访客签证办理清单</h1>
+          <p class="meta">
+            <span data-person-name></span>
+            · <span data-subtitle></span><br />
+            <span data-asof></span>
+            · <span data-reviewed></span>
+            · 今日 <span data-today></span>
+          </p>
+
+          <p class="next" data-next>
+            当前事项：<a href="#"><strong data-next-text></strong></a>
+          </p>
+
+          <h2 id="sec-timeline">办理排期</h2>
+          <p class="meta">按勾选进度推进；标注日期仅供参考。勾选后，「当前事项」指向下一项未完成任务。</p>
+          <div data-timeline></div>
+
+          <h2 id="sec-batches">外勤合并建议</h2>
+          <p class="meta">以下非排期本身，仅用于减少往返次数：同一地点可一次办结的事项。</p>
+          <div data-batches></div>
+
+          <h2 id="sec-templates">模板文件</h2>
+          <p class="meta">「打开」为在线预览，「下载」为保存至本地。</p>
+          <ul class="tpl-list" data-templates></ul>
+
+          <h2 id="sec-docs">材料一览</h2>
+          <p class="meta">普通文件：PDF，单个不超过 10MB，不得加密。照片：JPG/JPEG，竖版 3:4。</p>
+          <ul class="doc-table" data-docs></ul>
+
+          <h2 id="sec-funds">资金要求</h2>
+          <ul class="zebra" data-funds></ul>
+
+          <h2 id="sec-paths">申请路径</h2>
+          <div data-paths></div>
+
+          <h2 id="sec-preflight">递交前核对</h2>
+          <ul class="checks" data-preflight></ul>
+
+          <h2 id="sec-links">官方链接</h2>
+          <ul class="zebra links" data-links></ul>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/handbook-data.js?v=who4"></script>
+    <script src="js/handbook.js?v=who4"></script>
   </body>
 </html>
