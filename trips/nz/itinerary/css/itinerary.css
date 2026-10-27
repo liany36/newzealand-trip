@@ -196,10 +196,6 @@ body.itinerary code {
   white-space: nowrap;
 }
 
-.sidenav a[href="#ban"] {
-  color: var(--accent-ink);
-}
-
 .sidenav__label {
   flex: 0 0 auto;
   align-self: center;
@@ -292,7 +288,6 @@ body.itinerary h3 {
 
 .ban,
 .props,
-.avoid,
 .list,
 .day > p,
 .section-lead {
@@ -391,12 +386,6 @@ body.itinerary h3 {
   font-size: 0.88rem;
 }
 
-.avoid {
-  margin-top: 0.85rem;
-  padding-left: 1.15rem;
-}
-
-.avoid li + li,
 .book li + li {
   margin-top: 0.28rem;
 }
@@ -689,10 +678,6 @@ body.itinerary h2,
 
   .sidenav a:hover {
     color: var(--fg);
-  }
-
-  .sidenav a[href="#ban"] {
-    color: var(--accent-ink);
   }
 
   body.itinerary main {
