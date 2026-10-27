@@ -203,7 +203,7 @@ code.sh {
 .route__svg polyline {
   fill: none;
   stroke: #e0b56a;
-  stroke-width: 1.75;
+  stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
@@ -234,8 +234,8 @@ code.sh {
   height: 0.48rem;
   margin: 0;
   border-radius: 50%;
+  z-index: 1;
   background: #f0d5a8;
-  box-shadow: 0 0 0 2px #141210;
   transform: translate(-50%, -50%);
 }
 
