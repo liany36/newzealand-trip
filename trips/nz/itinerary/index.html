@@ -9,7 +9,7 @@
     <title>南岛蜜月行程</title>
     <link rel="canonical" href="https://mrlian.ai/trips/nz/itinerary/" />
     <link rel="stylesheet" href="vendor/leaflet/leaflet.css?v=20261027d" />
-    <link rel="stylesheet" href="css/itinerary.css?v=20261027d" />
+    <link rel="stylesheet" href="css/itinerary.css?v=20261027e" />
   </head>
   <body class="itinerary">
     <a class="skip" href="#overview">跳到正文</a>
@@ -30,7 +30,6 @@
         <div class="sidenav__group">
           <p class="sidenav__label">总览</p>
           <a href="#overview">概览</a>
-          <a href="#ban">禁行</a>
           <a href="#constraints">硬约束</a>
           <a href="#flights">航班</a>
           <a href="#maui">房车</a>
@@ -68,10 +67,9 @@
 
         <section id="constraints">
           <h2>硬约束</h2>
-          <aside class="ban" id="ban">
-            <p class="ban__k">禁行</p>
-            <p>Maui 全程不走皇冠岭 <span class="mono">Crown Range Road</span>，也不走卡德罗纳 <span class="mono">Cardrona Valley Road</span>。</p>
-            <p>瓦纳卡 Wanaka ↔ 皇后镇 Queenstown 只走 <span class="mono">SH6</span>，经克伦威尔 Cromwell。约 117 km，房车 1h15–1h45。</p>
+          <aside class="ban" id="route">
+            <p class="ban__k">路线</p>
+            <p>Maui 房车：瓦纳卡 Wanaka ↔ 皇后镇 Queenstown 只走 <span class="mono">SH6</span>，经克伦威尔 Cromwell。约 117 km，房车 1h15–1h45。</p>
           </aside>
           <dl class="props">
             <div>
@@ -130,12 +128,8 @@
               <dd>无车。城市酒店已订。次日取车。</dd>
             </div>
             <div>
-              <dt>禁行</dt>
-              <dd>皇冠岭 <span class="mono">Crown Range Road</span> · 卡德罗纳 <span class="mono">Cardrona Valley Road</span>。全程不走。</dd>
-            </div>
-            <div>
               <dt>去皇后镇</dt>
-              <dd>只走 <span class="mono">SH6</span>，经克伦威尔 Cromwell。约 117 km，房车 1h15–1h45。</dd>
+              <dd>瓦纳卡 Wanaka ↔ 皇后镇 Queenstown 只走 <span class="mono">SH6</span>，经克伦威尔 Cromwell。约 117 km，房车 1h15–1h45。</dd>
             </div>
             <div>
               <dt>营位</dt>
@@ -182,27 +176,18 @@
             </li>
           </ol>
           <p class="spine-note">共 10 晚。12/23、12/24 夜宿基督城 Christchurch，1/1 再回基督城。</p>
-          <h3>不做</h3>
-          <ul class="avoid">
-            <li>不走皇冠岭 <span class="mono">Crown Range Road</span></li>
-            <li>不走卡德罗纳 <span class="mono">Cardrona Valley Road</span></li>
-            <li>不做卡德罗纳 Cardrona 山地车</li>
-            <li>蒂阿瑙 Te Anau 萤火虫洞暂不做</li>
-            <li>峡湾内不自由营</li>
-            <li>特卡波 Tekapo 镇内湖边不自由营</li>
-          </ul>
         </section>
 
         <section id="sec-map">
           <h2>过夜路线</h2>
-          <p class="section-lead">可拖动、缩放。底图为 OpenStreetMap，点按经纬度，连线沿公路。瓦纳卡 Wanaka 到皇后镇 Queenstown 向南经克伦威尔 Cromwell，走 <span class="mono">SH6</span>，不走皇冠岭。米尔福德峡湾 Milford Sound 是 12/30 当日点，当晚回蒂阿瑙 Te Anau。基督城 Christchurch 先住 2 晚，1/1 再回 1 晚。</p>
+          <p class="section-lead">可拖动、缩放。底图为 OpenStreetMap，点按经纬度，连线沿公路。瓦纳卡 Wanaka ↔ 皇后镇 Queenstown 只走 <span class="mono">SH6</span>，向南经克伦威尔 Cromwell。米尔福德峡湾 Milford Sound 是 12/30 当日点，当晚回蒂阿瑙 Te Anau。基督城 Christchurch 先住 2 晚，1/1 再回 1 晚。</p>
           <figure class="geomap">
             <div class="geomap__frame">
               <div id="route-map" class="geomap__canvas" role="region" aria-label="南岛过夜路线，可拖动可缩放。瓦纳卡到皇后镇经克伦威尔、SH6。"></div>
             </div>
             <figcaption class="geomap__cap">
               <a class="geomap__maps" href="https://www.google.com/maps/dir/Christchurch/Lake+Tekapo/Wanaka/Cromwell/Queenstown/Cascade+Creek+Campsite,+Fiordland/Milford+Sound/Te+Anau/Dunedin/Christchurch" target="_blank" rel="noopener noreferrer">在 Google Maps 打开完整路线</a>
-              <span class="geomap__note">实心点为过夜，空心点为米尔福德当日，小空心点为途经克伦威尔。点标记可看中英地名。手机双指缩放；桌面用右侧按钮，或点一下地图后再滚轮。外链在 Wanaka 与 Queenstown 之间经过 Cromwell，沿 <span class="mono">SH6</span>，不走皇冠岭 Crown Range、卡德罗纳 Cardrona。</span>
+              <span class="geomap__note">实心点为过夜，空心点为米尔福德当日，小空心点为途经克伦威尔。点标记可看中英地名。手机双指缩放；桌面用右侧按钮，或点一下地图后再滚轮。外链在 Wanaka 与 Queenstown 之间经过 Cromwell，沿 <span class="mono">SH6</span>。</span>
             </figcaption>
           </figure>
         </section>
@@ -246,7 +231,7 @@
             </header>
             <p class="route" lang="en">CHC→Tekapo · SH1 S→SH79 (Geraldine)→SH8 (Fairlie/Burkes Pass) · ~226–228 km · ~3h</p>
             <p>湖边，善牧教堂 Church of the Good Shepherd。</p>
-            <p class="note">优先 Lakes Edge，否则 Lake Alexandrina。特卡波 Tekapo 镇内湖边不自由营。必要时可以无电过夜。</p>
+            <p class="note">合法过夜点是 Lakes Edge（优先），否则 Lake Alexandrina。必要时可以无电过夜。</p>
           </article>
 
           <article class="day" id="d-1226">
@@ -271,7 +256,7 @@
               <p class="stay">住宿已订</p>
             </header>
             <p class="route" lang="en">town↔airport · local · short · ~10min</p>
-            <p>上午 Skydive Wanaka。下午轻活动。仍住瓦纳卡 Wanaka。不做卡德罗纳 Cardrona 山地车。</p>
+            <p>上午 Skydive Wanaka。下午轻活动。仍住瓦纳卡 Wanaka。</p>
           </article>
 
           <article class="day" id="d-1228">
@@ -282,8 +267,8 @@
               </div>
               <p class="stay stay--open">住宿待订</p>
             </header>
-            <p class="route" lang="en">Wanaka→QT · SH6 via Cromwell (NO Crown Range/Cardrona) · ~117 km · 1h15–1h45</p>
-            <p>只走 <span class="mono">SH6</span>，经克伦威尔 Cromwell。不走皇冠岭 Crown Range Road，不走卡德罗纳 Cardrona Valley Road。下午只做 Skyline 缆车 + Luge。</p>
+            <p class="route" lang="en">Wanaka→QT · SH6 via Cromwell · ~117 km · 1h15–1h45</p>
+            <p>瓦纳卡 Wanaka ↔ 皇后镇 Queenstown 只走 <span class="mono">SH6</span>，经克伦威尔 Cromwell。下午只做 Skyline 缆车 + Luge。</p>
             <p class="note">夜宿皇后镇 Queenstown 一带。候选箭镇 Arrowtown 的 Hampshire Mountain View Powered，此前约 NZ$75。</p>
           </article>
 
@@ -309,7 +294,7 @@
             </header>
             <p class="route" lang="en">Cascade Creek→Milford · SH94 Homer Tunnel · shorter than the ~118–120 km / 2–2.5h pure drive from Te Anau</p>
             <p class="route" lang="en">Milford→Te Anau · SH94 · ~118–120 km · ~2–2.5h pure</p>
-            <p>游船后回蒂阿瑙 Te Anau 住一晚，不再连住两晚。峡湾内不自由营。</p>
+            <p>游船后回蒂阿瑙 Te Anau 住一晚，不再连住两晚。合法过夜点是蒂阿瑙 Te Anau。</p>
             <p class="note">蒂阿瑙 Te Anau 的 lodge 房车位常见最少两晚，旺季常常订满。这一晚仍待订。</p>
           </article>
 
@@ -334,7 +319,7 @@
               <p class="stay stay--open">住宿未定</p>
             </header>
             <p class="route" lang="en">Dunedin→CHC · SH1 N · ~362 km · 5.5–7h</p>
-            <p>上午动物可做可不做，然后回基督城 Christchurch。当晚住处未定。</p>
+            <p>上午动物可选，然后回基督城 Christchurch。当晚住处未定。</p>
           </article>
 
           <article class="day" id="d-0102">
@@ -459,7 +444,7 @@
                 <tr>
                   <th class="mono when" scope="row">12/28</th>
                   <td class="mono">Wanaka→QT</td>
-                  <td class="mono road">SH6 via Cromwell (NO Crown Range/Cardrona)</td>
+                  <td class="mono road">SH6 via Cromwell</td>
                   <td class="mono km">~117</td>
                   <td class="mono time">1h15–1h45</td>
                   <td class="mono">Skyline+Luge</td>
@@ -539,8 +524,8 @@
             <p class="camp__when">12/25</p>
             <p class="camp__st open">待订</p>
             <div class="camp__body">
-              <p>优先 Lakes Edge，否则 Lake Alexandrina。</p>
-              <p class="camp__note">镇内湖边不自由营。必要时可以无电过夜。</p>
+              <p>合法过夜点是 Lakes Edge（优先），否则 Lake Alexandrina。</p>
+              <p class="camp__note">必要时可以无电过夜。</p>
             </div>
           </div>
           <div class="camp">
@@ -563,7 +548,7 @@
             <p class="camp__st open">待订</p>
             <div class="camp__body">
               <p>DOC Cascade Creek。米尔福德公路 Milford Road / <span class="mono">SH94</span>，无电 unpowered。</p>
-              <p class="camp__note">在蒂阿瑙 Te Anau 以北 71 km。峡湾内不自由营。</p>
+              <p class="camp__note">在蒂阿瑙 Te Anau 以北 71 km。合法过夜点是 DOC Cascade Creek。</p>
             </div>
           </div>
           <div class="camp">
