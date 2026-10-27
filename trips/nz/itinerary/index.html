@@ -8,7 +8,8 @@
     <meta name="description" content="练翊与陆陶陶，2026-12-23 至 2027-01-02，新西兰南岛行程。" />
     <title>南岛蜜月行程</title>
     <link rel="canonical" href="https://mrlian.ai/trips/nz/itinerary/" />
-    <link rel="stylesheet" href="css/itinerary.css?v=20261027" />
+    <link rel="stylesheet" href="vendor/leaflet/leaflet.css?v=20261027d" />
+    <link rel="stylesheet" href="css/itinerary.css?v=20261027d" />
   </head>
   <body class="itinerary">
     <a class="skip" href="#overview">跳到正文</a>
@@ -34,22 +35,23 @@
           <a href="#flights">航班</a>
           <a href="#maui">房车</a>
           <a href="#sec-nights">过夜</a>
+          <a href="#sec-map">路线</a>
           <a href="#sec-book">预订</a>
           <a href="#sec-drive">车程</a>
           <a href="#sec-camp">营地</a>
         </div>
         <div class="sidenav__group">
           <p class="sidenav__label">逐日</p>
-          <a href="#d-1223">12/23 基督城</a>
-          <a href="#d-1224">12/24 凯库拉</a>
-          <a href="#d-1225">12/25 特卡波</a>
-          <a href="#d-1226">12/26 库克山</a>
-          <a href="#d-1227">12/27 瓦纳卡</a>
-          <a href="#d-1228">12/28 皇后镇</a>
-          <a href="#d-1229">12/29 蒂阿瑙</a>
-          <a href="#d-1230">12/30 米尔福德</a>
-          <a href="#d-1231">12/31 达尼丁</a>
-          <a href="#d-0101">1/1 回城</a>
+          <a href="#d-1223">12/23 基督城 Christchurch</a>
+          <a href="#d-1224">12/24 凯库拉 Kaikoura</a>
+          <a href="#d-1225">12/25 特卡波 Tekapo</a>
+          <a href="#d-1226">12/26 库克山 Mount Cook</a>
+          <a href="#d-1227">12/27 瓦纳卡 Wanaka</a>
+          <a href="#d-1228">12/28 皇后镇 Queenstown</a>
+          <a href="#d-1229">12/29 Cascade Creek</a>
+          <a href="#d-1230">12/30 米尔福德 Milford</a>
+          <a href="#d-1231">12/31 达尼丁 Dunedin</a>
+          <a href="#d-0101">1/1 回基督城 Christchurch</a>
           <a href="#d-0102">1/2 起飞</a>
         </div>
       </nav>
@@ -68,17 +70,17 @@
           <h2>硬约束</h2>
           <aside class="ban" id="ban">
             <p class="ban__k">禁行</p>
-            <p>Maui 全程不走 <span class="mono">Crown Range Road</span>，也不走 <span class="mono">Cardrona Valley Road</span>。</p>
-            <p>瓦纳卡 ↔ 皇后镇只走 <span class="mono">SH6</span>，经 Cromwell。约 117 km，房车 1h15–1h45。</p>
+            <p>Maui 全程不走皇冠岭 <span class="mono">Crown Range Road</span>，也不走卡德罗纳 <span class="mono">Cardrona Valley Road</span>。</p>
+            <p>瓦纳卡 Wanaka ↔ 皇后镇 Queenstown 只走 <span class="mono">SH6</span>，经克伦威尔 Cromwell。约 117 km，房车 1h15–1h45。</p>
           </aside>
           <dl class="props">
             <div>
               <dt>抵达</dt>
-              <dd><span class="mono">2026-12-23</span> 约 <span class="mono">17:00</span> CHC</dd>
+              <dd><span class="mono">2026-12-23</span> 约 <span class="mono">17:00</span> 基督城 Christchurch（CHC）</dd>
             </div>
             <div>
               <dt>离开</dt>
-              <dd><span class="mono">2027-01-02</span> <span class="mono">11:35</span> CHC</dd>
+              <dd><span class="mono">2027-01-02</span> <span class="mono">11:35</span> 基督城 Christchurch（CHC）</dd>
             </div>
             <div>
               <dt>房车</dt>
@@ -86,11 +88,11 @@
             </div>
             <div>
               <dt>取还</dt>
-              <dd><span class="mono">12/24 08:00</span> 基督城机场取 · <span class="mono">1/2</span> 当天灵活还</dd>
+              <dd><span class="mono">12/24 08:00</span> 基督城 Christchurch 机场取 · <span class="mono">1/2</span> 当天灵活还</dd>
             </div>
             <div>
               <dt>过夜</dt>
-              <dd>基督城 2 · 特卡波 1 · 瓦纳卡 2 · 皇后镇 1 · 蒂阿瑙 2 · 达尼丁 1 · 回城 1</dd>
+              <dd>基督城 Christchurch 2 · 特卡波 Tekapo 1 · 瓦纳卡 Wanaka 2 · 皇后镇 Queenstown 1 · Cascade Creek 1 · 蒂阿瑙 Te Anau 1 · 达尼丁 Dunedin 1 · 回城 1</dd>
             </div>
             <div>
               <dt>营位</dt>
@@ -102,8 +104,8 @@
         <section id="flights">
           <h2>航班</h2>
           <ul class="list">
-            <li>抵达：<span class="mono">2026-12-23</span> 约 <span class="mono">17:00</span> CHC</li>
-            <li>离开：<span class="mono">2027-01-02</span> <span class="mono">11:35</span> CHC</li>
+            <li>抵达：<span class="mono">2026-12-23</span> 约 <span class="mono">17:00</span> 基督城 Christchurch（CHC）</li>
+            <li>离开：<span class="mono">2027-01-02</span> <span class="mono">11:35</span> 基督城 Christchurch（CHC）</li>
           </ul>
         </section>
 
@@ -117,7 +119,7 @@
             </div>
             <div>
               <dt>取车</dt>
-              <dd><span class="mono">2026-12-24 08:00</span> · 基督城机场</dd>
+              <dd><span class="mono">2026-12-24 08:00</span> · 基督城 Christchurch 机场</dd>
             </div>
             <div>
               <dt>还车</dt>
@@ -129,11 +131,11 @@
             </div>
             <div>
               <dt>禁行</dt>
-              <dd><span class="mono">Crown Range Road</span> · <span class="mono">Cardrona Valley Road</span>。全程不走。</dd>
+              <dd>皇冠岭 <span class="mono">Crown Range Road</span> · 卡德罗纳 <span class="mono">Cardrona Valley Road</span>。全程不走。</dd>
             </div>
             <div>
               <dt>去皇后镇</dt>
-              <dd>只走 <span class="mono">SH6</span>，经 Cromwell。约 117 km，房车 1h15–1h45。</dd>
+              <dd>只走 <span class="mono">SH6</span>，经克伦威尔 Cromwell。约 117 km，房车 1h15–1h45。</dd>
             </div>
             <div>
               <dt>营位</dt>
@@ -144,47 +146,65 @@
 
         <section id="sec-nights">
           <h2>过夜骨架</h2>
-          <p class="section-lead">进出基督城。蒂阿瑙两晚，接着达尼丁一晚，再回基督城。</p>
+          <p class="section-lead">进出基督城 Christchurch。Cascade Creek 一晚，接着蒂阿瑙 Te Anau 一晚，再到达尼丁 Dunedin，然后回基督城。</p>
           <ol class="spine">
             <li>
               <span class="spine__n">2<small>晚</small></span>
-              <span class="spine__p">基督城</span>
+              <span class="spine__p"><span class="spine__zh">基督城</span> Christchurch</span>
             </li>
             <li>
               <span class="spine__n">1<small>晚</small></span>
-              <span class="spine__p">特卡波</span>
+              <span class="spine__p"><span class="spine__zh">特卡波</span> Tekapo</span>
             </li>
             <li>
               <span class="spine__n">2<small>晚</small></span>
-              <span class="spine__p">瓦纳卡</span>
+              <span class="spine__p"><span class="spine__zh">瓦纳卡</span> Wanaka</span>
             </li>
             <li>
               <span class="spine__n">1<small>晚</small></span>
-              <span class="spine__p">皇后镇</span>
-            </li>
-            <li>
-              <span class="spine__n">2<small>晚</small></span>
-              <span class="spine__p">蒂阿瑙</span>
+              <span class="spine__p"><span class="spine__zh">皇后镇</span> Queenstown</span>
             </li>
             <li>
               <span class="spine__n">1<small>晚</small></span>
-              <span class="spine__p">达尼丁</span>
+              <span class="spine__p"><span class="spine__zh">Cascade Creek</span></span>
             </li>
             <li>
               <span class="spine__n">1<small>晚</small></span>
-              <span class="spine__p">回基督城</span>
+              <span class="spine__p"><span class="spine__zh">蒂阿瑙</span> Te Anau</span>
+            </li>
+            <li>
+              <span class="spine__n">1<small>晚</small></span>
+              <span class="spine__p"><span class="spine__zh">达尼丁</span> Dunedin</span>
+            </li>
+            <li>
+              <span class="spine__n">1<small>晚</small></span>
+              <span class="spine__p"><span class="spine__zh">回基督城</span> Christchurch</span>
             </li>
           </ol>
-          <p class="spine-note">共 10 晚。12/23、12/24 夜宿基督城，1/1 再回基督城。</p>
+          <p class="spine-note">共 10 晚。12/23、12/24 夜宿基督城 Christchurch，1/1 再回基督城。</p>
           <h3>不做</h3>
           <ul class="avoid">
-            <li>不走 <span class="mono">Crown Range Road</span></li>
-            <li>不走 <span class="mono">Cardrona Valley Road</span></li>
-            <li>不做 Cardrona 山地车</li>
-            <li>蒂阿瑙萤火虫洞暂不做</li>
+            <li>不走皇冠岭 <span class="mono">Crown Range Road</span></li>
+            <li>不走卡德罗纳 <span class="mono">Cardrona Valley Road</span></li>
+            <li>不做卡德罗纳 Cardrona 山地车</li>
+            <li>蒂阿瑙 Te Anau 萤火虫洞暂不做</li>
             <li>峡湾内不自由营</li>
-            <li>特卡波镇内湖边不自由营</li>
+            <li>特卡波 Tekapo 镇内湖边不自由营</li>
           </ul>
+        </section>
+
+        <section id="sec-map">
+          <h2>过夜路线</h2>
+          <p class="section-lead">可拖动、缩放。底图为 OpenStreetMap，点按经纬度，连线沿公路。瓦纳卡 Wanaka 到皇后镇 Queenstown 向南经克伦威尔 Cromwell，走 <span class="mono">SH6</span>，不走皇冠岭。米尔福德峡湾 Milford Sound 是 12/30 当日点，当晚回蒂阿瑙 Te Anau。基督城 Christchurch 先住 2 晚，1/1 再回 1 晚。</p>
+          <figure class="geomap">
+            <div class="geomap__frame">
+              <div id="route-map" class="geomap__canvas" role="region" aria-label="南岛过夜路线，可拖动可缩放。瓦纳卡到皇后镇经克伦威尔、SH6。"></div>
+            </div>
+            <figcaption class="geomap__cap">
+              <a class="geomap__maps" href="https://www.google.com/maps/dir/Christchurch/Lake+Tekapo/Wanaka/Cromwell/Queenstown/Cascade+Creek+Campsite,+Fiordland/Milford+Sound/Te+Anau/Dunedin/Christchurch" target="_blank" rel="noopener noreferrer">在 Google Maps 打开完整路线</a>
+              <span class="geomap__note">实心点为过夜，空心点为米尔福德当日，小空心点为途经克伦威尔。点标记可看中英地名。手机双指缩放；桌面用右侧按钮，或点一下地图后再滚轮。外链在 Wanaka 与 Queenstown 之间经过 Cromwell，沿 <span class="mono">SH6</span>，不走皇冠岭 Crown Range、卡德罗纳 Cardrona。</span>
+            </figcaption>
+          </figure>
         </section>
 
         <section id="sec-days">
@@ -194,25 +214,25 @@
             <header class="day__head">
               <div class="day__id">
                 <p class="day__date">12/23</p>
-                <h3>到基督城</h3>
+                <h3>到基督城 <span class="place-en">Christchurch</span></h3>
               </div>
               <p class="stay">无车 · 住宿已订</p>
             </header>
             <p class="route" lang="en">Airport→city · Memorial Ave/city · ~12 km · 15–20min</p>
-            <p>约 17:00 抵 CHC。当晚无车，城市酒店已订。次日取车。</p>
+            <p>约 17:00 抵基督城 Christchurch（CHC）。当晚无车，城市酒店已订。次日取车。</p>
           </article>
 
           <article class="day" id="d-1224">
             <header class="day__head">
               <div class="day__id">
                 <p class="day__date">12/24</p>
-                <h3>凯库拉</h3>
+                <h3>凯库拉 <span class="place-en">Kaikoura</span></h3>
               </div>
               <p class="stay">住宿已订</p>
             </header>
             <p class="route" lang="en">CHC→Kaikoura · SH1 N · ~180 km · 2h20–2h30</p>
             <p class="route" lang="en">Kaikoura→CHC · SH1 S · ~180 km · 2h20–2h30</p>
-            <p>08:00 基督城机场取车。凯库拉当日往返。观鲸或海钓，二选一。</p>
+            <p>08:00 基督城 Christchurch 机场取车。凯库拉 Kaikoura 当日往返。观鲸或海钓，二选一。</p>
             <p class="note">当晚住 Tasman Holiday Parks Christchurch（Papanui）Powered Sealed，单号 <code>IT16449138</code>。这一晚必须接电。</p>
           </article>
 
@@ -220,101 +240,101 @@
             <header class="day__head">
               <div class="day__id">
                 <p class="day__date">12/25</p>
-                <h3>特卡波</h3>
+                <h3>特卡波 <span class="place-en">Tekapo</span></h3>
               </div>
               <p class="stay stay--open">住宿待订</p>
             </header>
             <p class="route" lang="en">CHC→Tekapo · SH1 S→SH79 (Geraldine)→SH8 (Fairlie/Burkes Pass) · ~226–228 km · ~3h</p>
             <p>湖边，善牧教堂 Church of the Good Shepherd。</p>
-            <p class="note">优先 Lakes Edge，否则 Lake Alexandrina。镇内湖边不自由营。必要时可以无电过夜。</p>
+            <p class="note">优先 Lakes Edge，否则 Lake Alexandrina。特卡波 Tekapo 镇内湖边不自由营。必要时可以无电过夜。</p>
           </article>
 
           <article class="day" id="d-1226">
             <header class="day__head">
               <div class="day__id">
                 <p class="day__date">12/26</p>
-                <h3>库克山 → 瓦纳卡</h3>
+                <h3>库克山 <span class="place-en">Mount Cook</span> → 瓦纳卡 <span class="place-en">Wanaka</span></h3>
               </div>
               <p class="stay">住宿已订</p>
             </header>
             <p class="route" lang="en">Tekapo→Mt Cook village · SH8 W→SH80 (along Pukaki) · ~105 km · 1h15–1h30</p>
             <p class="route" lang="en">Mt Cook→Wanaka · SH80 back→SH8 (Twizel/Omarama/Lindis)→SH6 (Tarras)→Wanaka · ~210 km · ~2h30</p>
-            <p>上午 Hooker，再开往瓦纳卡。整天约 7–8h。瓦纳卡两晚已订，含 12/27。</p>
+            <p>上午胡克谷步道 Hooker Valley，再开往瓦纳卡 Wanaka。整天约 7–8h。瓦纳卡两晚已订，含 12/27。</p>
           </article>
 
           <article class="day" id="d-1227">
             <header class="day__head">
               <div class="day__id">
                 <p class="day__date">12/27</p>
-                <h3>瓦纳卡</h3>
+                <h3>瓦纳卡 <span class="place-en">Wanaka</span></h3>
               </div>
               <p class="stay">住宿已订</p>
             </header>
             <p class="route" lang="en">town↔airport · local · short · ~10min</p>
-            <p>上午 Skydive Wanaka。下午轻活动。仍住瓦纳卡。不做 Cardrona 山地车。</p>
+            <p>上午 Skydive Wanaka。下午轻活动。仍住瓦纳卡 Wanaka。不做卡德罗纳 Cardrona 山地车。</p>
           </article>
 
           <article class="day" id="d-1228">
             <header class="day__head">
               <div class="day__id">
                 <p class="day__date">12/28</p>
-                <h3>皇后镇</h3>
+                <h3>皇后镇 <span class="place-en">Queenstown</span></h3>
               </div>
               <p class="stay stay--open">住宿待订</p>
             </header>
             <p class="route" lang="en">Wanaka→QT · SH6 via Cromwell (NO Crown Range/Cardrona) · ~117 km · 1h15–1h45</p>
-            <p>只走 SH6，经 Cromwell。不走 Crown Range Road，不走 Cardrona Valley Road。下午只做 Skyline 缆车 + Luge。</p>
-            <p class="note">夜宿皇后镇一带。候选 Arrowtown Hampshire Mountain View Powered，此前约 NZ$75。</p>
+            <p>只走 <span class="mono">SH6</span>，经克伦威尔 Cromwell。不走皇冠岭 Crown Range Road，不走卡德罗纳 Cardrona Valley Road。下午只做 Skyline 缆车 + Luge。</p>
+            <p class="note">夜宿皇后镇 Queenstown 一带。候选箭镇 Arrowtown 的 Hampshire Mountain View Powered，此前约 NZ$75。</p>
           </article>
 
           <article class="day" id="d-1229">
             <header class="day__head">
               <div class="day__id">
                 <p class="day__date">12/29</p>
-                <h3>蒂阿瑙</h3>
+                <h3>Cascade Creek</h3>
               </div>
-              <p class="stay stay--open">住宿待订</p>
+              <p class="stay stay--open">无电 · 待订</p>
             </header>
-            <p class="route" lang="en">QT→Te Anau · SH6 S (Frankton/Kingston/Devil’s Staircase)→SH97 (Five Rivers)→SH94 (Mossburn)→Te Anau · ~170–171 km · 2.5–3.5h</p>
-            <p>离开前在皇后镇或 Frankton 加满油。萤火虫洞暂不做。当晚起住蒂阿瑙。</p>
+            <p class="route" lang="en">QT→Cascade Creek · SH6 S (Frankton/Kingston)→SH97 (Five Rivers)→SH94 (Mossburn/Te Anau, then north) · ~170–171 km to Te Anau, then 71 km · 2.5–3.5h to Te Anau</p>
+            <p>离开前在皇后镇 Queenstown 或 Frankton 加满油。住 DOC Cascade Creek，在米尔福德公路 Milford Road（<span class="mono">SH94</span>）上、蒂阿瑙 Te Anau 以北 71 km。无电 unpowered。待订。</p>
           </article>
 
           <article class="day" id="d-1230">
             <header class="day__head">
               <div class="day__id">
                 <p class="day__date">12/30</p>
-                <h3>米尔福德</h3>
+                <h3>米尔福德峡湾 <span class="place-en">Milford Sound</span></h3>
               </div>
-              <p class="stay stay--open">住宿待订</p>
+              <p class="stay stay--open">蒂阿瑙一晚 · 待订</p>
             </header>
-            <p class="route" lang="en">Te Anau→Milford · SH94 Homer Tunnel · ~118–120 km · pure 2–2.5h; with stops/tunnel 3.5–4.5h to dock</p>
-            <p class="route" lang="en">Milford→Te Anau · SH94 · same · ~2–2.5h pure</p>
-            <p>全日往返，游船后回蒂阿瑙过夜。峡湾内不自由营。</p>
-            <p class="note">Lodge 房车位常见最少两晚，旺季常常订满。</p>
+            <p class="route" lang="en">Cascade Creek→Milford · SH94 Homer Tunnel · shorter than the ~118–120 km / 2–2.5h pure drive from Te Anau</p>
+            <p class="route" lang="en">Milford→Te Anau · SH94 · ~118–120 km · ~2–2.5h pure</p>
+            <p>游船后回蒂阿瑙 Te Anau 住一晚，不再连住两晚。峡湾内不自由营。</p>
+            <p class="note">蒂阿瑙 Te Anau 的 lodge 房车位常见最少两晚，旺季常常订满。这一晚仍待订。</p>
           </article>
 
           <article class="day" id="d-1231">
             <header class="day__head">
               <div class="day__id">
                 <p class="day__date">12/31</p>
-                <h3>达尼丁</h3>
+                <h3>达尼丁 <span class="place-en">Dunedin</span></h3>
               </div>
               <p class="stay stay--open">住宿待订</p>
             </header>
             <p class="route" lang="en">Te Anau→Dunedin · SH94 (Mossburn/Lumsden/Gore)→SH1 (Clinton/Balclutha/Milton)→Dunedin · ~290 km · 4.5–6h</p>
-            <p>下午优先企鹅和海豹，信天翁可选。达尼丁住一晚。</p>
+            <p>下午优先企鹅和海豹，信天翁可选。达尼丁 Dunedin 住一晚。</p>
           </article>
 
           <article class="day" id="d-0101">
             <header class="day__head">
               <div class="day__id">
                 <p class="day__date">1/1</p>
-                <h3>回基督城</h3>
+                <h3>回基督城 <span class="place-en">Christchurch</span></h3>
               </div>
               <p class="stay stay--open">住宿未定</p>
             </header>
             <p class="route" lang="en">Dunedin→CHC · SH1 N · ~362 km · 5.5–7h</p>
-            <p>上午动物可做可不做，然后回基督城。当晚住处未定。</p>
+            <p>上午动物可做可不做，然后回基督城 Christchurch。当晚住处未定。</p>
           </article>
 
           <article class="day" id="d-0102">
@@ -326,7 +346,7 @@
               <p class="stay">当天还车</p>
             </header>
             <p class="route" lang="en">return car→airport · airport area · short · —</p>
-            <p>还车，当天时间灵活。11:35 自 CHC 起飞。</p>
+            <p>还车，当天时间灵活。11:35 自基督城 Christchurch（CHC）起飞。</p>
           </article>
         </section>
 
@@ -336,25 +356,26 @@
             <div>
               <h3>已订</h3>
               <ul>
-                <li><span class="mono">12/23</span> 城市酒店</li>
+                <li><span class="mono">12/23</span> 基督城 Christchurch 城市酒店</li>
                 <li>Maui Ultima 2 Berth · <code>NKV020663-1</code></li>
                 <li><span class="mono">12/24</span> Tasman Holiday Parks Christchurch（Papanui）Powered Sealed · <code>IT16449138</code></li>
-                <li><span class="mono">12/26–27</span> 瓦纳卡营地</li>
+                <li><span class="mono">12/26–27</span> 瓦纳卡 Wanaka 营地</li>
               </ul>
             </div>
             <div>
               <h3 class="open">待订</h3>
               <ul>
-                <li><span class="mono">12/25</span> 特卡波</li>
-                <li><span class="mono">12/28</span> 皇后镇 / Arrowtown</li>
-                <li><span class="mono">12/29–30</span> 蒂阿瑙</li>
-                <li><span class="mono">12/31</span> 达尼丁</li>
-                <li><span class="mono">1/1</span> 基督城</li>
-                <li>凯库拉：观鲸或海钓</li>
+                <li><span class="mono">12/25</span> 特卡波 Tekapo</li>
+                <li><span class="mono">12/28</span> 皇后镇 Queenstown / 箭镇 Arrowtown</li>
+                <li><span class="mono">12/29</span> Cascade Creek，无电 unpowered</li>
+                <li><span class="mono">12/30</span> 蒂阿瑙 Te Anau，一晚</li>
+                <li><span class="mono">12/31</span> 达尼丁 Dunedin</li>
+                <li><span class="mono">1/1</span> 基督城 Christchurch</li>
+                <li>凯库拉 Kaikoura：观鲸或海钓</li>
                 <li>Skydive Wanaka</li>
                 <li>Skyline 缆车 + Luge（12/28 下午只做这项）</li>
-                <li>米尔福德游船</li>
-                <li>达尼丁动物（企鹅、海豹优先；信天翁可选）</li>
+                <li><span class="mono">12/30</span> 米尔福德峡湾 Milford Sound 游船</li>
+                <li>达尼丁 Dunedin 动物（企鹅、海豹优先；信天翁可选）</li>
               </ul>
             </div>
           </div>
@@ -363,7 +384,7 @@
         <section id="sec-drive">
           <h2>车程</h2>
           <p class="section-lead">车程是房车缓冲，不是轿车导航时间。12/23 当晚无车。下表路名和数字与 2026-10-27 的安排一致。</p>
-          <p class="legend">CHC 基督城 · Kaikoura 凯库拉 · Tekapo 特卡波 · Mt Cook 库克山 · Wanaka 瓦纳卡 · QT 皇后镇 · Te Anau 蒂阿瑙 · Milford 米尔福德 · Dunedin 达尼丁</p>
+          <p class="legend">基督城 Christchurch · 凯库拉 Kaikoura · 特卡波 Tekapo · 库克山 Mount Cook · 瓦纳卡 Wanaka · 皇后镇 Queenstown · Cascade Creek · 蒂阿瑙 Te Anau · 米尔福德峡湾 Milford Sound · 达尼丁 Dunedin</p>
           <p class="scroll-hint">窄屏可左右滑动。日期列会固定。</p>
           <div class="table-wrap" tabindex="0">
             <table>
@@ -445,27 +466,27 @@
                 </tr>
                 <tr>
                   <th class="mono when" scope="row">12/29</th>
-                  <td class="mono">QT→Te Anau</td>
-                  <td class="mono road">SH6 S (Frankton/Kingston/Devil’s Staircase)→SH97 (Five Rivers)→SH94 (Mossburn)→Te Anau</td>
-                  <td class="mono km">~170–171</td>
-                  <td class="mono time">2.5–3.5h</td>
-                  <td></td>
+                  <td class="mono">QT→Cascade Creek</td>
+                  <td class="mono road">SH6 S→SH97 (Five Rivers)→SH94 (Mossburn/Te Anau, then north)</td>
+                  <td class="mono km">~170–171, then 71 km N</td>
+                  <td class="mono time">2.5–3.5h to Te Anau</td>
+                  <td class="mono">DOC, unpowered</td>
                 </tr>
                 <tr>
                   <th class="mono when" scope="row">12/30 out</th>
-                  <td class="mono">Te Anau→Milford</td>
+                  <td class="mono">Cascade Creek→Milford</td>
                   <td class="mono road">SH94 Homer Tunnel</td>
-                  <td class="mono km">~118–120</td>
-                  <td class="mono time">pure 2–2.5h; with stops/tunnel 3.5–4.5h to dock</td>
-                  <td class="mono">no freecamp in fjord</td>
+                  <td class="mono km">rest of ~118–120</td>
+                  <td class="mono time">shorter than 2–2.5h from Te Anau</td>
+                  <td class="mono">cruise; site is 71 km N of Te Anau</td>
                 </tr>
                 <tr>
                   <th class="mono when" scope="row">12/30 back</th>
                   <td class="mono">Milford→Te Anau</td>
                   <td class="mono road">SH94</td>
-                  <td class="mono km">same</td>
+                  <td class="mono km">~118–120</td>
                   <td class="mono time">~2–2.5h pure</td>
-                  <td class="mono">day return stay Te Anau</td>
+                  <td class="mono">one night, not two</td>
                 </tr>
                 <tr>
                   <th class="mono when" scope="row">12/31</th>
@@ -503,7 +524,7 @@
             <p class="camp__when">12/23</p>
             <p class="camp__st">已订</p>
             <div class="camp__body">
-              <p>基督城市酒店。当晚无车。</p>
+              <p>基督城 Christchurch 城市酒店。当晚无车。</p>
             </div>
           </div>
           <div class="camp">
@@ -526,37 +547,45 @@
             <p class="camp__when">12/26–27</p>
             <p class="camp__st">已订</p>
             <div class="camp__body">
-              <p>瓦纳卡营地，两晚。</p>
+              <p>瓦纳卡 Wanaka 营地，两晚。</p>
             </div>
           </div>
           <div class="camp">
             <p class="camp__when">12/28</p>
             <p class="camp__st open">待订</p>
             <div class="camp__body">
-              <p>皇后镇一带。候选 Arrowtown Hampshire Mountain View Powered。</p>
+              <p>皇后镇 Queenstown 一带。候选箭镇 Arrowtown 的 Hampshire Mountain View Powered。</p>
               <p class="camp__note">此前约 NZ$75。</p>
             </div>
           </div>
           <div class="camp">
-            <p class="camp__when">12/29–30</p>
+            <p class="camp__when">12/29</p>
             <p class="camp__st open">待订</p>
             <div class="camp__body">
-              <p>蒂阿瑙。</p>
-              <p class="camp__note">Lodge 房车位常见最少两晚，旺季常常订满。峡湾内不自由营。</p>
+              <p>DOC Cascade Creek。米尔福德公路 Milford Road / <span class="mono">SH94</span>，无电 unpowered。</p>
+              <p class="camp__note">在蒂阿瑙 Te Anau 以北 71 km。峡湾内不自由营。</p>
+            </div>
+          </div>
+          <div class="camp">
+            <p class="camp__when">12/30</p>
+            <p class="camp__st open">待订</p>
+            <div class="camp__body">
+              <p>蒂阿瑙 Te Anau，只住一晚。</p>
+              <p class="camp__note">Lodge 房车位常见最少两晚，旺季常常订满。</p>
             </div>
           </div>
           <div class="camp">
             <p class="camp__when">12/31</p>
             <p class="camp__st open">待订</p>
             <div class="camp__body">
-              <p>达尼丁，一晚。</p>
+              <p>达尼丁 Dunedin，一晚。</p>
             </div>
           </div>
           <div class="camp">
             <p class="camp__when">1/1</p>
             <p class="camp__st open">未定</p>
             <div class="camp__body">
-              <p>基督城。</p>
+              <p>基督城 Christchurch。</p>
             </div>
           </div>
         </section>
@@ -564,5 +593,7 @@
         <p class="colophon">更新 <span class="mono">2026-10-27</span> · Asia/Shanghai</p>
       </main>
     </div>
+    <script src="vendor/leaflet/leaflet.js?v=20261027d"></script>
+    <script src="js/route-map.js?v=20261027d"></script>
   </body>
 </html>
