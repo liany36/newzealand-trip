@@ -431,8 +431,28 @@ body.itinerary h3 {
   text-align: right;
 }
 
-.stay--open {
+.stay--open,
+.stay--claimed,
+.claim {
   color: var(--accent-ink);
+}
+
+.day__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.08rem;
+  flex: 1 1 12rem;
+  min-width: 0;
+  margin-left: auto;
+}
+
+.day__meta .stay {
+  margin-top: 0;
+}
+
+.claim {
+  font-size: 0.95rem;
 }
 
 .route {
@@ -464,7 +484,8 @@ body.itinerary h3 {
   margin-top: 1.1rem;
 }
 
-.book h3.open {
+.book h3.open,
+.book h3.claimed {
   color: var(--accent-ink);
 }
 
@@ -547,7 +568,7 @@ tbody tr:hover td:first-child {
 
 .camp {
   display: grid;
-  grid-template-columns: 6.4rem 3.2rem minmax(0, 1fr);
+  grid-template-columns: 6.4rem 4.8rem minmax(0, 1fr);
   gap: 0.2rem 0.75rem;
   max-width: 40rem;
   padding: 0.72rem 0;
@@ -562,6 +583,7 @@ tbody tr:hover td:first-child {
 
 .camp__st {
   font-size: 0.82rem;
+  white-space: nowrap;
 }
 
 .camp__st.open {
@@ -619,8 +641,7 @@ body.itinerary h2,
     align-items: start;
   }
 
-  .book h3:first-child,
-  .book h3.open {
+  .book h3:first-child {
     margin-top: 0.9rem;
   }
 }
