@@ -442,13 +442,15 @@ body.itinerary h3 {
   flex-direction: column;
   align-items: flex-end;
   gap: 0.08rem;
-  flex: 1 1 12rem;
+  flex: 0 1 16rem;
+  width: min(16rem, 100%);
   min-width: 0;
   margin-left: auto;
 }
 
 .day__meta .stay {
   margin-top: 0;
+  max-width: 100%;
 }
 
 .claim {
