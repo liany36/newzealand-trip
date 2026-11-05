@@ -178,10 +178,10 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
       </div>
     </div>
     <div class="payback-strip danger" id="paybackStrip">
-      <div class="ps-title">预计回本周期 · 资方（设备出资）· 经营回本（已扣月度损耗）</div>
+      <div class="ps-title">预计回本周期 · 资方（设备出资）· 经营回本（未贴现分成现金）</div>
       <div class="ps-mains">
         <div class="ps-main" style="grid-column:1 / -1">
-          <div class="ps-k">经营回本 <span class="tip" tabindex="0" data-tip="未贴现。回本＝分成现金累计≥CapEx。当月经营净现金＝分成现金−当月设备损耗／增值（展示）。表格月数：后段正跌至残值归零，否则默认 120 月。回本不贴现；NPV／年化收益率才贴现。">!</span></div>
+          <div class="ps-k">经营回本 <span class="tip" tabindex="0" data-tip="未贴现。回本＝分成现金累计≥CapEx，不扣非付现损耗，也不含期末残值。经营净现金展示＝分成现金−当月损耗／增值。期末残值只作为处置现金计入 IRR／NPV／MOIC。表格月数：后段折损为正且 600 月内归零则出表至归零，否则默认 120 月。">!</span></div>
           <div class="ps-v" id="psOpsMain">—</div>
           <div class="ps-d" id="psOpsMainD"></div>
         </div>
@@ -252,7 +252,7 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
     <div class="share-rev-grid" id="partyShareGrid"></div>
     <div class="callout info" id="partyShareNote" style="margin-top:12px"></div>
     <h3 style="margin-top:16px">三方月度净现金流（完整序列）</h3>
-    <p class="muted" style="margin-top:0;font-size:12px">行数＝表格月数（后段正跌则至残值归零，否则默认 120 月）。金额均为未贴现名义现金。资方当月净现金＝分成现金−当月设备损耗／增值。</p>
+    <p class="muted" style="margin-top:0;font-size:12px">行数＝表格月数。金额均为未贴现名义现金。本表资方经营净现金＝分成现金−当月设备损耗／增值（非付现，只在本表扣除，不在末月把未归零残值一次摊光）。回本不扣这笔损耗；期末残值处置不在本表，而计入 IRR／NPV／MOIC。</p>
     <div style="overflow-x:auto;max-height:420px;overflow-y:auto"><table id="partyMonthTable"></table></div>
   </section>
 
@@ -262,7 +262,7 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
   </section>
 
   <section class="block">
-    <h2>核心回报栈 <span class="tip" tabindex="0" data-tip="「回本」仅指资方设备出资：未贴现分成现金累计≥CapEx。场地方／运营方只展示当月净现金转正与最高／最低。回本不贴现；NPV 按贴现率折现；年化收益率（IRR）即该现金流的年化收益。">!</span></h2>
+    <h2>核心回报栈 <span class="tip" tabindex="0" data-tip="「回本」仅指资方设备出资：未贴现分成现金累计≥CapEx，不扣损耗、不含残值。场地方／运营方只展示当月净现金转正与最高／最低。IRR／NPV／MOIC 用权益现金流（分成现金−利息与到期还本，末月加残值处置）。回本不贴现；贴现率只用于 NPV。">!</span></h2>
     <div class="metrics" id="coreMetrics"></div>
     <h3>盈亏平衡（含爬坡测算）</h3>
     <div class="metrics" id="beMetrics"></div>
@@ -278,7 +278,7 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
 
   <section class="block">
     <h2>敏感性（±20% · 对权益年化收益率（IRR）与资方回本）</h2>
-    <p class="muted" style="margin-top:0;font-size:12px">单变量扰动，其余保持基准。显示相对基准权益年化收益率（IRR）的百分点变化。</p>
+    <p class="muted" style="margin-top:0;font-size:12px">单变量扰动，其余保持基准。显示相对基准权益年化收益率（IRR）的百分点变化。残值后段折损变大或变小，会同时改变表格月数和期末残值；期末残值计入 IRR。</p>
     <div id="sensTable" style="overflow-x:auto"></div>
   </section>
 
@@ -289,11 +289,11 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
 
   <section class="block">
     <h2>逐年／逐月明细（三方现金流）</h2>
-    <p class="muted" style="margin-top:0;font-size:12px">含利用率爬坡与租金衰减。下列金额除「资方折现累计」外均为未贴现名义现金。收入、电费、运营成本（OpEx）为项目层；资方现金流为权益口径（分成现金−月度设备损耗／增值；若有杠杆已扣利息与还本）；场地方净现金＝方案 A 学校净／方案 B 场地净（均已扣电费）；运营方净现金＝运营分成净额；现金倍数 MOIC＝累计资方现金流／权益出资。</p>
+    <p class="muted" style="margin-top:0;font-size:12px">含利用率爬坡与租金衰减。下列金额除「资方折现累计」外均为未贴现名义现金。收入、电费、运营成本（OpEx）为项目层。资方现金流为权益口径：分成现金；有杠杆时已扣利息与到期一次还本；表格末月加上残值处置。月度损耗是非付现，单独成列，不从这笔现金流里再扣。场地方净现金＝方案 A 学校净／方案 B 场地净（均已扣电费）。运营方净现金＝运营分成净额。MOIC＝累计权益现金流／权益出资。</p>
     <h3>按年汇总</h3>
     <div style="overflow-x:auto"><table id="yearTable"></table></div>
     <h3 style="margin-top:14px">按月明细（表格期内）</h3>
-    <p class="muted" style="margin-top:0;font-size:12px">表格期内每一个月的收入、电费、运营成本、设备损耗／增值与三方净现金（未贴现）。与上方「三方月度净现金流」一致。</p>
+    <p class="muted" style="margin-top:0;font-size:12px">资方列与按年汇总相同（权益现金流，末月含残值处置）。上方「三方月度净现金流」的资方列是经营净现金（已扣非付现损耗、不含残值），两列不是同一口径。</p>
     <div style="overflow-x:auto;max-height:480px;overflow-y:auto"><table id="monthDetailTable"></table></div>
   </section>
 
@@ -305,6 +305,7 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
 
   <section class="block">
     <h2>乐观 / 基准 / 悲观</h2>
+    <p class="muted" style="margin-top:0;font-size:12px">相对当前基准：乐观为采购价 −10%、月租 +10%、利用率 +10 个百分点、租金后段折损减轻（正数变小；若当前是增值，则增值更大）；悲观为采购价 +10%、月租 −10%、利用率 −15 个百分点、租金后段折损加重（正数变大；若当前是增值，则增值变小）。正数＝折损，负数＝增值。</p>
     <div style="overflow-x:auto"><table id="scenTable"></table></div>
   </section>
 
@@ -321,23 +322,24 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
         <tbody>
           <tr><td>CapEx</td><td style="text-align:left">资本开支：买设备一次性投入 = 台数 × 采购价</td></tr>
           <tr><td>利用率爬坡</td><td style="text-align:left">从起步利用率线性升到目标利用率，反映上架/获客期</td></tr>
-          <tr><td>租金两段式</td><td style="text-align:left">前 N 年按前段每年变化%；自第 N+1 年起按后段每年变化%（正＝跌，负＝涨）。填写按年；计算时年率摊到月（复利：(1+r)^(1/12)−1）。</td></tr>
-          <tr><td>OpEx</td><td style="text-align:left">运维保修、带宽、保险、人员等；默认可由运营承担，或勾选先扣再分成</td></tr>
-          <tr><td>权益年化收益率（IRR）</td><td style="text-align:left">资方权益现金流的年化收益（扣利息与还本后）。定义上等于使该现金流净现值 NPV＝0 的折现率；主界面按年化收益理解即可。页面「贴现率」只用于计算给定折现率下的 NPV。</td></tr>
-          <tr><td>全资本年化收益率（IRR）</td><td style="text-align:left">无杠杆（100% 权益）资方现金流的年化收益。</td></tr>
-          <tr><td>MOIC</td><td style="text-align:left">现金倍数＝表格期内累计资方现金流／权益出资；看赚了几倍，不看时间价值</td></tr>
-          <tr><td>Cash-on-Cash</td><td style="text-align:left">某年经营现金 / 权益出资；看早期分红能力</td></tr>
-          <tr><td>NPV</td><td style="text-align:left">按所选贴现率，把表格期整条名义现金流折到今天后的净值。</td></tr>
-          <tr><td>盈亏平衡利用率/月租/采购价</td><td style="text-align:left">在含爬坡、租金两段与月度损耗的测算下，使 24/36 月累计刚好回本的临界值</td></tr>
+          <tr><td>租金两段式</td><td style="text-align:left">前 N 年按前段每年折损，之后按后段每年折损。正数＝折损（租金下降），负数＝增值（租金上涨）。两段规则相同，按复利摊到月。</td></tr>
+          <tr><td>OpEx</td><td style="text-align:left">运维保修、带宽、保险、人员等。默认由运营承担；勾选先扣再分成时，从收入中先扣，不足部分按分成比例由三方共担（净现金可为负）</td></tr>
+          <tr><td>权益年化收益率（IRR）</td><td style="text-align:left">资方权益现金流的年化收益。现金流＝分成现金−每月利息−到期一次还本，表格末月再加上残值处置；不扣非付现损耗。等于使该现金流 NPV＝0 的折现率。页面「贴现率」只用于给定折现率下的 NPV。多次变号时年化收益率可能不唯一。</td></tr>
+          <tr><td>全资本年化收益率（IRR）</td><td style="text-align:left">无杠杆（100% 权益）资方现金流的年化收益，末月同样计入残值处置。</td></tr>
+          <tr><td>MOIC</td><td style="text-align:left">现金倍数＝表格期内累计权益现金流（不含期初出资，含期末残值处置，已扣债务服务）／权益出资；不看时间价值</td></tr>
+          <tr><td>Cash-on-Cash</td><td style="text-align:left">某年经营现金（分成现金扣除当年利息与还本，不含期末残值处置）／权益出资</td></tr>
+          <tr><td>NPV</td><td style="text-align:left">按所选贴现率，把表格期权益现金流（含期末残值处置）折到今天后的净值。</td></tr>
+          <tr><td>盈亏平衡利用率/月租/采购价</td><td style="text-align:left">在含爬坡与租金两段的测算下，使 24/36 月分成现金累计刚好等于 CapEx 的临界值（与回本同一口径，不扣非付现损耗）</td></tr>
           <tr><td>方案 A 默认分成</td><td style="text-align:left">占收入：资方 61.6% · 学校 23% · 运营方 15.4%（合同 23%＋剩余内 8/2 的折算）</td></tr>
           <tr><td>固定 / 阶段性</td><td style="text-align:left">固定比例＝全周期同一分成；阶段性＝前 N 个月用前段比例、之后用后段比例（N＝阶段性前段月数）</td></tr>
-          <tr><td>表格月数</td><td style="text-align:left">由设备残值两段式决定：后段年跌幅&gt;0 时出表至残值归零；否则（后段不跌或继续涨）默认 120 月。不另设独立「测算年限」。</td></tr>
-          <tr><td>设备残值两段式 / PUE</td><td style="text-align:left">前 N 年按前段每年变化%（正＝涨，复利摊月）；自第 N+1 年起按后段每年变化%（正＝跌，按转折点残值线性年扣／12 摊月；负＝继续涨）。月变动＝上月末残值−本月末残值。PUE 放大 IT 用电得设施侧电度。</td></tr>
+          <tr><td>表格月数</td><td style="text-align:left">后段折损&gt;0 且归零不超过 600 月时，出表至残值归零；折损更慢、不折损或增值时默认 120 月，并保留剩余残值。不另设独立「测算年限」。</td></tr>
+          <tr><td>设备残值两段式 / PUE</td><td style="text-align:left">正数＝折损（残值下降），负数＝增值（残值上涨）。前 N 年按复利；后段折损按转折点残值线性扣到归零，后段增值按复利。月变动＝上月末残值−本月末残值。期末残值计入 IRR／NPV／MOIC。PUE 放大 IT 用电得设施侧电度；用电随利用率线性变化，未计空载功耗。</td></tr>
           <tr><td>阶段性前段月数</td><td style="text-align:left">仅阶段性分成：前 N 个月用前段比例，之后用后段比例；固定比例模式下不改变分成</td></tr>
           <tr><td>三方</td><td style="text-align:left">资方（出设备资金）· 场地方（出场地与电；方案 A 可称学校／场地方）· 运营方（负责运营、运维）</td></tr>
-          <tr><td>经营回本</td><td style="text-align:left">仅资方。未贴现。回本＝分成现金累计≥CapEx；当月经营净现金＝分成现金−月度设备损耗（展示）。场地方、运营方不称回本。表格月数见上。</td></tr>
-          <tr><td>场地方／运营方当月净现金</td><td style="text-align:left">不称回本。在当前分成与爬坡期内：首次当月净现金＞0 的月份、各月当月净现金最高与最低。</td></tr>
-          <tr><td>何时贴现</td><td style="text-align:left">回本与经营「当月／累计净现金」＝未贴现名义金额。贴现＝把未来名义现金流按年化贴现率折成今天的钱；只用于 NPV。年化收益率（IRR）是该现金流的年化收益。</td></tr>
+          <tr><td>经营回本</td><td style="text-align:left">仅资方。未贴现。回本＝分成现金累计≥CapEx；不扣月度损耗，不含期末残值。经营净现金展示＝分成现金−月度损耗。场地方、运营方不称回本。</td></tr>
+          <tr><td>场地方／运营方当月净现金</td><td style="text-align:left">不称回本。只在表格月数内：首次当月净现金＞0 的月份，以及各月最高与最低。</td></tr>
+          <tr><td>贷款</td><td style="text-align:left">按月付息、到期一次还本（非等额本息）。利息只计到还本月；本金在贷款期限与表格月数的较早月份一次偿还，之后不再计息。</td></tr>
+          <tr><td>何时贴现</td><td style="text-align:left">回本与经营净现金不贴现。贴现率只用于 NPV。IRR 是权益现金流（含期末残值处置）的年化收益。</td></tr>
                     <tr><td>本页「测算器」</td><td style="text-align:left">投资测算页：按参数计算资方回本、IRR、NPV 等指标</td></tr>
         </tbody>
       </table>
@@ -353,23 +355,23 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
     util: "目标利用率 = 爬坡结束后实际可计费出租量 ÷ 满负荷容量。爬坡期内按线性从起步利用率升到此值。",
     utilStart: "起步利用率：交付后首月的利用率。默认 40%。",
     rampM: "爬坡月数：从起步利用率线性过渡到目标利用率。默认 6。",
-    rentRiseY: "租金前段年数 N：前 N 年按前段每年变化%；自第 N+1 年起按后段。N＝0 表示从首年即用后段。按年填写。",
-    rentRisePct: "租金前段每年变化%。正＝每年涨；负＝每年跌。计算时摊到月：月因子＝(1+年率)^(1/12)−1。",
-    rentFallPct: "租金后段每年变化%。正＝每年跌；负＝每年涨（增值）。两段搭配可避免无限上涨。默认 10%/年。计算时摊到月。",
+    rentRiseY: "租金前段年数 N：前 N 年用前段折损率，从第 N+1 年起用后段折损率。N＝0 表示一上来就用后段。正数＝折损，负数＝增值。",
+    rentRisePct: "租金前段每年折损。正数＝折损，租金每年下降；负数＝增值，租金每年上涨。例如 10 表示每年降 10%，-5 表示每年涨 5%。按复利摊到月。",
+    rentFallPct: "租金后段每年折损。和前段同一规则：正数＝折损（下降），负数＝增值（上涨）。默认 10，即后段每年降 10%。",
     internal: "仅方案 A（校园）。对内需求占比。方案 B（企业）无对内折扣。",
-    disc: "仅方案 A（校园）。对内折扣：结算价 = 挂牌月租 ×（折扣÷10）。方案 B 无此字段。",
+    disc: "仅方案 A（校园）。按「折」填写，范围 0–10。5.5 表示 5.5 折，1 表示 1 折。结算价 = 挂牌月租 ×（折扣÷10）。方案 B 无此字段。",
     kw: "整机 IT 功耗（kW）。各方案可不同。",
     pue: "PUE = 机房总用电 ÷ IT 用电。校园与发电企业场地通常不同，按方案分别填写。",
-    wearRiseY: "设备残值前段年数 N：前 N 年按前段每年变化%；自第 N+1 年起按后段。N＝0 表示从首年即用后段。按年填写。",
-    wearRisePct: "设备残值前段每年变化%。正＝每年涨（增值）；负＝每年跌。计算时摊到月：月因子＝(1+年率)^(1/12)−1。",
-    wearFallPct: "设备残值后段每年变化%。正＝每年按转折点残值的该百分比线性扣减（÷12 摊到月），直至归零；负＝后段继续涨（增值）。表格月数：后段为正跌则出表至归零，否则默认 120 月。默认 5%/年（约 20 年归零）。",
+    wearRiseY: "残值前段年数 N：前 N 年用前段折损率，从第 N+1 年起用后段折损率。N＝0 表示一上来就用后段。正数＝折损，负数＝增值。",
+    wearRisePct: "残值前段每年折损。正数＝折损，残值每年下降；负数＝增值，残值每年上涨。例如 5 表示每年掉 5%，-5 表示每年涨 5%。按复利摊到月。",
+    wearFallPct: "残值后段每年折损。正数＝折损，按转折点残值线性扣到归零；负数＝增值，按复利上涨。默认 5，约 20 年归零。归零超过 600 月时表格仍为 120 月，并保留剩余残值。",
     stage: "阶段性前段月数：前 N 个月按前段分成；之后按后段。",
-    capex: "CapEx = 台数 × 采购单价。资方回本＝未贴现分成现金累计≥CapEx；月损耗计入展示与表格。",
-    roi: "简单 ROI。仅资方。",
-    irr: "年化收益率（IRR）：资方权益现金流的年化收益。仅资方。",
-    npv: "净现值 NPV＝按页面贴现率把表格期资方现金流折到今天。与年化收益率成对。仅资方。回本不贴现。",
-    moic: "MOIC。仅资方。",
-    coc: "Cash-on-Cash。仅资方。",
+    capex: "CapEx = 台数 × 采购单价。资方回本＝未贴现分成现金累计≥CapEx。月损耗只进入经营净现金展示；期末残值计入 IRR／NPV／MOIC。",
+    roi: "简单 ROI＝（累计权益现金流−权益出资）／权益出资，再除以表格年数得到年化。含期末残值，不扣非付现损耗。仅资方。",
+    irr: "年化收益率（IRR）：权益现金流的年化收益。现金流＝分成现金−利息与到期还本，末月加残值处置。不扣非付现损耗。仅资方。",
+    npv: "净现值 NPV＝按页面贴现率把上述权益现金流折到今天。仅资方。回本不贴现、不含残值。",
+    moic: "MOIC＝累计权益现金流（含期末残值、已扣债务，不含期初出资）／权益出资。仅资方。",
+    coc: "Cash-on-Cash＝当年经营现金／权益出资。不含期末残值处置。仅资方。",
     discount: "年化贴现率：把未来名义现金流折成今天的钱。只用于 NPV；回本与经营净现金表不贴现。各方案可分别设定。",
     school: "学校占项目收入的比例。",
     invA: "资方占项目收入的比例。",
@@ -385,18 +387,19 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
     opexIns: "保险（万元/月）。",
     opexStaff: "人员（万元/月）。",
     opexOther: "其他固定 OpEx（万元/月）。",
-    lev: "债务占 CapEx 比例。",
-    debtRate: "贷款年利率。",
-    debtTenor: "贷款期限（月）。",
-    be: "盈亏平衡：使资方累计经营现金在第 24/36 月末等于 CapEx 的临界值。"
+    lev: "债务占 CapEx 比例。按月付息、到期一次还本（非等额本息）。",
+    debtRate: "贷款年利率。未还本期间每月利息＝贷款余额×年利率／12；本金到期一次偿还，还清后不再计息。",
+    debtTenor: "贷款期限（月）。本金在该期限与表格月数的较早月份一次偿还。",
+    be: "盈亏平衡：使资方 24/36 月分成现金累计等于 CapEx 的临界值。与回本同一口径，不扣非付现损耗。"
   };
 
   const BASE_SHARED = {
     units:16, purchase:660, rent:14.25, util:75,
     utilStart:40, rampMonths:6,
-    rentRiseYears:0, rentRisePct:0, rentFallPct:10, /* 年衰减 10%；计算时摊月 */
+    rentRiseYears:0, rentRisePct:0, rentFallPct:10, /* 正数＝折损。后段每年折损 10% */
     kwPerUnit:10.2, pue:1.3, hoursMonth:730,
-    wearRiseYears:0, wearRisePct:0, wearFallPct:5, /* 年损耗 5% 线性归零约 20 年；计算时摊月 */
+    wearRiseYears:0, wearRisePct:0, wearFallPct:5, /* 正数＝折损。后段每年折损 5%，约 20 年归零 */
+    _positiveIsDepreciation:true,
     _annualRates:true,
     discount:8,
     opexMaint:8, opexBw:3, opexIns:2, opexStaff:6, opexOther:2, opexBeforeShare:false,
@@ -477,7 +480,7 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
   }
 
   function fmtMonths(v){ if(!Number.isFinite(v)||v<=0||v>10000)return "—"; return Math.round(v)+" 月（≈"+(v/12).toFixed(1)+" 年）"; }
-  function fmtPbShort(v){ if(!Number.isFinite(v)||v<=0||v>10000)return "未回本（≤600月）"; return Math.round(v)+" 月（≈"+(v/12).toFixed(1)+" 年）"; }
+  function fmtPbShort(v){ if(v<0) return "设备投资需大于 0"; if(!Number.isFinite(v)||v<=0||v>10000)return "未回本（≤600月）"; return Math.round(v)+" 月（≈"+(v/12).toFixed(1)+" 年）"; }
   /** 期内已回本：外推栏不得再重复同一月数假装另一口径 */
   function fmtPbOutside(recoveredWithin, pbWithin, pbExtra){
     if(recoveredWithin && Number.isFinite(pbWithin) && pbWithin>0 && pbWithin<=10000)
@@ -494,6 +497,7 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
     return "—";
   }
   function fmtPbMain(recoveredWithin, pbWithin, pbExtra){
+    if(pbWithin<0) return "设备投资需大于 0";
     if(recoveredWithin && Number.isFinite(pbWithin) && pbWithin>0 && pbWithin<=10000)
       return Math.round(pbWithin)+" 月（≈"+(pbWithin/12).toFixed(1)+" 年）";
     if(Number.isFinite(pbExtra) && pbExtra>0 && pbExtra<=10000)
@@ -503,9 +507,9 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
   function paybackNote(pbWithin, recovered, T, wearCfgObj, capex){
     var cfg=wearCfgObj||{riseYears:0,risePct:0,fallPct:5};
     var horiz=horizonPhrase(cfg, T);
-    var line1="口径：残值两段式（按年填写，年内摊月）——前 "+Number(cfg.riseYears).toFixed(2)+" 年每年 "+Number(cfg.risePct).toFixed(2)+"%，之后每年按转折点残值的 "+Number(cfg.fallPct).toFixed(2)+"%"+(cfg.fallPct>0?"线性扣减至归零":"（≤0 为不跌／继续涨）")+"。月变动＝上月末残值−本月末残值，计入资方经营净现金展示。回本＝未贴现分成现金累计≥CapEx（月变动不从回本累计再扣，避免与期初设备投资双计）。"+horiz+"。设备投资 "+fmtWan(capex)+"。";
-    var line2=recovered?("本参数下第 "+Math.round(pbWithin)+" 月回本。"):"本参数下在表格期内未回本。";
-    var line3="贴现：回本与经营表不贴现；NPV／年化收益率（IRR）对表格期名义现金（分成现金）按贴现率折现。年化收益率（IRR）即该现金流的年化收益。";
+    var line1="口径：残值两段式（按年填写，年内摊月）——前 "+Number(cfg.riseYears).toFixed(2)+" 年每年"+deprPhrase(cfg.risePct)+"，之后每年"+deprPhrase(cfg.fallPct)+"。正数＝折损，负数＝增值。"+(cfg.fallPct>0?"后段按线性折损直到归零。":"后段不归零。")+"。月变动＝上月末残值−本月末残值，只计入经营净现金展示（非付现；未归零的残值不会在末月一次摊光）。回本＝未贴现分成现金累计≥CapEx（不扣月变动，不含期末残值）。"+horiz+"。设备投资 "+fmtWan(capex)+"。";
+    var line2=!(capex>0)?"设备投资需大于 0。":(recovered?("本参数下第 "+Math.round(pbWithin)+" 月回本。"):"本参数下在表格期内未回本。");
+    var line3="IRR／NPV／MOIC 使用权益现金流：分成现金，扣除每月利息与到期一次还本，并在表格末月加上期末残值（视为处置）。月度损耗不进入这三条。回本与经营表不贴现；贴现率只用于 NPV。";
     return line1+line2+line3;
   }
   function fmtFirstPos(v){
@@ -589,7 +593,7 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
     if(scheme==="A"){
       html+="<h3 style=\"margin-top:14px\">校园对内</h3><div class=\"grid\">";
       html+=field("internalShare","对内需求占比（%）","internal","1",S.internalShare);
-      html+=field("internalDiscount","对内折扣","disc","0.1",S.internalDiscount);
+      html+=field("internalDiscount","对内折扣（折，0–10）","disc","0.1",S.internalDiscount,{min:0,max:10});
       html+="</div>";
     }
     html+="<h3 style=\"margin-top:14px\">功耗 · 电价 · PUE</h3><div class=\"grid\">";
@@ -599,14 +603,15 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
     if(scheme==="A") html+=field("elecA","电价（元/度）","elecA","0.01",S.elecA);
     else html+=field("elecB","电价（元/度）","elecB","0.01",S.elecB);
     html+="</div>";
-    html+='<p class="muted" style="margin:8px 0 0;font-size:12.5px">月电费＝IT功耗×PUE×小时×利用率×台数×电价÷10000。A：校方承担电费；B：从场地分成扣电。</p>';
+    html+='<p class="muted" style="margin:8px 0 0;font-size:12.5px">月电费＝IT功耗×PUE×小时×利用率×台数×电价÷10000。用电随利用率线性变化，未计空载功耗。A：校方承担电费；B：从场地分成扣电。</p>';
     html+="<h3 style=\"margin-top:14px\">爬坡 · 租金两段</h3><div class=\"grid\">";
     html+=field("utilStart","起步利用率（%）","utilStart","1",S.utilStart);
     html+=field("rampMonths","爬坡月数","rampM","1",S.rampMonths);
     html+=field("rentRiseYears","租金前段年数 N","rentRiseY","1",S.rentRiseYears,{min:0,max:40});
-    html+=field("rentRisePct","租金前段每年变化（%）","rentRisePct","0.1",S.rentRisePct,{min:-50,max:50});
-    html+=field("rentFallPct","租金后段每年变化（%）","rentFallPct","0.1",S.rentFallPct,{min:-50,max:50});
+    html+=field("rentRisePct","租金前段每年折损（%）","rentRisePct","0.1",S.rentRisePct,{min:-50,max:50});
+    html+=field("rentFallPct","租金后段每年折损（%）","rentFallPct","0.1",S.rentFallPct,{min:-50,max:50});
     html+="</div>";
+    html+='<p class="muted" style="margin:8px 0 0;font-size:12.5px">正数＝折损（租金每年下降），负数＝增值（租金每年上涨）。前段和后段同一规则。例如 10 ＝每年降 10%，-5 ＝每年涨 5%。</p>';
     html+="<h3 style=\"margin-top:14px\">运营成本 OpEx</h3><div class=\"grid\">";
     html+=field("opexMaint","运维/保修（万/月）","opexMaint","0.1",S.opexMaint);
     html+=field("opexBw","带宽/专线（万/月）","opexBw","0.1",S.opexBw);
@@ -614,14 +619,15 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
     html+=field("opexStaff","人员（万/月）","opexStaff","0.1",S.opexStaff);
     html+=field("opexOther","其他固定（万/月）","opexOther","0.1",S.opexOther);
     html+="</div>";
-    html+='<div class="field check" style="padding-top:10px"><input type="checkbox" id="opexBeforeShare" '+(S.opexBeforeShare?"checked":"")+' /><label for="opexBeforeShare">项目 OpEx 从收入中先扣再分成</label></div>';
+    html+='<div class="field check" style="padding-top:10px"><input type="checkbox" id="opexBeforeShare" '+(S.opexBeforeShare?"checked":"")+' /><label for="opexBeforeShare">项目 OpEx 从收入中先扣再分成（不足时按比例共担，净现金可为负）</label></div>';
     html+='<div class="callout info" id="opexNote" style="margin-top:8px"></div>';
     html+="<h3 style=\"margin-top:14px\">设备残值两段 · 贴现 · 可选杠杆</h3>";
     html+='<div class="grid3">';
     html+=field("wearRiseYears","残值前段年数 N","wearRiseY","1",S.wearRiseYears,{min:0,max:40});
-    html+=field("wearRisePct","残值前段每年变化（%）","wearRisePct","0.1",S.wearRisePct,{min:-50,max:50});
-    html+=field("wearFallPct","残值后段每年变化（%）","wearFallPct","0.1",S.wearFallPct,{min:-50,max:50});
+    html+=field("wearRisePct","残值前段每年折损（%）","wearRisePct","0.1",S.wearRisePct,{min:-50,max:50});
+    html+=field("wearFallPct","残值后段每年折损（%）","wearFallPct","0.1",S.wearFallPct,{min:-50,max:50});
     html+="</div>";
+    html+='<p class="muted" style="margin:8px 0 0;font-size:12.5px">正数＝折损（残值每年下降），负数＝增值（残值每年上涨）。前段按复利。后段正数按线性折损直到归零，负数按复利增值。</p>';
     html+='<div class="grid3">';
     html+='<div class="field"><label>贴现率 / 折现率（年%） '+tipHtml("discount")+'</label><input id="discount" type="number" step="0.1" min="0" max="100" value="'+S.discount+'" /><div class="chips" style="margin-top:6px" id="discChips"><span class="chip" data-v="4">4%</span><span class="chip" data-v="5">5%</span><span class="chip" data-v="6">6%</span><span class="chip" data-v="7">7%</span><span class="chip" data-v="8">8%</span><span class="chip" data-v="10">10%</span><span class="chip" data-v="12">12%</span></div></div>';
     html+=field("leverage","贷款比例 / 杠杆（% CapEx）","lev","1",S.leverage,{min:0,max:90});
@@ -630,6 +636,7 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
     html+='<div class="grid3">';
     html+=field("debtTenor","贷款期限（月）","debtTenor","1",S.debtTenor,{min:1});
     html+="</div>";
+    html+='<p class="muted" style="margin:8px 0 0;font-size:12.5px">贷款按月付息、到期一次还本（非等额本息）。利息只计到还本月（含当月）；本金在贷款期限与表格月数的较早月份一次偿还，之后不再计息。</p>';
     html+='<p class="summary-line" id="commonSummary" style="margin-top:10px"></p>';
     el.innerHTML=html;
     bindInputs(el);
@@ -695,7 +702,7 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
     return 100*(Math.pow(1+a, 1/12)-1);
   }
   function annualFallToMonthlyCompoundPct(annualPct){
-    /* 正＝每年跌：使 (1-mf)^12 = (1-af)；负＝每年涨 */
+    /* 正＝折损：使 (1-mf)^12 = (1-af)；负＝增值 */
     var a=annualPct/100;
     if(!Number.isFinite(a)) return 0;
     if(a>=1) return 100;
@@ -716,10 +723,11 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
     if(m<=1) return 1;
     var f=1;
     var N=Math.max(0, Math.round(cfg.riseYears*12));
-    var riseM=annualToMonthlyCompoundPct(cfg.risePct)/100;
+    /* 前段、后段同一规则：正数＝折损，负数＝增值 */
+    var riseM=annualFallToMonthlyCompoundPct(cfg.risePct)/100;
     var fallM=annualFallToMonthlyCompoundPct(cfg.fallPct)/100;
     for(var i=1;i<m;i++){
-      if(i<=N) f*=(1+riseM);
+      if(i<=N) f*=(1-riseM);
       else f*=(1-fallM);
     }
     return Math.max(0,f);
@@ -755,8 +763,8 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
     const rampM=Math.max(0,Math.round(n(S.rampMonths,6)));
     const rCfg=rentCfg(S);
     const intPct=scheme==="A"?clamp(n(S.internalShare,0),0,100)/100:0;
-    const zhe=scheme==="A"?Math.max(0,n(S.internalDiscount,5.5)):10;
-    const disc=zhe>1?zhe/10:zhe;
+    const zhe=scheme==="A"?clamp(n(S.internalDiscount,5.5),0,10):10;
+    const disc=zhe/10;
     const intFactor=(1-intPct)+disc*intPct;
     const u=utilAt(m,startU,targetU,rampM);
     const rf=rentFactorAt(m,rCfg);
@@ -770,7 +778,8 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
     const elec=(kwh*ePrice)/10000;
     const opex=Math.max(0,n(S.opexMaint,0))+Math.max(0,n(S.opexBw,0))+Math.max(0,n(S.opexIns,0))+Math.max(0,n(S.opexStaff,0))+Math.max(0,n(S.opexOther,0));
     const before=!!S.opexBeforeShare;
-    const base=before?Math.max(0,gross-opex):gross;
+    /* 先扣再分成：可分配额可以为负，缺口按分成比例由三方共担 */
+    const base=before?(gross-opex):gross;
     const fr=shareFracs(S,scheme,shareMode,m);
     const schoolCash=base*fr.school;
     const invCash=base*fr.invOfGross;
@@ -787,25 +796,66 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
     let v=0; for(let m=0;m<cfs.length;m++) v+=cfs[m]/Math.pow(1+rm,m); return v;
   }
   function irrMonthly(cfs){
-    let hasPos=false,hasNeg=false;
-    for(let i=0;i<cfs.length;i++){ if(cfs[i]>0)hasPos=true; if(cfs[i]<0)hasNeg=true; }
-    if(!hasPos||!hasNeg) return NaN;
-    function f(r){ let v=0; for(let m=0;m<cfs.length;m++) v+=cfs[m]/Math.pow(1+r,m); return v; }
-    let r=0.01;
-    for(let i=0;i<80;i++){
-      let v=0,d=0;
-      for(let m=0;m<cfs.length;m++){ const p=Math.pow(1+r,m); v+=cfs[m]/p; if(m>0)d-=m*cfs[m]/(p*(1+r)); }
-      if(Math.abs(d)<1e-14)break;
-      const nr=r-v/d; if(!Number.isFinite(nr)||nr<=-0.999)break;
-      if(Math.abs(nr-r)<1e-12){r=nr;break;} r=nr;
+    let hasPos=false,hasNeg=false, scale=0;
+    for(let i=0;i<cfs.length;i++){
+      if(cfs[i]>0)hasPos=true;
+      if(cfs[i]<0)hasNeg=true;
+      scale+=Math.abs(cfs[i]);
     }
-    if(Number.isFinite(r)&&Math.abs(f(r))<1e-4) return r;
-    let lo=-0.99,hi=5,flo=f(lo),fhi=f(hi);
-    if(flo*fhi>0){ for(let k=0;k<20&&flo*fhi>0;k++){hi*=1.5;fhi=f(hi);} if(flo*fhi>0)return NaN; }
-    for(let i=0;i<200;i++){ const mid=(lo+hi)/2, fm=f(mid); if(Math.abs(fm)<1e-10)return mid; if(flo*fm<=0){hi=mid;fhi=fm;} else {lo=mid;flo=fm;} }
-    return (lo+hi)/2;
+    if(!hasPos||!hasNeg||!(scale>0)) return NaN;
+    const tol=Math.max(1e-4, scale*1e-9);
+    function f(r){
+      if(!(r>-1)) return NaN;
+      let v=0;
+      for(let m=0;m<cfs.length;m++){
+        const p=Math.pow(1+r,m);
+        if(!Number.isFinite(p)||p===0) return NaN;
+        v+=cfs[m]/p;
+      }
+      return Number.isFinite(v)?v:NaN;
+    }
+    /* 牛顿法限制在月利率 -80%～+200%，避免长序列在极端折现率下溢出出假根 */
+    let r=0.01;
+    for(let i=0;i<50;i++){
+      let v=0,d=0, bad=false;
+      for(let m=0;m<cfs.length;m++){
+        const p=Math.pow(1+r,m);
+        if(!Number.isFinite(p)||p===0){ bad=true; break; }
+        v+=cfs[m]/p;
+        if(m>0) d-=m*cfs[m]/(p*(1+r));
+      }
+      if(bad||!Number.isFinite(v)||!Number.isFinite(d)||Math.abs(d)<1e-14) break;
+      let nr=r-v/d;
+      if(!Number.isFinite(nr)) break;
+      nr=Math.min(2, Math.max(-0.8, nr));
+      if(Math.abs(nr-r)<1e-12){ r=nr; break; }
+      r=nr;
+    }
+    const fv=f(r);
+    if(Number.isFinite(fv)&&Math.abs(fv)<=tol) return r;
+    /* 有经济意义的区间：月利率 -50%～+100%。区间内无变号则视为无唯一解 */
+    let lo=-0.5, hi=1, flo=f(lo), fhi=f(hi);
+    if(!Number.isFinite(flo)||!Number.isFinite(fhi)||flo*fhi>0) return NaN;
+    for(let i=0;i<80;i++){
+      const mid=(lo+hi)/2, fm=f(mid);
+      if(!Number.isFinite(fm)) return NaN;
+      if(Math.abs(fm)<=tol) return mid;
+      if(flo*fm<=0){ hi=mid; fhi=fm; }
+      else { lo=mid; flo=fm; }
+    }
+    const mid=(lo+hi)/2, fm=f(mid);
+    return Number.isFinite(fm)&&Math.abs(fm)<=tol*10 ? mid : NaN;
   }
   function irrAnnual(cfs){ const rm=irrMonthly(cfs); return Number.isFinite(rm)?Math.pow(1+rm,12)-1:NaN; }
+  function signChanges(cfs){
+    var prev=0, s=0;
+    for(var i=0;i<cfs.length;i++){
+      if(!cfs[i]) continue;
+      if(prev!==0 && ((cfs[i]>0)!==(prev>0))) s++;
+      prev=cfs[i];
+    }
+    return s;
+  }
 
   function computePartyStats(S, scheme, shareMode){
     const U=Math.max(0,n(S.units,16));
@@ -823,7 +873,7 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
     const pathT=Math.max(T, rampEnd, 24);
     for(let m=1;m<=pathT;m++){
       const row=monthPath(S,scheme,shareMode,m);
-      const wear=(m<=T)?monthlyWear(capex,wCfg,m,T):0;
+      const wear=(m<=T)?monthlyWear(capex,wCfg,m):0;
       const invNet=row.invCash-wear;
       const siteNet=scheme==="A"?row.schoolNet:row.siteNet;
       const siteGross=scheme==="A"?row.schoolCash:row.siteGross;
@@ -831,33 +881,28 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
         cumInv+=invNet; cumWear+=wear; cumSite+=siteNet; cumOps+=row.opsNet;
         cumElec+=row.elec; cumSiteGross+=siteGross; cumOpsGross+=row.opsCashGross;
         if(!before) cumOpexPaid+=row.opex;
+        if(siteFirstPos===Infinity && siteNet>0) siteFirstPos=m;
+        if(opsFirstPos===Infinity && row.opsNet>0) opsFirstPos=m;
+        if(siteNet>siteMax) siteMax=siteNet;
+        if(siteNet<siteMin) siteMin=siteNet;
+        if(row.opsNet>opsMax) opsMax=row.opsNet;
+        if(row.opsNet<opsMin) opsMin=row.opsNet;
       }
-      if(siteFirstPos===Infinity && siteNet>0) siteFirstPos=m;
-      if(opsFirstPos===Infinity && row.opsNet>0) opsFirstPos=m;
-      if(siteNet>siteMax) siteMax=siteNet;
-      if(siteNet<siteMin) siteMin=siteNet;
-      if(row.opsNet>opsMax) opsMax=row.opsNet;
-      if(row.opsNet<opsMin) opsMin=row.opsNet;
       if(m===12) m12=row; if(m===24) m24=row; if(m===rampEnd) mStabRow=row;
     }
     if(!mStabRow) mStabRow=monthPath(S,scheme,shareMode,rampEnd);
     if(!m12) m12=monthPath(S,scheme,shareMode,Math.min(12,pathT));
     if(!m24) m24=monthPath(S,scheme,shareMode,Math.min(24,pathT));
-    function firstPosExtra(startM, pick){
-      if(startM!==Infinity) return startM;
-      for(let m=pathT+1;m<=600;m++){ if(pick(monthPath(S,scheme,shareMode,m))>0) return m; }
-      return Infinity;
-    }
-    siteFirstPos=firstPosExtra(siteFirstPos, function(r){return scheme==="A"?r.schoolNet:r.siteNet;});
-    opsFirstPos=firstPosExtra(opsFirstPos, function(r){return r.opsNet;});
     let cumCash=0; pbInvW=Infinity;
-    for(let m=1;m<=T;m++){
-      cumCash+=monthPath(S,scheme,shareMode,m).invCash;
-      if(pbInvW===Infinity && cumCash>=capex) pbInvW=m;
-    }
+    if(capex>0){
+      for(let m=1;m<=T;m++){
+        cumCash+=monthPath(S,scheme,shareMode,m).invCash;
+        if(pbInvW===Infinity && cumCash>=capex) pbInvW=m;
+      }
+    } else pbInvW=-1;
     return {
       capex:capex, T:T, before:before, pathT:pathT, cumWear:cumWear, wearCfg:wCfg,
-      inv:{cumAtT:cumInv, cumCashAtT:cumCash, pbWithin:pbInvW, payback:pbInvW, recoveredWithin:pbInvW!==Infinity, basis:capex},
+      inv:{cumAtT:cumInv, cumCashAtT:cumCash, pbWithin:pbInvW, payback:pbInvW, recoveredWithin:pbInvW>0 && pbInvW!==Infinity, basis:capex},
       site:{cumAtT:cumSite, cumGrossAtT:cumSiteGross, cumElecAtT:cumElec, firstPos:siteFirstPos, maxM:siteMax, minM:siteMin,
         basisLabel:scheme==="A"?"当月净现金＝学校分成收入−电费（未贴现）":"当月净现金＝场地分成收入−电费（未贴现）"},
       ops:{cumAtT:cumOps, cumGrossAtT:cumOpsGross, cumOpexAtT:cumOpexPaid, firstPos:opsFirstPos, maxM:opsMax, minM:opsMin,
@@ -868,7 +913,7 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
 
 
 
-  var TABLE_DEFAULT_MONTHS=120; /* 残值不归零（后段不跌／继续涨）时表格默认月数 */
+  var TABLE_DEFAULT_MONTHS=120; /* 后段不折损或增值时表格默认月数 */
   var TABLE_MAX_MONTHS=600; /* 归零路径过长时的硬上限；超过则改按默认 120 月出表 */
 
   function wearCfg(S){
@@ -879,17 +924,17 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
     };
   }
   /**
-   * 残值两段式（按年填写，年内摊月）
-   * 前 N 年：年复利 rise%，月因子＝(1+rise%/100)^(1/12)−1
-   * 自第 N+1 年：若 fall%>0，按转折点残值线性每年扣 fall%（÷12 摊月），至 0；若 fall%≤0，则按 |fall| 年复利继续涨（或持平）
-   * 月变动 = Residual(m-1) − Residual(m)（正＝损耗，负＝增值）
-   * 表格月数：fall%>0 且归零月≤TABLE_MAX → 至归零；否则默认 TABLE_DEFAULT
+   * 残值两段式。正数＝折损，负数＝增值。
+   * 前 N 年：复利。正折损时残值下降，负增值时残值上涨。
+   * 自第 N+1 年：折损>0 时按转折点残值线性扣到 0；折损<0 时按复利增值。
+   * 月变动 = Residual(m-1) - Residual(m)（正＝折损，负＝增值）
+   * 表格月数：后段折损>0 且归零月不超过 TABLE_MAX 则至归零；否则默认 TABLE_DEFAULT
    */
   function residualAt(capex, cfg, m){
     if(!(capex>0)) return 0;
     if(m<=0) return capex;
     var N=Math.max(0, Math.round(cfg.riseYears*12));
-    var riseM=annualToMonthlyCompoundPct(cfg.risePct)/100;
+    var riseM=annualToMonthlyCompoundPct(-cfg.risePct)/100; /* 正折损 → 负的月复利 */
     var fallAnn=cfg.fallPct/100;
     var rTurn = N<=0 ? capex : capex*Math.pow(1+riseM, Math.min(m, N));
     if(m<=N) return rTurn;
@@ -902,10 +947,9 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
     var growM=annualToMonthlyCompoundPct(-cfg.fallPct)/100; /* fall%<0 → 增值 */
     return rTurn*Math.pow(1+growM, k);
   }
-  function monthlyWear(capex, cfg, m, T){
+  function monthlyWear(capex, cfg, m){
     var prev=residualAt(capex, cfg, m-1);
     var cur=residualAt(capex, cfg, m);
-    if(cfg.fallPct>0 && T!=null && m===T && cur>0) return Math.max(0, prev);
     return prev-cur;
   }
   function lifeMonths(cfg){
@@ -924,7 +968,7 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
       var fallMonths=Math.max(1, Math.ceil(100/Math.max(fallM,1e-12) - 1e-12));
       var t0=Math.max(0, Math.round(cfg.riseYears*12)) + fallMonths;
       if(t0<=TABLE_MAX_MONTHS && T>=t0-1) return "表格至残值归零（"+T+" 月）";
-      return "后段年跌 "+Number(cfg.fallPct).toFixed(2)+"%，表格 "+T+" 月";
+      return "后段折损 "+Number(cfg.fallPct).toFixed(2)+"%，表格 "+T+" 月";
     }
     return "残值不归零，表格默认 "+T+" 月";
   }
@@ -935,13 +979,19 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
     return t<=TABLE_MAX_MONTHS;
   }
 
+  function deprPhrase(pct){
+    var v=Number(pct);
+    if(!Number.isFinite(v)) return "—";
+    if(v<0) return "增值 "+Math.abs(v).toFixed(2)+"%";
+    return "折损 "+v.toFixed(2)+"%";
+  }
   function wearLabel(cfg){
     cfg=cfg||{riseYears:0,risePct:0,fallPct:5};
-    return "前"+Number(cfg.riseYears).toFixed(2)+"年每年"+Number(cfg.risePct).toFixed(2)+"%／后每年"+Number(cfg.fallPct).toFixed(2)+"%";
+    return "前"+Number(cfg.riseYears).toFixed(2)+"年每年"+deprPhrase(cfg.risePct)+"／后每年"+deprPhrase(cfg.fallPct);
   }
   function rentLabel(S){
     var c=rentCfg(S);
-    return "前"+Number(c.riseYears).toFixed(2)+"年每年"+Number(c.risePct).toFixed(2)+"%／后每年"+Number(c.fallPct).toFixed(2)+"%";
+    return "前"+Number(c.riseYears).toFixed(2)+"年每年"+deprPhrase(c.risePct)+"／后每年"+deprPhrase(c.fallPct);
   }
 
   function buildSeries(S, scheme, shareMode, useDebt){
@@ -966,33 +1016,40 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
       const row=monthPath(S,scheme,shareMode,m);
       const wear=monthlyWear(capex, wCfg, m, T);
       cumWear+=wear;
-      const invOpsNet=row.invCash-wear; /* 经营净现金（扣月度损耗）· 展示与回本 */
+      const invOpsNet=row.invCash-wear; /* 经营净现金（扣非付现损耗）· 只用于展示，不用于回本 */
       cumInvCash+=row.invCash;
       cumOpsNet+=invOpsNet;
-      /* 回本：分成现金累计≥CapEx（未贴现）。月损耗进经营净现金展示与表格，不从回本累计再扣，避免与期初 CapEx 双计 */
-      if(pbWithin===Infinity && cumInvCash>=capex) pbWithin=m;
-      /* IRR/NPV：名义现金（分成现金，扣利息还本）；不把非付现损耗／增值再扣一遍（避免与期初 CapEx 双计） */
+      /* 回本：分成现金累计≥CapEx（未贴现）。不扣损耗，不含期末残值 */
+      if(capex>0 && pbWithin===Infinity && cumInvCash>=capex) pbWithin=m;
+      /* IRR/NPV：分成现金扣利息与到期还本；非付现损耗不重复扣除。期末残值在循环后计入 */
       let invCashDebt=row.invCash;
-      if(debt>0) invCashDebt-=monthlyInt;
+      /* 到期一次还本：利息只计到还本月（含当月），还清后不再计息 */
+      if(debt>0 && m<=repayM) invCashDebt-=monthlyInt;
       if(m===repayM) invCashDebt-=debt;
-      const equityCf=invCashDebt;
       cfsProject[m]=row.invCash;
-      cfsEquity[m]=equityCf;
+      cfsEquity[m]=invCashDebt;
       months.push({
         m:m, gross:row.gross, elec:row.elec, opex:row.opex,
-        wear:wear, residualEnd:residualAt(capex,wCfg,m),
-        invCash:row.invCash, invOpsNet:invOpsNet, invAfterDebt:invCashDebt, equityCf:equityCf,
+        wear:wear, residualEnd:residualAt(capex,wCfg,m), salvage:0,
+        invCash:row.invCash, invOpsNet:invOpsNet, invAfterDebt:invCashDebt, equityCf:invCashDebt,
         opsNet:row.opsNet, schoolNet:row.schoolNet, siteNet:row.siteNet, util:row.util, fr:row.fr
       });
     }
-    /* r>0：末月摊尽后残值≈0；r≤0：期末残值＝Residual(T)，可≥CapEx */
+    if(!(capex>0)) pbWithin=-1;
+    /* 期末残值视为处置现金：计入 IRR／NPV／MOIC。Cash-on-Cash 用 invAfterDebt，不含这笔处置 */
     const residualAtT=residualAt(capex, wCfg, T);
+    if(months.length && residualAtT){
+      cfsProject[T]+=residualAtT;
+      cfsEquity[T]+=residualAtT;
+      months[T-1].salvage=residualAtT;
+      months[T-1].equityCf+=residualAtT;
+    }
     return {
       capex:capex, equity:equity, debt:debt, residual:residualAtT, wearCfg:wCfg,
       T:T, months:months, cfsProject:cfsProject, cfsEquity:cfsEquity,
       payback:pbWithin, paybackWithin:pbWithin,
       cumOpsUnlev:cumOpsNet, cumInvCash:cumInvCash, cumWear:cumWear,
-      recoveredWithinT:pbWithin!==Infinity,
+      recoveredWithinT:pbWithin>0 && pbWithin!==Infinity,
       monthlyInt:monthlyInt, repayM:repayM
     };
   }
@@ -1001,9 +1058,10 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
     const U=Math.max(0,n(S.units,16)), Pv=Math.max(0,n(S.purchase,660)), R=Math.max(0,n(S.rent,14.25));
     const utilPct=clamp(n(S.util,75),0,100)/100;
     const intPct=scheme==="A"?clamp(n(S.internalShare,0),0,100)/100:0;
-    const zhe=scheme==="A"?Math.max(0,n(S.internalDiscount,5.5)):10;
-    const disc=zhe>1?zhe/10:zhe;
-    const effRent=R*((1-intPct)+disc*intPct);
+    const zhe=scheme==="A"?clamp(n(S.internalDiscount,5.5),0,10):10;
+    const disc=zhe/10;
+    const rampEnd=Math.max(1, Math.round(n(S.rampMonths,6)));
+    const effRent=R*rentFactorAt(rampEnd, rentCfg(S))*((1-intPct)+disc*intPct);
     const kw=Math.max(0,n(S.kwPerUnit,10.2)), pueV=Math.max(1,n(S.pue,1.3));
     const opex=Math.max(0,n(S.opexMaint,0))+Math.max(0,n(S.opexBw,0))+Math.max(0,n(S.opexIns,0))+Math.max(0,n(S.opexStaff,0))+Math.max(0,n(S.opexOther,0));
     return {U:U,P:Pv,R:R,utilPct:utilPct,effRent:effRent,capex:U*Pv,kwhItPerHour:kw,kwhFacilityPerHour:kw*pueV,opex:opex,intPct:intPct,disc:disc,zhe:zhe};
@@ -1011,30 +1069,33 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
 
   function breakevenSearch(S, scheme, shareMode, targetMonths, kind){
     const base=Object.assign({},S);
-    function cum(val){
+    function gap(val){
       const s=Object.assign({},base);
       if(kind==="util") s.util=val;
       if(kind==="rent") s.rent=val;
       if(kind==="purchase") s.purchase=val;
       const U=Math.max(0,n(s.units,16)), Pv=Math.max(0,n(s.purchase,660)), capex=U*Pv;
-      let c=0; for(let m=1;m<=targetMonths;m++){
-        c+=monthPath(s,scheme,shareMode,m).invCash;
-      }
-      /* 回本条件：分成现金累计≥CapEx */
-      return {c:c,capex:capex,gap:c-capex};
+      let c=0; for(let m=1;m<=targetMonths;m++) c+=monthPath(s,scheme,shareMode,m).invCash;
+      return c-capex;
     }
-    let lo,hi;
-    if(kind==="util"){lo=1;hi=100;} else if(kind==="rent"){lo=1;hi=80;} else {lo=50;hi=2000;}
-    const gLo=cum(lo), gHi=cum(hi);
+    /* 采购价越高越难回本；利用率、月租越高越容易回本。区间不够时向外扩展，仍无根则不可达 */
+    let lo, hi, capHi;
+    if(kind==="util"){ lo=0; hi=100; capHi=100; }
+    else if(kind==="rent"){ lo=0; hi=80; capHi=1e7; }
+    else { lo=0; hi=2000; capHi=1e7; }
     if(kind==="purchase"){
-      if(gLo.gap<0) return NaN;
-      if(gHi.gap>=0) return hi;
-      for(let i=0;i<50;i++){ const mid=(lo+hi)/2; if(cum(mid).gap>=0) lo=mid; else hi=mid; }
+      if(gap(lo)<0) return NaN;
+      var gHi=gap(hi), guard=0;
+      while(gHi>=0 && hi<capHi && guard<24){ hi*=2; gHi=gap(hi); guard++; }
+      if(gHi>=0) return NaN;
+      for(let i=0;i<60;i++){ const mid=(lo+hi)/2; if(gap(mid)>=0) lo=mid; else hi=mid; }
       return (lo+hi)/2;
     }
-    if(gHi.gap<0) return NaN;
-    if(gLo.gap>=0) return lo;
-    for(let i=0;i<50;i++){ const mid=(lo+hi)/2; if(cum(mid).gap>=0) hi=mid; else lo=mid; }
+    if(gap(lo)>=0) return lo;
+    var gTop=gap(hi), guardTop=0;
+    while(gTop<0 && hi<capHi && guardTop<24){ hi=Math.min(capHi, hi*2); gTop=gap(hi); guardTop++; if(hi>=capHi) break; }
+    if(gTop<0) return NaN;
+    for(let i=0;i<60;i++){ const mid=(lo+hi)/2; if(gap(mid)>=0) hi=mid; else lo=mid; }
     return (lo+hi)/2;
   }
 
@@ -1081,9 +1142,9 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
     const beP36=breakevenSearch(S,scheme,shareMode,36,"purchase");
     const schemeName=scheme==="A"?"方案 A（校园）":"方案 B（发电企业）";
     const modeName=shareMode==="fixed"?"固定比例分成":"阶段性分成";
-    const pbTxt=Number.isFinite(pb)?(Math.round(pb)+" 月（约 "+(pb/12).toFixed(1)+" 年）"):"在表格期内分成现金累计仍未盖过设备投资（CapEx）";
+    const pbTxt=(Number.isFinite(pb)&&pb>0)?(Math.round(pb)+" 月（约 "+(pb/12).toFixed(1)+" 年）"):(!(ser.capex>0)?"设备投资需大于 0":"在表格期内分成现金累计仍未盖过设备投资（CapEx）");
     const parts=[];
-    parts.push("<p style=\"margin:0 0 10px\"><strong>一、测算范围</strong><br/>核心目标：帮<strong>资方（出设备资金）</strong>测算回本周期。方案 <strong>"+schemeName+"</strong>，分成 <strong>"+modeName+"</strong>。表格月数 <strong>"+ser.T+" 月（约 "+(ser.T/12).toFixed(1)+" 年）</strong>，"+horizonPhrase(ser.wearCfg, ser.T)+"；贴现率 <strong>"+(res.discount*100).toFixed(1)+"%</strong>（仅用于 NPV）。CapEx = "+snap.U+" × "+snap.P+" = <strong>"+fmtWan(snap.capex)+"</strong>。残值两段 <strong>"+wearLabel(ser.wearCfg)+"</strong>；月变动计入资方经营路径；期末残值 "+fmtWan(ser.residual)+"。"+(scheme==="A"?"对内折扣仅校园。":"企业无对内折扣。")+"</p>");
+    parts.push("<p style=\"margin:0 0 10px\"><strong>一、测算范围</strong><br/>核心目标：帮<strong>资方（出设备资金）</strong>测算回本周期。方案 <strong>"+schemeName+"</strong>，分成 <strong>"+modeName+"</strong>。表格月数 <strong>"+ser.T+" 月（约 "+(ser.T/12).toFixed(1)+" 年）</strong>，"+horizonPhrase(ser.wearCfg, ser.T)+"；贴现率 <strong>"+(res.discount*100).toFixed(1)+"%</strong>（仅用于 NPV）。CapEx = "+snap.U+" × "+snap.P+" = <strong>"+fmtWan(snap.capex)+"</strong>。残值两段 <strong>"+wearLabel(ser.wearCfg)+"</strong>；月变动只计入经营净现金展示；期末残值 "+fmtWan(ser.residual)+" 计入 IRR／NPV／MOIC。"+(scheme==="A"?"对内折扣仅校园。":"企业无对内折扣。")+"</p>");
     parts.push("<p style=\"margin:0 0 10px\"><strong>二、收入测算</strong><br/>起步 "+n(S.utilStart,40)+"%，目标 "+(snap.utilPct*100).toFixed(0)+"%，爬坡 "+n(S.rampMonths,6)+" 月；租金两段 "+rentLabel(S)+"。"+(scheme==="A"?"对内占比 "+(snap.intPct*100).toFixed(0)+"%，折扣 "+Number(snap.zhe).toFixed(1)+"，":"无对内折扣，")+"爬坡结束后有效月租 <strong>"+snap.effRent.toFixed(3)+"</strong>。爬坡结束后资方分成现金约 <strong>"+fmtWan(res.mStab.invCash)+"</strong>。</p>");
     const shareMemo=(function(){
       if(scheme==="A"){ const t=fmtGrossTriple(fr.invOfGross,fr.school,fr.opsOfGross,1); return "资方 "+t.a+"，学校 "+t.b+"，运营方 "+t.c+"（合计 "+t.sum+"）"; }
@@ -1096,12 +1157,15 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
       +paybackNote(res.pbWithin,res.recoveredWithinT,ser.T,ser.wearCfg,ser.capex)+"<br/>"
       +"<strong>场地方（不称回本）</strong>："+siteCashLine(res.parties.site)+"；表格期内累计净现金（未贴现） "+fmtWan(res.parties.site.cumAtT)+"。<br/>"
       +"<strong>运营方（不称回本）</strong>："+opsCashLine(res.parties.ops)+"；表格期内累计净现金（未贴现） "+fmtWan(res.parties.ops.cumAtT)+"。</p>");
-    parts.push("<p style=\"margin:0 0 10px\"><strong>五、资方回报</strong><br/>权益年化收益率（IRR） <strong>"+(Number.isFinite(res.irrEq)?fmtPct(res.irrEq,2):"—")+"</strong>；全资本年化收益率（IRR） <strong>"+(Number.isFinite(res.irrProj)?fmtPct(res.irrProj,2):"—")+"</strong>；NPV（贴现率 "+(res.discount*100).toFixed(1)+"%） <strong>"+fmtWan(res.npvEq)+"</strong>；MOIC <strong>"+fmtX(res.moicEq)+"</strong>。年化收益率（IRR）／NPV 对表格期整条名义现金流。回本不贴现；贴现率只用于 NPV。年化收益率（IRR）即该现金流的年化收益。</p>");
-    function beLine(label, v24, v36, unit, cur){ return label+"：24月 "+(Number.isFinite(v24)?v24+unit:"不可达")+"；36月 "+(Number.isFinite(v36)?v36+unit:"不可达")+"；现状 "+cur+"。"; }
+    parts.push("<p style=\"margin:0 0 10px\"><strong>五、资方回报</strong><br/>权益年化收益率（IRR） <strong>"+(Number.isFinite(res.irrEq)?fmtPct(res.irrEq,2):"—")+"</strong>；全资本年化收益率（IRR） <strong>"+(Number.isFinite(res.irrProj)?fmtPct(res.irrProj,2):"—")+"</strong>；NPV（贴现率 "+(res.discount*100).toFixed(1)+"%） <strong>"+fmtWan(res.npvEq)+"</strong>；MOIC <strong>"+fmtX(res.moicEq)+"</strong>。年化收益率（IRR）／NPV／MOIC 对权益现金流（分成现金−利息与到期还本，末月加残值处置）。回本不贴现、不含残值；贴现率只用于 NPV。</p>");
+    function beLine(label, v24, v36, digits, unit, cur){
+      function fmt(v){ return Number.isFinite(v)?Number(v).toFixed(digits)+unit:"不可达"; }
+      return label+"：24月 "+fmt(v24)+"；36月 "+fmt(v36)+"；现状 "+cur+"。";
+    }
     parts.push("<p style=\"margin:0\"><strong>六、盈亏平衡（资方）</strong><br/>"
-      +beLine("利用率", Number.isFinite(beU24)?beU24.toFixed(0):NaN, Number.isFinite(beU36)?beU36.toFixed(0):NaN, "%", (snap.utilPct*100).toFixed(0)+"%")+"<br/>"
-      +beLine("月租", Number.isFinite(beR24)?beR24.toFixed(2):NaN, Number.isFinite(beR36)?beR36.toFixed(2):NaN, " 万", snap.R+" 万")+"<br/>"
-      +beLine("采购价", Number.isFinite(beP24)?beP24.toFixed(0):NaN, Number.isFinite(beP36)?beP36.toFixed(0):NaN, " 万", snap.P+" 万")+"</p>");
+      +beLine("利用率", beU24, beU36, 0, "%", (snap.utilPct*100).toFixed(0)+"%")+"<br/>"
+      +beLine("月租", beR24, beR36, 2, " 万", snap.R+" 万")+"<br/>"
+      +beLine("采购价", beP24, beP36, 0, " 万", snap.P+" 万")+"</p>");
     return parts.join("");
   }
 
@@ -1139,7 +1203,7 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
     }
     const wEl=document.getElementById("windowCallout");
     wEl.className="callout "+(res.recoveredWithinT?"ok":"danger");
-    wEl.innerHTML="<strong class=\"lead\">定案口径 · 资方经营回本（已扣月度损耗）· 场地方／运营方当月净现金</strong>"+(scheme==="A"?"方案 A":"方案 B")+" · "+(shareMode==="fixed"?"固定比例":"阶段性")+"。<br/><br/>"
+    wEl.innerHTML="<strong class=\"lead\">定案口径 · 资方经营回本（未贴现分成现金）· 场地方／运营方当月净现金</strong>"+(scheme==="A"?"方案 A":"方案 B")+" · "+(shareMode==="fixed"?"固定比例":"阶段性")+"。<br/><br/>"
       +"<strong>一、资方回本（未贴现）</strong><br/>设备投资（CapEx）<strong>"+fmtWan(ser.capex)+"</strong>；残值两段 <strong>"+wearLabel(ser.wearCfg)+"</strong>；月变动＝上月末残值−本月末残值。表格月数 <strong>"+ser.T+" 月</strong>，"+horizonPhrase(ser.wearCfg, ser.T)+"；期末残值 "+fmtWan(ser.residual)+"。<br/>"
       +"经营回本：表格期内 "+(res.recoveredWithinT?("第 <strong>"+Math.round(res.pbWithin)+" 月</strong> 分成现金累计盖过设备投资。"):("<strong>未回本</strong>——累计分成现金 "+fmtWan(res.cumInvCash)+"。"))
       +"<br/>"
@@ -1152,7 +1216,7 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
     const cs=document.getElementById("commonSummary");
     if(cs) cs.textContent="当前方案：爬坡结束后有效月租 "+snap.effRent.toFixed(3)+" 万/台 · 利用率 "+fmtPct(res.m1.util,0)+"→"+fmtPct(snap.utilPct,0)+" · CapEx "+fmtWan(snap.capex)+" · 权益 "+fmtWan(ser.equity)+" · PUE "+n(S.pue,1.3)+" · OpEx "+fmtWan(snap.opex)+"/月"+(scheme==="A"?" · 对内占比 "+(snap.intPct*100).toFixed(0)+"%":" · 无对内折扣");
     const opexNote=document.getElementById("opexNote");
-    if(opexNote) opexNote.innerHTML="<strong class=\"lead\">OpEx 口径</strong>"+(S.opexBeforeShare?"已勾选先扣再分成；合计 "+fmtWan(snap.opex)+"/月。":"未勾选先扣：OpEx "+fmtWan(snap.opex)+"/月由运营承担。爬坡结束后运营方当月净现金约 "+fmtWan(mStab.opsNet)+"。")+" 爬坡结束后资方当月净现金约 <strong>"+fmtWan(mStab.invCash)+"</strong>。";
+    if(opexNote) opexNote.innerHTML="<strong class=\"lead\">OpEx 口径</strong>"+(S.opexBeforeShare?"已勾选先扣再分成；合计 "+fmtWan(snap.opex)+"/月。收入低于 OpEx 时，缺口按分成比例由三方共担，净现金可为负。":"未勾选先扣：OpEx "+fmtWan(snap.opex)+"/月由运营承担。爬坡结束后运营方当月净现金约 "+fmtWan(mStab.opsNet)+"。")+" 爬坡结束后资方分成现金约 <strong>"+fmtWan(mStab.invCash)+"</strong>。";
 
     (function renderPartyShare(){
       const fr=mStab.fr;
@@ -1213,14 +1277,14 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
         opsShareTxt=shareMode==="fixed"?t.c:("前 "+te.c+" / 后 "+tl.c);
       }
       document.getElementById("partyShareGrid").innerHTML=[
-        card("资方","出设备资金",invShareTxt,parties.inv.cumAtT,mStab.invCash,parties.m12.invCash,parties.m24.invCash,"经营回本（已扣月度损耗）",fmtPbMain(res.recoveredWithinT,res.pbWithin,pb),"设备投资＝CapEx；当月经营净现金＝分成现金−月损耗；回本未贴现"),
+        card("资方","出设备资金",invShareTxt,parties.inv.cumAtT,mStab.invCash,parties.m12.invCash,parties.m24.invCash,"经营回本（未贴现分成现金）",fmtPbMain(res.recoveredWithinT,res.pbWithin,pb),"累计净现金已扣非付现损耗；回本只看分成现金，不含损耗与期末残值"),
         card(siteLabel,"出场地与电",siteShareTxt,parties.site.cumAtT,siteStab,site12,site24,"当月净现金转正／最高／最低",siteCashLine(parties.site),parties.site.basisLabel),
         card("运营方","负责运营、运维",opsShareTxt,parties.ops.cumAtT,mStab.opsNet,parties.m12.opsNet,parties.m24.opsNet,"当月净现金转正／最高／最低",opsCashLine(parties.ops),parties.ops.basisLabel)
       ].join("");
       const sumLine=scheme==="A"
         ? (function(){ const t=fmtGrossTriple(fr.invOfGross,fr.school,fr.opsOfGross,1); return "资方 "+t.a+" + 学校 "+t.b+" + 运营方 "+t.c+" = <strong>"+t.sum+"</strong>"; })()
         : (function(){ const t=fmtGrossTriple(fr.invOfGross,fr.siteOfGross,fr.opsOfGross,1); return "资方 "+t.a+" + 场地方 "+t.b+" + 运营方 "+t.c+" = <strong>"+t.sum+"</strong>"; })();
-      document.getElementById("partyShareNote").innerHTML="<strong class=\"lead\">占收入比例</strong>"+sumLine+"。下方表格为表格期逐月未贴现名义净现金；资方当月＝分成现金−月度损耗／增值；期末残值 "+fmtWan(ser.residual)+"。回本仅适用于资方。";
+      document.getElementById("partyShareNote").innerHTML="<strong class=\"lead\">占收入比例</strong>"+sumLine+"。下方表格资方列＝分成现金−月度损耗／增值（非付现）。期末残值 "+fmtWan(ser.residual)+" 不在本表，而计入 IRR／NPV／MOIC。回本仅适用于资方。";
     })();
 
     const tonePb=res.recoveredWithinT?"ok":"danger";
@@ -1234,7 +1298,7 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
     })();
     document.getElementById("coreMetrics").innerHTML=[
       metricCard("CapEx","capex",fmtWan(snap.capex),snap.U+"×"+snap.P+"万 · 权益 "+fmtWan(ser.equity),""),
-      metricCard("经营回本（已扣月度损耗）",null,fmtPbMain(res.recoveredWithinT,res.pbWithin,pb),horizonPhrase(ser.wearCfg, ser.T)+" · 未贴现",tonePb),
+      metricCard("经营回本（未贴现分成现金）",null,fmtPbMain(res.recoveredWithinT,res.pbWithin,pb),horizonPhrase(ser.wearCfg, ser.T)+" · 未贴现",tonePb),
       metricCard("表格月数",null,ser.T+" 月",horizonPhrase(ser.wearCfg, ser.T)+" · "+wearLabel(ser.wearCfg),""),
       metricCard("当前生效分成",null,shareCoreTxt,shareMode==="fixed"?"固定比例":("阶段性 · N="+Math.round(n(S.stageMonths,24))),""),
       metricCard("场地方 · 当月净现金转正",null,fmtFirstPos(parties.site.firstPos),"最高 "+fmtWan(parties.site.maxM)+" · 最低 "+fmtWan(parties.site.minM)+" · 不称回本",""),
@@ -1261,14 +1325,14 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
     ].join("");
 
     document.getElementById("roiIrrNote").className="callout info";
-    document.getElementById("roiIrrNote").innerHTML="<strong class=\"lead\">回报栈口径</strong><strong>经营回本</strong>＝未贴现分成现金累计≥CapEx（月变动入展示与表格）。表格月数 <strong>"+ser.T+" 月</strong>，"+horizonPhrase(ser.wearCfg, ser.T)+"；残值两段 <strong>"+wearLabel(ser.wearCfg)+"</strong>；期末残值 "+fmtWan(ser.residual)+"。贴现率 <strong>"+(res.discount*100).toFixed(1)+"%</strong>仅用于 NPV；年化收益率（IRR）即该现金流的年化收益。回本："+fmtPbMain(res.recoveredWithinT,res.pbWithin,pb)+"。场地方："+siteCashLine(parties.site)+"。运营方："+opsCashLine(parties.ops)+"。";
+    document.getElementById("roiIrrNote").innerHTML="<strong class=\"lead\">回报栈口径</strong><strong>经营回本</strong>＝未贴现分成现金累计≥CapEx，不扣非付现损耗，不含期末残值。表格月数 <strong>"+ser.T+" 月</strong>，"+horizonPhrase(ser.wearCfg, ser.T)+"；残值两段 <strong>"+wearLabel(ser.wearCfg)+"</strong>；期末残值 "+fmtWan(ser.residual)+" 计入 IRR／NPV／MOIC。贴现率 <strong>"+(res.discount*100).toFixed(1)+"%</strong>只用于 NPV。回本："+fmtPbMain(res.recoveredWithinT,res.pbWithin,pb)+"。场地方："+siteCashLine(parties.site)+"。运营方："+opsCashLine(parties.ops)+"。"+((signChanges(ser.cfsEquity)>1)?" 权益现金流多次变号（常见于到期一次还本），年化收益率可能不唯一，仅供参考。":"");
 
     const needM=snap.capex/24, T=ser.T;
     const cf24=new Array(T+1); cf24[0]=-snap.capex;
     for(let m=1;m<=T;m++) cf24[m]=needM; /* 无期末残值 */
     const roi24=((needM*T)-snap.capex)/snap.capex;
     const irr24=irrAnnual(cf24), npv24=npvOf(cf24,res.discount);
-    document.getElementById("cf24Callout").innerHTML="<strong class=\"lead\">盈亏平衡：若资方每月固定拿到「设备投资÷24」</strong>，则当月净现金 = <strong>"+fmtWan(needM)+"</strong>；此时简单投资回报率 ROI≈<strong>"+fmtPct(roi24,1)+"</strong>；年化收益率（IRR）≈<strong>"+(Number.isFinite(irr24)?fmtPct(irr24,2):"—")+"</strong>；净现值 NPV≈<strong>"+fmtWan(npv24)+"</strong>。";
+    document.getElementById("cf24Callout").innerHTML="<strong class=\"lead\">盈亏平衡：若资方每月固定拿到「设备投资÷24」</strong>，则当月净现金 = <strong>"+fmtWan(needM)+"</strong>；此时简单投资回报率 ROI≈<strong>"+fmtPct(roi24,1)+"</strong>；年化收益率（IRR）≈<strong>"+(Number.isFinite(irr24)?fmtPct(irr24,2):"—")+"</strong>；净现值 NPV≈<strong>"+fmtWan(npv24)+"</strong>。该对照不含期末残值。";
     const gapStab=needM-mStab.invCash;
     document.getElementById("need24Callout").innerHTML="<strong class=\"lead\">敏感性：按 24 个月等额回本所需的当月净现金</strong>为 "+fmtWan(needM)+"（即设备投资÷24）。爬坡结束后资方当月净现金约 "+fmtWan(mStab.invCash)+"；相对该等额目标的缺口为 <strong style=\"color:"+(gapStab>0?"var(--danger)":"var(--ok)")+"\">"+fmtWan(gapStab)+"</strong>。";
 
@@ -1276,7 +1340,7 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
     const baseIrr=res.irrEq;
     const factors=[
       {key:"purchase",label:"采购价"},{key:"rent",label:"挂牌月租"},{key:"util",label:"目标利用率"},
-      {key:"invShare",label:"资方分成"},{key:"wearFallPct",label:"残值后段每年变化"},{key:"rentFallPct",label:"租金后段每年变化"}
+      {key:"invShare",label:"资方分成"},{key:"wearFallPct",label:"残值后段每年折损"},{key:"rentFallPct",label:"租金后段每年折损"}
     ];
     function tweakState(key, mult){
       const s=Object.assign({},S);
@@ -1316,7 +1380,7 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
       }
       return s;
     }
-    let sensHtml="<table><thead><tr><th>扰动变量</th><th>变量−20%时权益年化收益率（IRR）</th><th>基准情景权益年化收益率（IRR）</th><th>变量+20%时权益年化收益率（IRR）</th><th>经营回本月数（已扣损耗；−20% / +20%）</th><th>相对基准的年化收益率变化（百分点）</th></tr></thead><tbody>";
+    let sensHtml="<table><thead><tr><th>扰动变量</th><th>变量−20%时权益年化收益率（IRR）</th><th>基准情景权益年化收益率（IRR）</th><th>变量+20%时权益年化收益率（IRR）</th><th>经营回本月数（未扣损耗；−20% / +20%）</th><th>相对基准的年化收益率变化（百分点）</th></tr></thead><tbody>";
     factors.forEach(function(f){
       const low=runCase(tweakState(f.key,0.8),scheme,shareMode);
       const high=runCase(tweakState(f.key,1.2),scheme,shareMode);
@@ -1345,7 +1409,7 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
       ["满利用率月 · 资方净现金",fmtWan(resA.mStab.invCash),fmtWan(resB.mStab.invCash)],
       ["满利用率月 · 场地方净现金",fmtWan(resA.mStab.schoolNet),fmtWan(resB.mStab.siteNet)],
       ["满利用率月 · 运营方净现金",fmtWan(resA.mStab.opsNet),fmtWan(resB.mStab.opsNet)],
-      ["经营回本（已扣月度损耗）",fmtPbMain(resA.recoveredWithinT,resA.pbWithin,resA.pb),fmtPbMain(resB.recoveredWithinT,resB.pbWithin,resB.pb)],
+      ["经营回本（未贴现分成现金）",fmtPbMain(resA.recoveredWithinT,resA.pbWithin,resA.pb),fmtPbMain(resB.recoveredWithinT,resB.pbWithin,resB.pb)],
       ["表格月数",resA.ser.T+" 月（"+horizonPhrase(resA.ser.wearCfg, resA.ser.T)+"）",resB.ser.T+" 月（"+horizonPhrase(resB.ser.wearCfg, resB.ser.T)+"）"],
       ["场地方当月净现金转正／最高／最低",siteCashLine(resA.parties.site),siteCashLine(resB.parties.site)],
       ["运营方当月净现金转正／最高／最低",opsCashLine(resA.parties.ops),opsCashLine(resB.parties.ops)],
@@ -1367,9 +1431,15 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
         const cf=ser.cfsEquity[m]; yInv+=cf; discRun+=cf/Math.pow(1+rm,m);
       }
       cumCash+=yInv; cumSiteY+=ySite; cumOpsY+=yOps;
-      yRows+="<tr><td>第"+y+"年"+(y===nYears?(hitsZero(ser.wearCfg)?"（残值归零）":"（表格期末）"):"")+"</td><td>"+fmtWan(yGross)+"</td><td>"+fmtWan(yElec)+"</td><td>"+fmtWan(yOpex)+"</td><td>"+fmtWan(yWear)+"</td><td>"+fmtWan(yInv)+"</td><td>"+fmtWan(ySite)+"</td><td>"+fmtWan(yOps)+"</td><td>"+fmtWan(cumCash)+"</td><td>"+fmtWan(cumSiteY)+"</td><td>"+fmtWan(cumOpsY)+"</td><td>"+fmtWan(discRun)+"</td><td>"+fmtX(cumCash/ser.equity)+"</td></tr>";
+      var endLab="";
+      if(y===nYears){
+        endLab=hitsZero(ser.wearCfg)?"（残值归零":"（表格期末";
+        if(ser.residual>0.05) endLab+="·含残值处置";
+        endLab+="）";
+      }
+      yRows+="<tr><td>第"+y+"年"+endLab+"</td><td>"+fmtWan(yGross)+"</td><td>"+fmtWan(yElec)+"</td><td>"+fmtWan(yOpex)+"</td><td>"+fmtWan(yWear)+"</td><td>"+fmtWan(yInv)+"</td><td>"+fmtWan(ySite)+"</td><td>"+fmtWan(yOps)+"</td><td>"+fmtWan(cumCash)+"</td><td>"+fmtWan(cumSiteY)+"</td><td>"+fmtWan(cumOpsY)+"</td><td>"+fmtWan(discRun)+"</td><td>"+fmtX(cumCash/ser.equity)+"</td></tr>";
     }
-    document.getElementById("yearTable").innerHTML="<thead><tr><th>年份</th><th>项目收入（万元）</th><th>电费（万元）</th><th>运营成本 OpEx（万元）</th><th>设备损耗（万元）</th><th>资方现金流（万元，未贴现；已扣损耗）</th><th>场地方净现金（万元，未贴现）</th><th>运营方净现金（万元，未贴现）</th><th>资方累计净现金（万元，未贴现）</th><th>场地方累计净现金（万元，未贴现）</th><th>运营方累计净现金（万元，未贴现）</th><th>资方折现累计（万元，按贴现率）</th><th>现金倍数 MOIC</th></tr></thead><tbody>"+yRows+"</tbody>";
+    document.getElementById("yearTable").innerHTML="<thead><tr><th>年份</th><th>项目收入（万元）</th><th>电费（万元）</th><th>运营成本 OpEx（万元）</th><th>设备损耗（万元）</th><th>资方现金流（万元，未贴现；已扣利息还本，末月含残值）</th><th>场地方净现金（万元，未贴现）</th><th>运营方净现金（万元，未贴现）</th><th>资方累计净现金（万元，未贴现）</th><th>场地方累计净现金（万元，未贴现）</th><th>运营方累计净现金（万元，未贴现）</th><th>资方折现累计（万元，按贴现率）</th><th>现金倍数 MOIC</th></tr></thead><tbody>"+yRows+"</tbody>";
 
     (function(){
       const pathN=ser.T; /* 行数＝表格月数 */
@@ -1393,24 +1463,35 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
         const siteNet=scheme==="A"?row.schoolNet:row.siteNet;
         const invCf=ser.cfsEquity[m];
         cI+=invCf; cS+=siteNet; cO+=row.opsNet;
-        dRows+="<tr><td>第"+m+"月"+(m===ser.T?(hitsZero(ser.wearCfg)?"（残值归零）":"（表格期末）"):"")+"</td><td>"+fmtWan(row.gross)+"</td><td>"+fmtWan(row.elec)+"</td><td>"+fmtWan(row.opex)+"</td><td>"+fmtWan(row.wear)+"</td><td>"+fmtPct(row.util,0)+"</td><td>"+fmtWan(invCf)+"</td><td>"+fmtWan(siteNet)+"</td><td>"+fmtWan(row.opsNet)+"</td><td>"+fmtWan(cI)+"</td><td>"+fmtWan(cS)+"</td><td>"+fmtWan(cO)+"</td></tr>";
+        var endM="";
+        if(m===ser.T){
+          endM=hitsZero(ser.wearCfg)?"（残值归零":"（表格期末";
+          if(ser.residual>0.05) endM+="·含残值处置";
+          endM+="）";
+        }
+        dRows+="<tr><td>第"+m+"月"+endM+"</td><td>"+fmtWan(row.gross)+"</td><td>"+fmtWan(row.elec)+"</td><td>"+fmtWan(row.opex)+"</td><td>"+fmtWan(row.wear)+"</td><td>"+fmtPct(row.util,0)+"</td><td>"+fmtWan(invCf)+"</td><td>"+fmtWan(siteNet)+"</td><td>"+fmtWan(row.opsNet)+"</td><td>"+fmtWan(cI)+"</td><td>"+fmtWan(cS)+"</td><td>"+fmtWan(cO)+"</td></tr>";
       }
       const mdt=document.getElementById("monthDetailTable");
-      if(mdt) mdt.innerHTML="<thead><tr><th>月份</th><th>项目收入（万元）</th><th>电费（万元）</th><th>运营成本（万元）</th><th>设备损耗（万元）</th><th>利用率</th><th>资方现金流（万元，未贴现；已扣损耗）</th><th>场地方当月净现金（万元，未贴现）</th><th>运营方当月净现金（万元，未贴现）</th><th>资方累计净现金（万元，未贴现）</th><th>场地方累计净现金（万元，未贴现）</th><th>运营方累计净现金（万元，未贴现）</th></tr></thead><tbody>"+dRows+"</tbody>";
+      if(mdt) mdt.innerHTML="<thead><tr><th>月份</th><th>项目收入（万元）</th><th>电费（万元）</th><th>运营成本（万元）</th><th>设备损耗（万元）</th><th>利用率</th><th>资方现金流（万元，未贴现；已扣利息还本，末月含残值）</th><th>场地方当月净现金（万元，未贴现）</th><th>运营方当月净现金（万元，未贴现）</th><th>资方累计净现金（万元，未贴现）</th><th>场地方累计净现金（万元，未贴现）</th><th>运营方累计净现金（万元，未贴现）</th></tr></thead><tbody>"+dRows+"</tbody>";
     })();
 
-    document.getElementById("scaleTable").innerHTML="<thead><tr><th>台数（台）</th><th>设备投资 CapEx（万元）</th><th>经营回本（已扣损耗）</th><th>权益年化收益率（IRR）</th><th>现金倍数 MOIC</th><th>净现值 NPV（万元）</th></tr></thead><tbody>"+[16,32,64].map(function(u){
+    document.getElementById("scaleTable").innerHTML="<thead><tr><th>台数（台）</th><th>设备投资 CapEx（万元）</th><th>经营回本（未贴现）</th><th>权益年化收益率（IRR）</th><th>现金倍数 MOIC</th><th>净现值 NPV（万元）</th></tr></thead><tbody>"+[16,32,64].map(function(u){
       const r=runCase(Object.assign({},S,{units:u}),scheme,shareMode);
       return "<tr><td>"+u+"</td><td>"+fmtWan(r.snap.capex)+"</td><td>"+fmtMonths(r.pb)+"</td><td>"+(Number.isFinite(r.irrEq)?fmtPct(r.irrEq,1):"—")+"</td><td>"+fmtX(r.moicEq)+"</td><td>"+fmtWan(r.npvEq)+"</td></tr>";
     }).join("")+"</tbody>";
 
     const baseFall=n(S.rentFallPct,10);
+    function tiltFall(base, optimistic){
+      var b=n(base,0);
+      if(b>=0) return clamp(b*(optimistic?0.7:1.3),-50,50);
+      return clamp(b*(optimistic?1.3:0.7),-50,50);
+    }
     const scenDefs=[
-      {label:"乐观",purchase:Math.min(snap.P,530),rent:Math.max(snap.R,15),util:85,rentFall:clamp(baseFall*0.7,-50,50)},
+      {label:"乐观",purchase:snap.P*0.9,rent:snap.R*1.1,util:clamp(snap.utilPct*100+10,0,100),rentFall:tiltFall(baseFall,true)},
       {label:"基准",purchase:snap.P,rent:snap.R,util:snap.utilPct*100,rentFall:baseFall},
-      {label:"悲观",purchase:Math.max(snap.P,680),rent:Math.min(snap.R,12),util:60,rentFall:clamp(baseFall*1.3,-50,50)}
+      {label:"悲观",purchase:snap.P*1.1,rent:snap.R*0.9,util:clamp(snap.utilPct*100-15,0,100),rentFall:tiltFall(baseFall,false)}
     ];
-    document.getElementById("scenTable").innerHTML="<thead><tr><th>情景</th><th>采购单价（万元／台）</th><th>挂牌月租（万元／台／月）</th><th>目标利用率（%）</th><th>租金后段每年变化（%）</th><th>经营回本（已扣损耗）</th><th>权益年化收益率（IRR）</th><th>现金倍数 MOIC</th><th>净现值 NPV（万元）</th></tr></thead><tbody>"+scenDefs.map(function(sc){
+    document.getElementById("scenTable").innerHTML="<thead><tr><th>情景</th><th>采购单价（万元／台）</th><th>挂牌月租（万元／台／月）</th><th>目标利用率（%）</th><th>租金后段每年折损（%）</th><th>经营回本（未贴现）</th><th>权益年化收益率（IRR）</th><th>现金倍数 MOIC</th><th>净现值 NPV（万元）</th></tr></thead><tbody>"+scenDefs.map(function(sc){
       const r=runCase(Object.assign({},S,{purchase:sc.purchase,rent:sc.rent,util:sc.util,rentFallPct:sc.rentFall}),scheme,shareMode);
       return "<tr><td>"+sc.label+"</td><td>"+(+sc.purchase).toFixed(0)+"</td><td>"+(+sc.rent).toFixed(2)+"</td><td>"+(+sc.util).toFixed(0)+"</td><td>"+(+sc.rentFall).toFixed(3)+"</td><td>"+fmtMonths(r.pb)+"</td><td>"+(Number.isFinite(r.irrEq)?fmtPct(r.irrEq,1):"—")+"</td><td>"+fmtX(r.moicEq)+"</td><td>"+fmtWan(r.npvEq)+"</td></tr>";
     }).join("")+"</tbody>";
@@ -1420,8 +1501,10 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
       ["对内占比／对内折扣","仅方案 A（校园）；方案 B 无","contract"],
       ["方案 A 默认分成","占收入：资 61.6% · 校 23% · 运营 15.4%","contract"],
       ["方案 B 默认分成","占收入：资 55% · 场 25% · 运营 20%","user"],
-      ["设备残值两段 / 租金两段 / 贴现率","残值与租金均为前段年数＋前段每年%＋后段每年%；年内摊到月；后段正跌则表格至残值归零，否则默认 120 月；贴现率只用于 NPV；回本未贴现","model"],
-      ["场地方／运营方","只展示当月净现金转正与最高／最低，不称回本","model"],
+      ["设备残值两段 / 租金两段 / 贴现率","租金和残值都填每年折损：正数＝折损（下降），负数＝增值（上涨）。后段折损>0 且归零不超过 600 月则出表至归零，否则默认 120 月并保留剩余残值。期末残值计入 IRR／NPV／MOIC；回本未贴现且不含残值","model"],
+      ["贷款偿还","按月付息、到期一次还本，不是等额本息或等额本金","model"],
+      ["用电与利用率","月电费随利用率线性缩放，未单独计服务器空载功耗","model"],
+      ["场地方／运营方","只在表格月数内展示当月净现金转正与最高／最低，不称回本","model"],
       ["市场租金/二手残值成交","未核实","unverified"]
     ];
     const tagName={contract:"合同",user:"用户假设",model:"建模假设",unverified:"未核实"};
@@ -1432,7 +1515,7 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
 
 
   let timer=null;
-  function schedule(){ clearTimeout(timer); timer=setTimeout(recalc,50); }
+  function schedule(){ clearTimeout(timer); timer=setTimeout(function(){ persistConfig(); recalc(); },50); }
   function syncStageNWrap(){
     var w=document.getElementById("stageNWrap");
     if(!w) return;
@@ -1537,6 +1620,12 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
       }
       p._annualRates = true;
     }
+    if(!p._positiveIsDepreciation){
+      /* 旧前段正数表示上涨。现在正数＝折损、负数＝增值，所以前段符号取反。后段本来就是正数＝下降。 */
+      p.rentRisePct = -n(p.rentRisePct,0);
+      p.wearRisePct = -n(p.wearRisePct,0);
+      p._positiveIsDepreciation = true;
+    }
     p.wearRiseYears = Math.max(0, n(p.wearRiseYears,0));
     p.wearRisePct = clamp(n(p.wearRisePct,0),-50,50);
     p.wearFallPct = clamp(n(p.wearFallPct,5),-50,50);
@@ -1562,6 +1651,7 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
         }
         migrateWearParams(state.paramsA);
         migrateWearParams(state.paramsB);
+        persistConfig();
         return;
       }
       var o=JSON.parse(raw);
@@ -1573,6 +1663,7 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
       migrateShareParams(state.paramsB,"B");
       migrateWearParams(state.paramsA);
       migrateWearParams(state.paramsB);
+      persistConfig();
     }catch(e){}
   }
 
@@ -1591,10 +1682,11 @@ footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
   document.getElementById("btnCsv").addEventListener("click",function(){
     const r=runCase(P(),state.scheme,state.shareMode);
     const lines=[["H200算电协同投资测算器"],["导出时间",new Date().toISOString()],["方案",state.scheme],["分成",state.shareMode],
-      ["CapEx万",r.snap.capex.toFixed(1)],["经营回本月",Number.isFinite(r.pb)?r.pb:"—"],["表格月数",r.ser.T],
-      ["权益年化收益率IRR",r.irrEq],["NPV万",r.npvEq.toFixed(1)],["MOIC",r.moicEq.toFixed(4)],
-      ["场地方当月净现金转正月",r.parties.site.firstPos],["场地方最高当月净现金",r.parties.site.maxM],["场地方最低当月净现金",r.parties.site.minM],
-      ["运营方当月净现金转正月",r.parties.ops.firstPos],["运营方最高当月净现金",r.parties.ops.maxM],["运营方最低当月净现金",r.parties.ops.minM]];
+      ["CapEx万",r.snap.capex.toFixed(1)],["经营回本月",(Number.isFinite(r.pb)&&r.pb>0)?r.pb:"—"],["表格月数",r.ser.T],
+      ["权益年化收益率IRR",Number.isFinite(r.irrEq)?r.irrEq:"—"],["NPV万",Number.isFinite(r.npvEq)?r.npvEq.toFixed(1):"—"],["MOIC",Number.isFinite(r.moicEq)?r.moicEq.toFixed(4):"—"],
+      ["期末残值万",Number.isFinite(r.ser.residual)?r.ser.residual.toFixed(1):"—"],
+      ["场地方当月净现金转正月",Number.isFinite(r.parties.site.firstPos)?r.parties.site.firstPos:"—"],["场地方最高当月净现金",Number.isFinite(r.parties.site.maxM)?r.parties.site.maxM:"—"],["场地方最低当月净现金",Number.isFinite(r.parties.site.minM)?r.parties.site.minM:"—"],
+      ["运营方当月净现金转正月",Number.isFinite(r.parties.ops.firstPos)?r.parties.ops.firstPos:"—"],["运营方最高当月净现金",Number.isFinite(r.parties.ops.maxM)?r.parties.ops.maxM:"—"],["运营方最低当月净现金",Number.isFinite(r.parties.ops.minM)?r.parties.ops.minM:"—"]];
     downloadText("H200-算电协同-投资测算.csv", lines.map(function(row){return row.map(csvEscape).join(",");}).join("\n"));
   });
   document.getElementById("btnJson").addEventListener("click",function(){
