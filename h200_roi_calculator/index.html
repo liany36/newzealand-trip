@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>H200 算电协同 · 投资测算器</title>
+<meta name="description" content="H200 算电协同投资测算器：按输入参数计算回本、IRR、NPV、MOIC、盈亏平衡与敏感性。单文件可托管于 Cloudflare Pages。" />
+<style>
+:root{
+  --bg:#e8f1fb;--bg2:#ffffff;--bg3:#d9e8f8;--card:#f7fbff;
+  --border:#b7d0ea;--border2:#8eb6d9;
+  --text:#0b1f33;--muted:#4a6480;
+  --accent:#1d6fd8;--accent2:#1557b0;
+  --ok:#047857;--warn:#c2410c;--danger:#b91c1c;
+  --radius:12px;
+  --font:"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --glow:rgba(29,111,216,.14);
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{
+  margin:0;font-family:var(--font);color:var(--text);line-height:1.6;font-size:15.5px;
+  background:
+    radial-gradient(1200px 520px at 8% -10%, rgba(96,165,250,.35), transparent 55%),
+    radial-gradient(900px 480px at 92% 0%, rgba(56,189,248,.22), transparent 50%),
+    linear-gradient(180deg,#dbeafe 0%, #e8f1fb 38%, #eef5fc 100%);
+  min-height:100vh;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:22px 16px 80px}
+header.hero{
+  border:1px solid var(--border);
+  background:linear-gradient(135deg,#ffffff 0%,#eaf3ff 45%,#dcecff 100%);
+  border-radius:16px;padding:24px 26px;margin-bottom:18px;
+  box-shadow:0 8px 28px rgba(29,111,216,.10), inset 0 1px 0 rgba(255,255,255,.85);
+  position:relative;overflow:hidden;
+}
+header.hero::before{
+  content:"";position:absolute;inset:0 auto auto 0;width:100%;height:3px;
+  background:linear-gradient(90deg,#38bdf8,#2563eb,#7c3aed);
+}
+header.hero h1{margin:0 0 8px;font-size:1.55rem;font-weight:700;letter-spacing:.02em;color:#0b1f33}
+header.hero .sub{color:var(--muted);font-size:1rem;max-width:78ch;margin:0}
+.badge-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center}
+.badge{font-size:12px;padding:3px 9px;border-radius:999px;border:1px solid var(--border2);color:var(--muted);background:var(--bg2)}
+.badge.accent{color:var(--accent);border-color:#93c5fd;background:#eff6ff}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-left:auto}
+button{font-family:var(--font);cursor:pointer;border-radius:9px;border:1px solid var(--border2);background:var(--bg2);color:var(--text);padding:9px 15px;font-size:14px}
+button:hover{border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
+button.primary{background:linear-gradient(180deg,#2b7de9,#1d6fd8);border-color:#1557b0;color:#fff}
+button.primary:hover{background:linear-gradient(180deg,#1d6fd8,#1557b0);color:#fff}
+section.block{
+  border:1px solid var(--border);background:rgba(247,251,255,.92);backdrop-filter:blur(6px);
+  border-radius:var(--radius);padding:18px 20px;margin-bottom:15px;
+  box-shadow:0 4px 16px rgba(29,111,216,.06);
+}
+section.block h2{margin:0 0 12px;font-size:1.14rem;font-weight:700;color:#0b1f33}
+section.block h3{margin:14px 0 8px;font-size:1rem;color:var(--muted);font-weight:650}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:10px;overflow:visible;margin-right:10px;margin-bottom:8px;position:relative;z-index:2;background:#fff}
+.seg button{position:relative}
+.seg .tip::after{top:auto;bottom:calc(100% + 8px);z-index:200}
+.seg button{border:0;border-radius:0;background:transparent;padding:9px 15px;font-size:14px}
+.seg button.active{background:linear-gradient(180deg,#2b7de9,#1d6fd8);color:#fff}
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+@media(max-width:960px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.grid{grid-template-columns:1fr}}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:0}
+.grid3 + .grid3{margin-top:14px}
+@media(max-width:720px){.grid3{grid-template-columns:1fr}}
+.field input:disabled,.field input[readonly]{background:#f1f5f9;color:var(--muted);cursor:default}
+.field label{display:flex;align-items:center;gap:5px;color:var(--muted);font-size:13px;margin-bottom:6px;font-weight:550}
+.field input,.field select{width:100%;background:#fff;border:1.5px solid var(--border);border-radius:8px;color:var(--text);padding:10px 11px;font-family:var(--mono);font-size:14.5px}
+.field input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
+.field .help{margin:7px 0 0;font-size:12.5px;line-height:1.5;color:var(--muted)}
+.field.check{display:flex;align-items:flex-start;gap:8px;padding-top:22px}
+.field.check input{width:auto;margin-top:2px}
+.field.check label{margin:0;color:var(--text);font-size:14px;line-height:1.4}
+.tip{position:relative;display:inline-flex;width:16px;height:16px;border-radius:50%;border:1px solid #7aa8d4;color:#1d6fd8;font-size:11px;align-items:center;justify-content:center;cursor:help;flex-shrink:0;background:#eaf3ff;font-weight:700}
+.tip::after{content:attr(data-tip);position:absolute;z-index:50;left:50%;top:calc(100% + 8px);transform:translateX(-50%);width:min(340px,82vw);padding:11px 13px;background:#0b1f33;border:1px solid #1e3a5f;border-radius:9px;color:#f1f5f9;font-size:12.5px;line-height:1.5;white-space:normal;box-shadow:0 14px 32px rgba(11,31,51,.28);opacity:0;pointer-events:none;transition:opacity .12s}
+.tip:hover::after,.tip:focus::after,.tip:focus-visible::after{opacity:1}
+.seg .tip{pointer-events:auto}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media(max-width:960px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.metric{background:linear-gradient(180deg,#ffffff,#eef6ff);border:1.5px solid var(--border);border-radius:10px;padding:14px 13px 12px;box-shadow:0 2px 8px rgba(29,111,216,.05)}
+.metric .k{color:var(--muted);font-size:12.5px;display:flex;align-items:center;gap:4px;margin-bottom:5px;font-weight:550}
+.metric .v{font-size:1.28rem;font-weight:700;font-variant-numeric:tabular-nums;font-family:var(--mono);color:#0b1f33}
+.metric .d{color:var(--muted);font-size:12px;margin-top:4px}
+.metric.ok .v{color:var(--ok)}.metric.warn .v{color:var(--warn)}.metric.danger .v{color:var(--danger)}
+.callout{border-radius:10px;padding:14px 15px;margin:10px 0;border:1.5px solid var(--border);background:#f3f8ff;font-size:14px}
+.callout.info{border-color:#7db3e8;background:#e8f2ff}
+.callout.ok{border-color:#6ee7b7;background:#ecfdf5}
+.callout.warn{border-color:#fbbf24;background:#fffbeb}
+.callout.danger{border-color:#fca5a5;background:#fef2f2}
+.callout.memo{border-color:#93c5fd;background:#eef5ff}
+.callout strong.lead{display:block;margin-bottom:6px;font-size:1.02rem}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{border-bottom:1px solid var(--border);padding:8px 9px;text-align:right;font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--muted);font-weight:600;font-size:13px;background:#eaf3ff}
+.muted{color:var(--muted)}.mono{font-family:var(--mono)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1.5px solid var(--border);background:#fff;border-radius:999px;padding:5px 11px;font-size:13px;color:var(--muted);cursor:pointer}
+.chip.active{border-color:var(--accent);color:#1557b0;background:#dbeafe;font-weight:650}
+footer.note{color:var(--muted);font-size:13px;margin-top:18px;line-height:1.55}
+.summary-line{color:var(--muted);font-size:13.5px;margin-top:8px}
+.tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:4px;margin-left:4px;border:1px solid var(--border2);color:var(--muted);vertical-align:middle}
+.tag.contract{color:#1d4ed8;border-color:#93c5fd;background:#eff6ff}
+.tag.user{color:#b45309;border-color:#fcd34d;background:#fffbeb}
+.tag.model{color:#334155;border-color:#93c5fd;background:#eaf3ff}
+.tag.unverified{color:#be123c;border-color:#fda4af;background:#fff1f2}
+.bar-wrap{display:flex;align-items:center;gap:8px}
+.bar{height:11px;border-radius:4px;background:#cfe0f3;flex:1;overflow:hidden;position:relative}
+.sens-val{min-width:5.5em;font-family:var(--mono);font-size:13px}
+
+.payback-strip{margin-top:14px;padding:14px 16px;border-radius:12px;border:1.5px solid var(--border2);background:linear-gradient(135deg,#ffffff 0%,#e8f3ff 100%);box-shadow:0 2px 10px rgba(29,111,216,.08)}
+.payback-strip .ps-title{font-size:13px;font-weight:650;color:var(--muted);margin:0 0 8px;letter-spacing:.04em}
+.payback-strip .ps-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media(max-width:720px){.payback-strip .ps-grid{grid-template-columns:1fr}}
+.payback-strip .ps-item{background:rgba(255,255,255,.85);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+.payback-strip .ps-k{font-size:12px;color:var(--muted);margin-bottom:4px;font-weight:550}
+.payback-strip .ps-v{font-family:var(--mono);font-size:1.15rem;font-weight:700;color:#0b1f33}
+.payback-strip .ps-d{font-size:12px;color:var(--muted);margin-top:3px}
+.payback-strip.ok .ps-v{color:var(--ok)}.payback-strip.warn .ps-v{color:var(--warn)}.payback-strip.danger .ps-v{color:var(--danger)}
+.payback-strip .ps-mains{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+@media(max-width:720px){.payback-strip .ps-mains{grid-template-columns:1fr}}
+.payback-strip .ps-main{margin-bottom:0;padding:12px 14px;border-radius:10px;border:1.5px solid #93c5fd;background:linear-gradient(135deg,#eff6ff,#ffffff)}
+.payback-strip .ps-main.alt{border-color:#86efac;background:linear-gradient(135deg,#f0fdf4,#ffffff)}
+.payback-strip .ps-main .ps-k{font-size:12.5px;color:var(--muted);font-weight:650;margin-bottom:4px}
+.payback-strip .ps-main .ps-v{font-family:var(--mono);font-size:1.45rem;font-weight:750;color:#0b1f33}
+.payback-strip .ps-main .ps-d{font-size:12px;color:var(--muted);margin-top:4px}
+.payback-strip .ps-sub-title{font-size:12px;font-weight:650;color:var(--muted);margin:10px 0 8px;letter-spacing:.03em}
+.payback-strip .ps-note{font-size:12px;color:var(--muted);margin:8px 0 0;line-height:1.55}
+.payback-strip .ps-parties{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media(max-width:720px){.payback-strip .ps-parties{grid-template-columns:1fr}}
+.party-card{background:rgba(255,255,255,.9);border:1px solid var(--border);border-radius:10px;padding:12px 13px}
+.party-card .pc-role{font-size:12.5px;font-weight:700;color:#0b1f33;margin-bottom:2px}
+.party-card .pc-role-sub{font-size:11.5px;color:var(--muted);margin-bottom:8px}
+.party-card .pc-v{font-family:var(--mono);font-size:1.12rem;font-weight:700;color:#0b1f33}
+.party-card .pc-d{font-size:11.5px;color:var(--muted);margin-top:4px;line-height:1.45}
+.party-card.inv{border-color:#93c5fd;background:#f0f7ff}
+.share-rev-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media(max-width:860px){.share-rev-grid{grid-template-columns:1fr}}
+.share-rev-card{border:1.5px solid var(--border);border-radius:10px;padding:13px 14px;background:#fff}
+.share-rev-card h3{margin:0 0 8px;font-size:.98rem;color:#0b1f33}
+.share-rev-card .sr-line{font-size:13.5px;margin:4px 0;color:var(--text)}
+.share-rev-card .sr-k{color:var(--muted)}
+.share-rev-card .sr-v{font-family:var(--mono);font-weight:650}
+.share-banner{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px;align-items:center}
+.share-pill{font-size:13px;padding:5px 11px;border-radius:999px;border:1.5px solid var(--border2);background:#eff6ff;color:#1557b0;font-weight:650}
+.share-sum{font-size:12.5px;color:var(--muted);margin-left:4px;font-weight:550}
+.share-sum.ok{color:var(--ok)}
+.stage-n-inline{display:none;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 12px;padding:8px 12px;border:1px solid var(--border);border-radius:10px;background:#fff;max-width:100%}
+.stage-n-inline.show{display:flex}
+.stage-n-inline label{margin:0;color:var(--muted);font-size:13px;font-weight:550;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.stage-n-inline input{width:88px;background:#fff;border:1.5px solid var(--border);border-radius:8px;color:var(--text);padding:8px 10px;font-family:var(--mono);font-size:14.5px}
+.stage-n-inline .sn-hint{font-size:12.5px;color:var(--muted);line-height:1.35}
+.share-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.share-stage{display:grid;grid-template-columns:56px repeat(3,minmax(0,1fr));gap:10px 14px;align-items:end;margin-top:4px}
+.share-stage .ss-h{font-size:12.5px;color:var(--muted);font-weight:650;padding-bottom:2px}
+.share-stage .ss-lab{font-size:13px;color:var(--muted);font-weight:650;padding-bottom:10px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+@media(max-width:720px){
+  .share-3{grid-template-columns:1fr}
+  .share-stage{grid-template-columns:56px 1fr}
+  .share-stage .ss-h:nth-child(n+2){display:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <h1>H200 算电协同 · 投资测算器</h1>
+    <div class="badge-row">
+      <div class="actions" style="margin-left:0">
+        <button type="button" id="btnReset">重置默认</button>
+        <button type="button" class="primary" id="btnCsv">导出 CSV</button>
+        <button type="button" id="btnJson">导出 JSON 模板</button>
+      </div>
+    </div>
+    <div class="payback-strip danger" id="paybackStrip">
+      <div class="ps-title">预计回本周期 · 资方（设备出资）· 经营回本（已扣月度损耗）</div>
+      <div class="ps-mains">
+        <div class="ps-main" style="grid-column:1 / -1">
+          <div class="ps-k">经营回本 <span class="tip" tabindex="0" data-tip="未贴现。回本＝分成现金累计≥CapEx。当月经营净现金＝分成现金−当月设备损耗／增值（展示）。表格月数：后段正跌至残值归零，否则默认 120 月。回本不贴现；NPV／年化收益率才贴现。">!</span></div>
+          <div class="ps-v" id="psOpsMain">—</div>
+          <div class="ps-d" id="psOpsMainD"></div>
+        </div>
+      </div>
+      <div class="ps-sub-title">表格月数</div>
+      <div class="ps-grid">
+        <div class="ps-item">
+          <div class="ps-k">表格期内回本</div>
+          <div class="ps-v" id="psOpsWithin">—</div>
+          <div class="ps-d" id="psOpsWithinD"></div>
+        </div>
+        <div class="ps-item">
+          <div class="ps-k">表格月数</div>
+          <div class="ps-v" id="psLife">—</div>
+          <div class="ps-d" id="psLifeD"></div>
+        </div>
+      </div>
+      <p class="ps-note" id="psDualNote"></p>
+      <div class="ps-sub-title">场地方／运营方 · 当月净现金（不称回本）</div>
+      <div class="ps-parties">
+        <div class="party-card inv">
+          <div class="pc-role">资方</div>
+          <div class="pc-role-sub">出设备资金 · 回本仅资方</div>
+          <div class="pc-v" id="psPartyInv">—</div>
+          <div class="pc-d" id="psPartyInvD">设备投资＝CapEx；经营回本见上</div>
+        </div>
+        <div class="party-card">
+          <div class="pc-role">场地方</div>
+          <div class="pc-role-sub" id="psSiteRoleSub">出场地与电</div>
+          <div class="pc-v" id="psPartySite">—</div>
+          <div class="pc-d" id="psPartySiteD">当月净现金何时＞0 · 最高／最低</div>
+        </div>
+        <div class="party-card">
+          <div class="pc-role">运营方</div>
+          <div class="pc-role-sub">负责运营、运维</div>
+          <div class="pc-v" id="psPartyOps">—</div>
+          <div class="pc-d" id="psPartyOpsD">当月净现金何时＞0 · 最高／最低</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+  <section class="block" id="schemeBlock">
+    <h2>方案与分成模式</h2>
+    <div class="toolbar">
+      <div class="seg" id="schemeSeg">
+        <button type="button" data-v="A" class="active">方案 A · 校园</button>
+        <button type="button" data-v="B">方案 B · 发电企业</button>
+      </div>
+      <div class="seg" id="modeSeg">
+        <button type="button" data-v="fixed" class="active">固定比例 <span class="tip" tabindex="0" role="img" aria-label="固定比例说明" data-tip="全周期同一套分成比例；若勾选先扣 OpEx，则按扣后可分配收入切分。">!</span></button>
+        <button type="button" data-v="staged">阶段性 <span class="tip" tabindex="0" role="img" aria-label="阶段性说明" data-tip="前 N 个月用前段分成，之后用后段分成。">!</span></button>
+      </div>
+    </div>
+        <div class="stage-n-inline" id="stageNWrap">
+      <label for="stageMonths">阶段性前段月数 N <span class="tip" tabindex="0" data-tip="前 N 个月＝前段比例；之后＝后段。固定比例下不生效。">!</span></label>
+      <input id="stageMonths" type="number" step="1" min="1" value="24" />
+      <span class="sn-hint">前 N 月＝前段比例，之后＝后段</span>
+    </div>
+        <div id="schemeParams"></div>
+    <div class="callout info" id="elecCallout" style="margin-top:12px">—</div>
+  </section>
+
+  <section class="block" id="partyShareBlock">
+    <h2>三方分成与营收</h2>
+    <div class="share-banner" id="shareBanner"></div>
+    <div class="share-rev-grid" id="partyShareGrid"></div>
+    <div class="callout info" id="partyShareNote" style="margin-top:12px"></div>
+    <h3 style="margin-top:16px">三方月度净现金流（完整序列）</h3>
+    <p class="muted" style="margin-top:0;font-size:12px">行数＝表格月数（后段正跌则至残值归零，否则默认 120 月）。金额均为未贴现名义现金。资方当月净现金＝分成现金−当月设备损耗／增值。</p>
+    <div style="overflow-x:auto;max-height:420px;overflow-y:auto"><table id="partyMonthTable"></table></div>
+  </section>
+
+  <section class="block">
+    <h2>资方回本与三方现金口径</h2>
+    <div class="callout info" id="windowCallout"></div>
+  </section>
+
+  <section class="block">
+    <h2>核心回报栈 <span class="tip" tabindex="0" data-tip="「回本」仅指资方设备出资：未贴现分成现金累计≥CapEx。场地方／运营方只展示当月净现金转正与最高／最低。回本不贴现；NPV 按贴现率折现；年化收益率（IRR）即该现金流的年化收益。">!</span></h2>
+    <div class="metrics" id="coreMetrics"></div>
+    <h3>盈亏平衡（含爬坡测算）</h3>
+    <div class="metrics" id="beMetrics"></div>
+    <div class="callout" id="roiIrrNote" style="margin-top:12px"></div>
+    <div class="callout warn" id="cf24Callout"></div>
+    <div class="callout info" id="need24Callout"></div>
+  </section>
+
+  <section class="block">
+    <h2>投资备忘录</h2>
+    <div class="callout memo" id="memoCallout"></div>
+  </section>
+
+  <section class="block">
+    <h2>敏感性（±20% · 对权益年化收益率（IRR）与资方回本）</h2>
+    <p class="muted" style="margin-top:0;font-size:12px">单变量扰动，其余保持基准。显示相对基准权益年化收益率（IRR）的百分点变化。</p>
+    <div id="sensTable" style="overflow-x:auto"></div>
+  </section>
+
+  <section class="block">
+    <h2>方案 A vs B 对照</h2>
+    <div style="overflow-x:auto"><table id="abTable"></table></div>
+  </section>
+
+  <section class="block">
+    <h2>逐年／逐月明细（三方现金流）</h2>
+    <p class="muted" style="margin-top:0;font-size:12px">含利用率爬坡与租金衰减。下列金额除「资方折现累计」外均为未贴现名义现金。收入、电费、运营成本（OpEx）为项目层；资方现金流为权益口径（分成现金−月度设备损耗／增值；若有杠杆已扣利息与还本）；场地方净现金＝方案 A 学校净／方案 B 场地净（均已扣电费）；运营方净现金＝运营分成净额；现金倍数 MOIC＝累计资方现金流／权益出资。</p>
+    <h3>按年汇总</h3>
+    <div style="overflow-x:auto"><table id="yearTable"></table></div>
+    <h3 style="margin-top:14px">按月明细（表格期内）</h3>
+    <p class="muted" style="margin-top:0;font-size:12px">表格期内每一个月的收入、电费、运营成本、设备损耗／增值与三方净现金（未贴现）。与上方「三方月度净现金流」一致。</p>
+    <div style="overflow-x:auto;max-height:480px;overflow-y:auto"><table id="monthDetailTable"></table></div>
+  </section>
+
+  <section class="block">
+    <h2>规模敏感性（16 / 32 / 64）</h2>
+    <p class="muted" style="margin-top:0;font-size:12px">台数线性放大收入与投资；默认 OpEx 按「万元/月总额」计，不自动随台数倍增。</p>
+    <div style="overflow-x:auto"><table id="scaleTable"></table></div>
+  </section>
+
+  <section class="block">
+    <h2>乐观 / 基准 / 悲观</h2>
+    <div style="overflow-x:auto"><table id="scenTable"></table></div>
+  </section>
+
+  <section class="block">
+    <h2>假设台账 <span class="tip" tabindex="0" data-tip="每条假设标注来源：合同条款、用户给定、建模惯例、或尚未核实的市场数。">!</span></h2>
+    <div style="overflow-x:auto"><table id="ledgerTable"></table></div>
+  </section>
+
+  <section class="block">
+    <h2>名词速查</h2>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>名词</th><th style="text-align:left">一句话</th></tr></thead>
+        <tbody>
+          <tr><td>CapEx</td><td style="text-align:left">资本开支：买设备一次性投入 = 台数 × 采购价</td></tr>
+          <tr><td>利用率爬坡</td><td style="text-align:left">从起步利用率线性升到目标利用率，反映上架/获客期</td></tr>
+          <tr><td>租金两段式</td><td style="text-align:left">前 N 年按前段每年变化%；自第 N+1 年起按后段每年变化%（正＝跌，负＝涨）。填写按年；计算时年率摊到月（复利：(1+r)^(1/12)−1）。</td></tr>
+          <tr><td>OpEx</td><td style="text-align:left">运维保修、带宽、保险、人员等；默认可由运营承担，或勾选先扣再分成</td></tr>
+          <tr><td>权益年化收益率（IRR）</td><td style="text-align:left">资方权益现金流的年化收益（扣利息与还本后）。定义上等于使该现金流净现值 NPV＝0 的折现率；主界面按年化收益理解即可。页面「贴现率」只用于计算给定折现率下的 NPV。</td></tr>
+          <tr><td>全资本年化收益率（IRR）</td><td style="text-align:left">无杠杆（100% 权益）资方现金流的年化收益。</td></tr>
+          <tr><td>MOIC</td><td style="text-align:left">现金倍数＝表格期内累计资方现金流／权益出资；看赚了几倍，不看时间价值</td></tr>
+          <tr><td>Cash-on-Cash</td><td style="text-align:left">某年经营现金 / 权益出资；看早期分红能力</td></tr>
+          <tr><td>NPV</td><td style="text-align:left">按所选贴现率，把表格期整条名义现金流折到今天后的净值。</td></tr>
+          <tr><td>盈亏平衡利用率/月租/采购价</td><td style="text-align:left">在含爬坡、租金两段与月度损耗的测算下，使 24/36 月累计刚好回本的临界值</td></tr>
+          <tr><td>方案 A 默认分成</td><td style="text-align:left">占收入：资方 61.6% · 学校 23% · 运营方 15.4%（合同 23%＋剩余内 8/2 的折算）</td></tr>
+          <tr><td>固定 / 阶段性</td><td style="text-align:left">固定比例＝全周期同一分成；阶段性＝前 N 个月用前段比例、之后用后段比例（N＝阶段性前段月数）</td></tr>
+          <tr><td>表格月数</td><td style="text-align:left">由设备残值两段式决定：后段年跌幅&gt;0 时出表至残值归零；否则（后段不跌或继续涨）默认 120 月。不另设独立「测算年限」。</td></tr>
+          <tr><td>设备残值两段式 / PUE</td><td style="text-align:left">前 N 年按前段每年变化%（正＝涨，复利摊月）；自第 N+1 年起按后段每年变化%（正＝跌，按转折点残值线性年扣／12 摊月；负＝继续涨）。月变动＝上月末残值−本月末残值。PUE 放大 IT 用电得设施侧电度。</td></tr>
+          <tr><td>阶段性前段月数</td><td style="text-align:left">仅阶段性分成：前 N 个月用前段比例，之后用后段比例；固定比例模式下不改变分成</td></tr>
+          <tr><td>三方</td><td style="text-align:left">资方（出设备资金）· 场地方（出场地与电；方案 A 可称学校／场地方）· 运营方（负责运营、运维）</td></tr>
+          <tr><td>经营回本</td><td style="text-align:left">仅资方。未贴现。回本＝分成现金累计≥CapEx；当月经营净现金＝分成现金−月度设备损耗（展示）。场地方、运营方不称回本。表格月数见上。</td></tr>
+          <tr><td>场地方／运营方当月净现金</td><td style="text-align:left">不称回本。在当前分成与爬坡期内：首次当月净现金＞0 的月份、各月当月净现金最高与最低。</td></tr>
+          <tr><td>何时贴现</td><td style="text-align:left">回本与经营「当月／累计净现金」＝未贴现名义金额。贴现＝把未来名义现金流按年化贴现率折成今天的钱；只用于 NPV。年化收益率（IRR）是该现金流的年化收益。</td></tr>
+                    <tr><td>本页「测算器」</td><td style="text-align:left">投资测算页：按参数计算资方回本、IRR、NPV 等指标</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  const TIPS = {
+    util: "目标利用率 = 爬坡结束后实际可计费出租量 ÷ 满负荷容量。爬坡期内按线性从起步利用率升到此值。",
+    utilStart: "起步利用率：交付后首月的利用率。默认 40%。",
+    rampM: "爬坡月数：从起步利用率线性过渡到目标利用率。默认 6。",
+    rentRiseY: "租金前段年数 N：前 N 年按前段每年变化%；自第 N+1 年起按后段。N＝0 表示从首年即用后段。按年填写。",
+    rentRisePct: "租金前段每年变化%。正＝每年涨；负＝每年跌。计算时摊到月：月因子＝(1+年率)^(1/12)−1。",
+    rentFallPct: "租金后段每年变化%。正＝每年跌；负＝每年涨（增值）。两段搭配可避免无限上涨。默认 10%/年。计算时摊到月。",
+    internal: "仅方案 A（校园）。对内需求占比。方案 B（企业）无对内折扣。",
+    disc: "仅方案 A（校园）。对内折扣：结算价 = 挂牌月租 ×（折扣÷10）。方案 B 无此字段。",
+    kw: "整机 IT 功耗（kW）。各方案可不同。",
+    pue: "PUE = 机房总用电 ÷ IT 用电。校园与发电企业场地通常不同，按方案分别填写。",
+    wearRiseY: "设备残值前段年数 N：前 N 年按前段每年变化%；自第 N+1 年起按后段。N＝0 表示从首年即用后段。按年填写。",
+    wearRisePct: "设备残值前段每年变化%。正＝每年涨（增值）；负＝每年跌。计算时摊到月：月因子＝(1+年率)^(1/12)−1。",
+    wearFallPct: "设备残值后段每年变化%。正＝每年按转折点残值的该百分比线性扣减（÷12 摊到月），直至归零；负＝后段继续涨（增值）。表格月数：后段为正跌则出表至归零，否则默认 120 月。默认 5%/年（约 20 年归零）。",
+    stage: "阶段性前段月数：前 N 个月按前段分成；之后按后段。",
+    capex: "CapEx = 台数 × 采购单价。资方回本＝未贴现分成现金累计≥CapEx；月损耗计入展示与表格。",
+    roi: "简单 ROI。仅资方。",
+    irr: "年化收益率（IRR）：资方权益现金流的年化收益。仅资方。",
+    npv: "净现值 NPV＝按页面贴现率把表格期资方现金流折到今天。与年化收益率成对。仅资方。回本不贴现。",
+    moic: "MOIC。仅资方。",
+    coc: "Cash-on-Cash。仅资方。",
+    discount: "年化贴现率：把未来名义现金流折成今天的钱。只用于 NPV；回本与经营净现金表不贴现。各方案可分别设定。",
+    school: "学校占项目收入的比例。",
+    invA: "资方占项目收入的比例。",
+    opsA: "运营方占项目收入的比例。",
+    elecA: "校方承担机房电价。",
+    elecB: "场地方供电成本。电费从场地分成扣。",
+    invB: "资方占项目收入的比例。",
+    siteB: "场地方占项目收入的比例。",
+    opsB: "运营方占项目收入的比例。",
+    hours: "月满载小时，默认 730。",
+    opexMaint: "运维/保修（万元/月）。",
+    opexBw: "带宽/专线（万元/月）。",
+    opexIns: "保险（万元/月）。",
+    opexStaff: "人员（万元/月）。",
+    opexOther: "其他固定 OpEx（万元/月）。",
+    lev: "债务占 CapEx 比例。",
+    debtRate: "贷款年利率。",
+    debtTenor: "贷款期限（月）。",
+    be: "盈亏平衡：使资方累计经营现金在第 24/36 月末等于 CapEx 的临界值。"
+  };
+
+  const BASE_SHARED = {
+    units:16, purchase:660, rent:14.25, util:75,
+    utilStart:40, rampMonths:6,
+    rentRiseYears:0, rentRisePct:0, rentFallPct:10, /* 年衰减 10%；计算时摊月 */
+    kwPerUnit:10.2, pue:1.3, hoursMonth:730,
+    wearRiseYears:0, wearRisePct:0, wearFallPct:5, /* 年损耗 5% 线性归零约 20 年；计算时摊月 */
+    _annualRates:true,
+    discount:8,
+    opexMaint:8, opexBw:3, opexIns:2, opexStaff:6, opexOther:2, opexBeforeShare:false,
+    leverage:0, debtRate:5, debtTenor:60, stageMonths:24
+  };
+  const DEFAULTS_A = Object.assign({}, BASE_SHARED, {
+    internalShare:0, internalDiscount:5.5,
+    elecA:0.56,
+    invPctA:61.6, schoolPct:23, opsPctA:15.4,
+    invEarlyA:73.2, schoolEarlyA:23, opsEarlyA:3.8,
+    invLateA:38.5, schoolLateA:23, opsLateA:38.5
+  });
+  const DEFAULTS_B = Object.assign({}, BASE_SHARED, {
+    internalShare:0, internalDiscount:10,
+    elecB:0.36, invPctB:55, sitePctB:25, opsPctB:20,
+    invEarlyB:65, siteEarlyB:20, opsEarlyB:15,
+    invLateB:40, siteLateB:25, opsLateB:35
+  });
+
+  const state = {
+    scheme:"A", shareMode:"fixed",
+    paramsA: Object.assign({}, DEFAULTS_A),
+    paramsB: Object.assign({}, DEFAULTS_B)
+  };
+  function P(){ return state.scheme==="A" ? state.paramsA : state.paramsB; }
+  function defaultsFor(scheme){ return scheme==="A" ? DEFAULTS_A : DEFAULTS_B; }
+
+  function n(v, fb){ const x=Number(String(v).replace(/,/g,"").trim()); return Number.isFinite(x)?x:fb; }
+  function clamp(x,lo,hi){ return Math.min(hi, Math.max(lo,x)); }
+  function fmtWan(v){ if(!Number.isFinite(v))return "—"; if(Math.abs(v)>=10000)return (v/10000).toFixed(2)+" 亿"; return v.toFixed(1)+" 万"; }
+  function fmtPct(v,d){ if(!Number.isFinite(v))return "—"; return (v*100).toFixed(d==null?1:d)+"%"; }
+  /** 展示用三方占收入（假定已合计 100%） */
+  function fmtGrossTriple(a,b,c,d){
+    d=d==null?1:d;
+    let pa=+(Math.max(0,a)*100).toFixed(d);
+    let pb=+(Math.max(0,b)*100).toFixed(d);
+    let pc=+(100-pa-pb).toFixed(d);
+    return {pa:pa,pb:pb,pc:pc, a:pa.toFixed(d)+"%", b:pb.toFixed(d)+"%", c:pc.toFixed(d)+"%", sum:"100%"};
+  }
+
+  const SHARE_TRIPLES_A = [
+    ["invPctA","schoolPct","opsPctA"],
+    ["invEarlyA","schoolEarlyA","opsEarlyA"],
+    ["invLateA","schoolLateA","opsLateA"]
+  ];
+  const SHARE_TRIPLES_B = [
+    ["invPctB","sitePctB","opsPctB"],
+    ["invEarlyB","siteEarlyB","opsEarlyB"],
+    ["invLateB","siteLateB","opsLateB"]
+  ];
+  const SHARE_PAIR_OF = (function(){
+    var m={};
+    SHARE_TRIPLES_A.concat(SHARE_TRIPLES_B).forEach(function(t){
+      m[t[0]]=t; m[t[1]]=t; m[t[2]]=t;
+    });
+    return m;
+  })();
+  function enforceOneTriple(S, k1, k2, k3){
+    var a=clamp(n(S[k1],0),0,100);
+    var b=clamp(n(S[k2],0),0,100);
+    if(a+b>100){ b=100-a; }
+    a=+a.toFixed(1); b=+b.toFixed(1);
+    if(a+b>100){ b=+(100-a).toFixed(1); }
+    var c=+(100-a-b).toFixed(1);
+    S[k1]=a; S[k2]=b; S[k3]=c;
+    return c;
+  }
+  function enforceShareParams(S, scheme){
+    (scheme==="A"?SHARE_TRIPLES_A:SHARE_TRIPLES_B).forEach(function(t){ enforceOneTriple(S,t[0],t[1],t[2]); });
+  }
+  /** 读前两项，第三项=100−前两；硬约束合计100，不做归一加权 */
+  function readSharePair(aPct, bPct){
+    var a=clamp(n(aPct,0),0,100);
+    var b=clamp(n(bPct,0),0,100);
+    if(a+b>100) b=100-a;
+    var c=100-a-b;
+    return {a:a/100, b:b/100, c:c/100};
+  }
+
+  function fmtMonths(v){ if(!Number.isFinite(v)||v<=0||v>10000)return "—"; return Math.round(v)+" 月（≈"+(v/12).toFixed(1)+" 年）"; }
+  function fmtPbShort(v){ if(!Number.isFinite(v)||v<=0||v>10000)return "未回本（≤600月）"; return Math.round(v)+" 月（≈"+(v/12).toFixed(1)+" 年）"; }
+  /** 期内已回本：外推栏不得再重复同一月数假装另一口径 */
+  function fmtPbOutside(recoveredWithin, pbWithin, pbExtra){
+    if(recoveredWithin && Number.isFinite(pbWithin) && pbWithin>0 && pbWithin<=10000)
+      return "未超出表格期（第 "+Math.round(pbWithin)+" 月）";
+    if(Number.isFinite(pbExtra) && pbExtra>0 && pbExtra<=10000)
+      return Math.round(pbExtra)+" 月（≈"+(pbExtra/12).toFixed(1)+" 年）";
+    return "表格期内未回本";
+  }
+  function fmtPbOutsideShort(recoveredWithin, pbWithin, pbExtra){
+    if(recoveredWithin && Number.isFinite(pbWithin) && pbWithin>0 && pbWithin<=10000)
+      return "未超出表格期";
+    if(Number.isFinite(pbExtra) && pbExtra>0 && pbExtra<=10000)
+      return String(Math.round(pbExtra))+" 月";
+    return "—";
+  }
+  function fmtPbMain(recoveredWithin, pbWithin, pbExtra){
+    if(recoveredWithin && Number.isFinite(pbWithin) && pbWithin>0 && pbWithin<=10000)
+      return Math.round(pbWithin)+" 月（≈"+(pbWithin/12).toFixed(1)+" 年）";
+    if(Number.isFinite(pbExtra) && pbExtra>0 && pbExtra<=10000)
+      return "表格期内未回本";
+    return "表格期内未回本";
+  }
+  function paybackNote(pbWithin, recovered, T, wearCfgObj, capex){
+    var cfg=wearCfgObj||{riseYears:0,risePct:0,fallPct:5};
+    var horiz=horizonPhrase(cfg, T);
+    var line1="口径：残值两段式（按年填写，年内摊月）——前 "+Number(cfg.riseYears).toFixed(2)+" 年每年 "+Number(cfg.risePct).toFixed(2)+"%，之后每年按转折点残值的 "+Number(cfg.fallPct).toFixed(2)+"%"+(cfg.fallPct>0?"线性扣减至归零":"（≤0 为不跌／继续涨）")+"。月变动＝上月末残值−本月末残值，计入资方经营净现金展示。回本＝未贴现分成现金累计≥CapEx（月变动不从回本累计再扣，避免与期初设备投资双计）。"+horiz+"。设备投资 "+fmtWan(capex)+"。";
+    var line2=recovered?("本参数下第 "+Math.round(pbWithin)+" 月回本。"):"本参数下在表格期内未回本。";
+    var line3="贴现：回本与经营表不贴现；NPV／年化收益率（IRR）对表格期名义现金（分成现金）按贴现率折现。年化收益率（IRR）即该现金流的年化收益。";
+    return line1+line2+line3;
+  }
+  function fmtFirstPos(v){
+    if(!Number.isFinite(v)||v<=0||v>10000) return "表格期内当月净现金未转正";
+    if(Math.round(v)===1) return "第 1 月起当月净现金＞0";
+    return "第 "+Math.round(v)+" 月起当月净现金＞0";
+  }
+  function fmtX(v){ if(!Number.isFinite(v))return "—"; return v.toFixed(2)+"x"; }
+  function tipHtml(key){ var t=TIPS[key]||""; return '<span class="tip" tabindex="0" data-tip="'+t.replace(/"/g,"&quot;")+'">!</span>'; }
+  function field(id,label,tipKey,step,val,opts){
+    opts=opts||{};
+    var labTxt=label||"";
+    if(opts.auto) labTxt=(labTxt?labTxt+" · ":"")+"自动";
+    var lab=labTxt?('<label>'+labTxt+(tipKey?" "+tipHtml(tipKey):"")+'</label>'):(tipKey?('<label class="sr-only">'+tipHtml(tipKey)+'</label>'):'<label style="display:none"></label>');
+    var attrs='id="'+id+'" type="number" step="'+(step||"any")+'" value="'+val+'"';
+    if(opts.min!=null) attrs+=' min="'+opts.min+'"';
+    if(opts.max!=null) attrs+=' max="'+opts.max+'"';
+    if(opts.readonly||opts.auto) attrs+=' readonly disabled';
+    return '<div class="field">'+lab+'<input '+attrs+' /></div>';
+  }
+  function siteCashLine(p){ return fmtFirstPos(p.firstPos)+" · 最高 "+fmtWan(p.maxM)+"／最低 "+fmtWan(p.minM); }
+  function opsCashLine(p){ return fmtFirstPos(p.firstPos)+" · 最高 "+fmtWan(p.maxM)+"／最低 "+fmtWan(p.minM); }
+
+
+  function renderSchemeParams(){
+    const el=document.getElementById("schemeParams");
+    const S=P();
+    const scheme=state.scheme;
+    let html="";
+    enforceShareParams(S, scheme);
+    html+="<h3>分成比例</h3>";
+    if(scheme==="A"){
+      const siteLab="学校";
+      if(state.shareMode==="staged"){
+        html+='<div class="share-stage">';
+        html+='<div></div><div class="ss-h">资方 · 占收入%</div><div class="ss-h">'+siteLab+' · 占收入%</div><div class="ss-h">运营方 · 占收入% · 自动</div>';
+        html+='<div class="ss-lab">前段</div>';
+        html+=field("invEarlyA","",null,"0.1",S.invEarlyA,{min:0,max:100});
+        html+=field("schoolEarlyA","",null,"0.1",S.schoolEarlyA,{min:0,max:100});
+        html+=field("opsEarlyA","",null,"0.1",S.opsEarlyA,{auto:true});
+        html+='<div class="ss-lab">后段</div>';
+        html+=field("invLateA","",null,"0.1",S.invLateA,{min:0,max:100});
+        html+=field("schoolLateA","",null,"0.1",S.schoolLateA,{min:0,max:100});
+        html+=field("opsLateA","",null,"0.1",S.opsLateA,{auto:true});
+        html+="</div>";
+      } else {
+        html+='<div class="share-3">';
+        html+=field("invPctA","资方 · 占收入%","invA","0.1",S.invPctA,{min:0,max:100});
+        html+=field("schoolPct",siteLab+" · 占收入%","school","0.1",S.schoolPct,{min:0,max:100});
+        html+=field("opsPctA","运营方 · 占收入%","opsA","0.1",S.opsPctA,{auto:true});
+        html+="</div>";
+      }
+    } else {
+      const siteLab="场地方";
+      if(state.shareMode==="staged"){
+        html+='<div class="share-stage">';
+        html+='<div></div><div class="ss-h">资方 · 占收入%</div><div class="ss-h">'+siteLab+' · 占收入%</div><div class="ss-h">运营方 · 占收入% · 自动</div>';
+        html+='<div class="ss-lab">前段</div>';
+        html+=field("invEarlyB","",null,"0.1",S.invEarlyB,{min:0,max:100});
+        html+=field("siteEarlyB","",null,"0.1",S.siteEarlyB,{min:0,max:100});
+        html+=field("opsEarlyB","",null,"0.1",S.opsEarlyB,{auto:true});
+        html+='<div class="ss-lab">后段</div>';
+        html+=field("invLateB","",null,"0.1",S.invLateB,{min:0,max:100});
+        html+=field("siteLateB","",null,"0.1",S.siteLateB,{min:0,max:100});
+        html+=field("opsLateB","",null,"0.1",S.opsLateB,{auto:true});
+        html+="</div>";
+      } else {
+        html+='<div class="share-3">';
+        html+=field("invPctB","资方 · 占收入%","invB","0.1",S.invPctB,{min:0,max:100});
+        html+=field("sitePctB",siteLab+" · 占收入%","siteB","0.1",S.sitePctB,{min:0,max:100});
+        html+=field("opsPctB","运营方 · 占收入%","opsB","0.1",S.opsPctB,{auto:true});
+        html+="</div>";
+      }
+    }
+    html+="<h3 style=\"margin-top:16px\">设备 · 收入 · 利用率</h3><div class=\"grid\">";
+    html+=field("units","台数",null,"1",S.units);
+    html+=field("purchase","采购价（万/台）",null,"1",S.purchase);
+    html+=field("rent","挂牌月租（万/台·月）",null,"0.01",S.rent);
+    html+=field("util","目标利用率（%）","util","1",S.util);
+    html+="</div>";
+    if(scheme==="A"){
+      html+="<h3 style=\"margin-top:14px\">校园对内</h3><div class=\"grid\">";
+      html+=field("internalShare","对内需求占比（%）","internal","1",S.internalShare);
+      html+=field("internalDiscount","对内折扣","disc","0.1",S.internalDiscount);
+      html+="</div>";
+    }
+    html+="<h3 style=\"margin-top:14px\">功耗 · 电价 · PUE</h3><div class=\"grid\">";
+    html+=field("kwPerUnit","整机 IT 功耗（kW）","kw","0.1",S.kwPerUnit);
+    html+=field("pue","PUE","pue","0.01",S.pue);
+    html+=field("hoursMonth","月运行小时","hours","1",S.hoursMonth);
+    if(scheme==="A") html+=field("elecA","电价（元/度）","elecA","0.01",S.elecA);
+    else html+=field("elecB","电价（元/度）","elecB","0.01",S.elecB);
+    html+="</div>";
+    html+='<p class="muted" style="margin:8px 0 0;font-size:12.5px">月电费＝IT功耗×PUE×小时×利用率×台数×电价÷10000。A：校方承担电费；B：从场地分成扣电。</p>';
+    html+="<h3 style=\"margin-top:14px\">爬坡 · 租金两段</h3><div class=\"grid\">";
+    html+=field("utilStart","起步利用率（%）","utilStart","1",S.utilStart);
+    html+=field("rampMonths","爬坡月数","rampM","1",S.rampMonths);
+    html+=field("rentRiseYears","租金前段年数 N","rentRiseY","1",S.rentRiseYears,{min:0,max:40});
+    html+=field("rentRisePct","租金前段每年变化（%）","rentRisePct","0.1",S.rentRisePct,{min:-50,max:50});
+    html+=field("rentFallPct","租金后段每年变化（%）","rentFallPct","0.1",S.rentFallPct,{min:-50,max:50});
+    html+="</div>";
+    html+="<h3 style=\"margin-top:14px\">运营成本 OpEx</h3><div class=\"grid\">";
+    html+=field("opexMaint","运维/保修（万/月）","opexMaint","0.1",S.opexMaint);
+    html+=field("opexBw","带宽/专线（万/月）","opexBw","0.1",S.opexBw);
+    html+=field("opexIns","保险（万/月）","opexIns","0.1",S.opexIns);
+    html+=field("opexStaff","人员（万/月）","opexStaff","0.1",S.opexStaff);
+    html+=field("opexOther","其他固定（万/月）","opexOther","0.1",S.opexOther);
+    html+="</div>";
+    html+='<div class="field check" style="padding-top:10px"><input type="checkbox" id="opexBeforeShare" '+(S.opexBeforeShare?"checked":"")+' /><label for="opexBeforeShare">项目 OpEx 从收入中先扣再分成</label></div>';
+    html+='<div class="callout info" id="opexNote" style="margin-top:8px"></div>';
+    html+="<h3 style=\"margin-top:14px\">设备残值两段 · 贴现 · 可选杠杆</h3>";
+    html+='<div class="grid3">';
+    html+=field("wearRiseYears","残值前段年数 N","wearRiseY","1",S.wearRiseYears,{min:0,max:40});
+    html+=field("wearRisePct","残值前段每年变化（%）","wearRisePct","0.1",S.wearRisePct,{min:-50,max:50});
+    html+=field("wearFallPct","残值后段每年变化（%）","wearFallPct","0.1",S.wearFallPct,{min:-50,max:50});
+    html+="</div>";
+    html+='<div class="grid3">';
+    html+='<div class="field"><label>贴现率 / 折现率（年%） '+tipHtml("discount")+'</label><input id="discount" type="number" step="0.1" min="0" max="100" value="'+S.discount+'" /><div class="chips" style="margin-top:6px" id="discChips"><span class="chip" data-v="4">4%</span><span class="chip" data-v="5">5%</span><span class="chip" data-v="6">6%</span><span class="chip" data-v="7">7%</span><span class="chip" data-v="8">8%</span><span class="chip" data-v="10">10%</span><span class="chip" data-v="12">12%</span></div></div>';
+    html+=field("leverage","贷款比例 / 杠杆（% CapEx）","lev","1",S.leverage,{min:0,max:90});
+    html+=field("debtRate","贷款年利率（%）","debtRate","0.1",S.debtRate,{min:0,max:100});
+    html+="</div>";
+    html+='<div class="grid3">';
+    html+=field("debtTenor","贷款期限（月）","debtTenor","1",S.debtTenor,{min:1});
+    html+="</div>";
+    html+='<p class="summary-line" id="commonSummary" style="margin-top:10px"></p>';
+    el.innerHTML=html;
+    bindInputs(el);
+    syncDiscChips();
+    const opexCb=document.getElementById("opexBeforeShare");
+    if(opexCb && !opexCb._bound){ opexCb._bound=true; opexCb.addEventListener("change",function(){ P().opexBeforeShare=opexCb.checked; schedule(); }); }
+    const discChips=document.getElementById("discChips");
+    if(discChips && !discChips._bound){
+      discChips._bound=true;
+      discChips.addEventListener("click",function(e){
+        const c=e.target.closest(".chip"); if(!c)return;
+        P().discount=n(c.getAttribute("data-v"),8);
+        const inp=document.getElementById("discount"); if(inp) inp.value=P().discount;
+        syncDiscChips(); persistConfig(); schedule();
+      });
+    }
+  }
+
+  function bindInputs(root){
+    (root||document).querySelectorAll("input[type=number]").forEach(function(inp){
+      if(inp._bound)return; inp._bound=true;
+      inp.addEventListener("input",function(){
+        if(inp.disabled||inp.readOnly) return;
+        const id=inp.id;
+        const cur=P();
+        const def=defaultsFor(state.scheme);
+        if(id==="stageMonths"){ cur.stageMonths=n(inp.value, def.stageMonths); }
+        else if(SHARE_PAIR_OF[id]){
+          var trip=SHARE_PAIR_OF[id];
+          // 第三列只读；前两列 clamp 0–100，第三=100−前两
+          if(id===trip[2]) return;
+          cur[id]=clamp(n(inp.value,0),0,100);
+          inp.value=cur[id];
+          enforceOneTriple(cur, trip[0], trip[1], trip[2]);
+          var el1=document.getElementById(trip[0]); if(el1) el1.value=cur[trip[0]];
+          var el2=document.getElementById(trip[1]); if(el2) el2.value=cur[trip[1]];
+          var el3=document.getElementById(trip[2]); if(el3) el3.value=cur[trip[2]];
+        }
+        else if(id in cur || id in def){
+          var v=n(inp.value, cur[id]!=null?cur[id]:def[id]);
+          if(inp.min!=="" && inp.min!=null) v=Math.max(Number(inp.min), v);
+          if(inp.max!=="" && inp.max!=null) v=Math.min(Number(inp.max), v);
+          cur[id]=v;
+        }
+        if(id==="discount"){ syncDiscChips(); persistConfig(); }
+        if(id==="wearFallPct"||id==="wearRisePct"||id==="wearRiseYears"||id==="rentFallPct"||id==="rentRisePct"||id==="rentRiseYears"){ persistConfig(); }
+        schedule();
+      });
+    });
+  }
+
+
+  function utilAt(m, startU, targetU, rampM){
+    if(rampM<=1) return targetU;
+    if(m>=rampM) return targetU;
+    return startU + (targetU-startU)*((m-1)/(rampM-1));
+  }
+  /* 年率 → 月因子：复利 (1+r/100)^(1/12)-1；线性跌幅用 /12 */
+  function annualToMonthlyCompoundPct(annualPct){
+    var a=annualPct/100;
+    if(!Number.isFinite(a)) return 0;
+    if(a<=-0.999999) return -99.9999;
+    return 100*(Math.pow(1+a, 1/12)-1);
+  }
+  function annualFallToMonthlyCompoundPct(annualPct){
+    /* 正＝每年跌：使 (1-mf)^12 = (1-af)；负＝每年涨 */
+    var a=annualPct/100;
+    if(!Number.isFinite(a)) return 0;
+    if(a>=1) return 100;
+    if(a<=-1) return -100;
+    return 100*(1-Math.pow(1-a, 1/12));
+  }
+  function annualToMonthlyLinearPct(annualPct){
+    return annualPct/12;
+  }
+  function rentCfg(S){
+    return {
+      riseYears: Math.max(0, n(S.rentRiseYears,0)),
+      risePct: clamp(n(S.rentRisePct,0),-50,50),
+      fallPct: clamp(n(S.rentFallPct,10),-50,50)
+    };
+  }
+  function rentFactorAt(m, cfg){
+    if(m<=1) return 1;
+    var f=1;
+    var N=Math.max(0, Math.round(cfg.riseYears*12));
+    var riseM=annualToMonthlyCompoundPct(cfg.risePct)/100;
+    var fallM=annualFallToMonthlyCompoundPct(cfg.fallPct)/100;
+    for(var i=1;i<m;i++){
+      if(i<=N) f*=(1+riseM);
+      else f*=(1-fallM);
+    }
+    return Math.max(0,f);
+  }
+
+  function shareFracs(S, scheme, shareMode, m){
+    const stageM=Math.max(1, Math.round(n(S.stageMonths,24)));
+    if(scheme==="A"){
+      let pair;
+      if(shareMode==="staged"){
+        if(m<=stageM) pair=readSharePair(S.invEarlyA, S.schoolEarlyA);
+        else pair=readSharePair(S.invLateA, S.schoolLateA);
+      } else {
+        pair=readSharePair(S.invPctA, S.schoolPct);
+      }
+      return {school:pair.b, invOfGross:pair.a, opsOfGross:pair.c, siteOfGross:0, partyB:1-pair.b, invANorm:0, opsANorm:0, inputSum:1, normalized:false, grossSum:1};
+    }
+    let pairB;
+    if(shareMode==="staged"){
+      if(m<=stageM) pairB=readSharePair(S.invEarlyB, S.siteEarlyB);
+      else pairB=readSharePair(S.invLateB, S.siteLateB);
+    } else {
+      pairB=readSharePair(S.invPctB, S.sitePctB);
+    }
+    return {school:0, invOfGross:pairB.a, opsOfGross:pairB.c, siteOfGross:pairB.b, partyB:1, invANorm:0, opsANorm:0, inputSum:1, normalized:false, grossSum:1};
+  }
+
+  function monthPath(S, scheme, shareMode, m){
+    const U=Math.max(0,n(S.units,16));
+    const R0=Math.max(0,n(S.rent,14.25));
+    const targetU=clamp(n(S.util,75),0,100)/100;
+    const startU=clamp(n(S.utilStart,40),0,100)/100;
+    const rampM=Math.max(0,Math.round(n(S.rampMonths,6)));
+    const rCfg=rentCfg(S);
+    const intPct=scheme==="A"?clamp(n(S.internalShare,0),0,100)/100:0;
+    const zhe=scheme==="A"?Math.max(0,n(S.internalDiscount,5.5)):10;
+    const disc=zhe>1?zhe/10:zhe;
+    const intFactor=(1-intPct)+disc*intPct;
+    const u=utilAt(m,startU,targetU,rampM);
+    const rf=rentFactorAt(m,rCfg);
+    const effRent=R0*rf*intFactor;
+    const gross=U*effRent*u;
+    const kw=Math.max(0,n(S.kwPerUnit,10.2));
+    const pueV=Math.max(1,n(S.pue,1.3));
+    const hrs=Math.max(1,n(S.hoursMonth,730));
+    const kwh=kw*pueV*hrs*u*U;
+    const ePrice=scheme==="A"?Math.max(0,n(S.elecA,0.56)):Math.max(0,n(S.elecB,0.36));
+    const elec=(kwh*ePrice)/10000;
+    const opex=Math.max(0,n(S.opexMaint,0))+Math.max(0,n(S.opexBw,0))+Math.max(0,n(S.opexIns,0))+Math.max(0,n(S.opexStaff,0))+Math.max(0,n(S.opexOther,0));
+    const before=!!S.opexBeforeShare;
+    const base=before?Math.max(0,gross-opex):gross;
+    const fr=shareFracs(S,scheme,shareMode,m);
+    const schoolCash=base*fr.school;
+    const invCash=base*fr.invOfGross;
+    const opsCashGross=base*fr.opsOfGross;
+    const siteGross=base*fr.siteOfGross;
+    const schoolNet=schoolCash-(scheme==="A"?elec:0);
+    const siteNet=siteGross-(scheme==="B"?elec:0);
+    const opsNet=before?opsCashGross:(opsCashGross-opex);
+    return {m:m,util:u,rentFactor:rf,effRent:effRent,gross:gross,elec:elec,opex:opex,base:base,invCash:invCash,opsCashGross:opsCashGross,opsNet:opsNet,schoolCash:schoolCash,schoolNet:schoolNet,siteGross:siteGross,siteNet:siteNet,fr:fr};
+  }
+
+  function npvOf(cfs, annualRate){
+    const rm=Math.pow(1+annualRate,1/12)-1;
+    let v=0; for(let m=0;m<cfs.length;m++) v+=cfs[m]/Math.pow(1+rm,m); return v;
+  }
+  function irrMonthly(cfs){
+    let hasPos=false,hasNeg=false;
+    for(let i=0;i<cfs.length;i++){ if(cfs[i]>0)hasPos=true; if(cfs[i]<0)hasNeg=true; }
+    if(!hasPos||!hasNeg) return NaN;
+    function f(r){ let v=0; for(let m=0;m<cfs.length;m++) v+=cfs[m]/Math.pow(1+r,m); return v; }
+    let r=0.01;
+    for(let i=0;i<80;i++){
+      let v=0,d=0;
+      for(let m=0;m<cfs.length;m++){ const p=Math.pow(1+r,m); v+=cfs[m]/p; if(m>0)d-=m*cfs[m]/(p*(1+r)); }
+      if(Math.abs(d)<1e-14)break;
+      const nr=r-v/d; if(!Number.isFinite(nr)||nr<=-0.999)break;
+      if(Math.abs(nr-r)<1e-12){r=nr;break;} r=nr;
+    }
+    if(Number.isFinite(r)&&Math.abs(f(r))<1e-4) return r;
+    let lo=-0.99,hi=5,flo=f(lo),fhi=f(hi);
+    if(flo*fhi>0){ for(let k=0;k<20&&flo*fhi>0;k++){hi*=1.5;fhi=f(hi);} if(flo*fhi>0)return NaN; }
+    for(let i=0;i<200;i++){ const mid=(lo+hi)/2, fm=f(mid); if(Math.abs(fm)<1e-10)return mid; if(flo*fm<=0){hi=mid;fhi=fm;} else {lo=mid;flo=fm;} }
+    return (lo+hi)/2;
+  }
+  function irrAnnual(cfs){ const rm=irrMonthly(cfs); return Number.isFinite(rm)?Math.pow(1+rm,12)-1:NaN; }
+
+  function computePartyStats(S, scheme, shareMode){
+    const U=Math.max(0,n(S.units,16));
+    const Pv=Math.max(0,n(S.purchase,660));
+    const capex=U*Pv;
+    const wCfg=wearCfg(S);
+    const T=lifeMonths(wCfg);
+    const before=!!S.opexBeforeShare;
+    let cumInv=0, cumSite=0, cumOps=0, cumElec=0, cumSiteGross=0, cumOpsGross=0, cumOpexPaid=0, cumWear=0;
+    let pbInvW=Infinity;
+    let siteFirstPos=Infinity, opsFirstPos=Infinity;
+    let siteMax=-Infinity, siteMin=Infinity, opsMax=-Infinity, opsMin=Infinity;
+    let m12=null, m24=null, mStabRow=null;
+    const rampEnd=Math.max(n(S.rampMonths,6),1);
+    const pathT=Math.max(T, rampEnd, 24);
+    for(let m=1;m<=pathT;m++){
+      const row=monthPath(S,scheme,shareMode,m);
+      const wear=(m<=T)?monthlyWear(capex,wCfg,m,T):0;
+      const invNet=row.invCash-wear;
+      const siteNet=scheme==="A"?row.schoolNet:row.siteNet;
+      const siteGross=scheme==="A"?row.schoolCash:row.siteGross;
+      if(m<=T){
+        cumInv+=invNet; cumWear+=wear; cumSite+=siteNet; cumOps+=row.opsNet;
+        cumElec+=row.elec; cumSiteGross+=siteGross; cumOpsGross+=row.opsCashGross;
+        if(!before) cumOpexPaid+=row.opex;
+      }
+      if(siteFirstPos===Infinity && siteNet>0) siteFirstPos=m;
+      if(opsFirstPos===Infinity && row.opsNet>0) opsFirstPos=m;
+      if(siteNet>siteMax) siteMax=siteNet;
+      if(siteNet<siteMin) siteMin=siteNet;
+      if(row.opsNet>opsMax) opsMax=row.opsNet;
+      if(row.opsNet<opsMin) opsMin=row.opsNet;
+      if(m===12) m12=row; if(m===24) m24=row; if(m===rampEnd) mStabRow=row;
+    }
+    if(!mStabRow) mStabRow=monthPath(S,scheme,shareMode,rampEnd);
+    if(!m12) m12=monthPath(S,scheme,shareMode,Math.min(12,pathT));
+    if(!m24) m24=monthPath(S,scheme,shareMode,Math.min(24,pathT));
+    function firstPosExtra(startM, pick){
+      if(startM!==Infinity) return startM;
+      for(let m=pathT+1;m<=600;m++){ if(pick(monthPath(S,scheme,shareMode,m))>0) return m; }
+      return Infinity;
+    }
+    siteFirstPos=firstPosExtra(siteFirstPos, function(r){return scheme==="A"?r.schoolNet:r.siteNet;});
+    opsFirstPos=firstPosExtra(opsFirstPos, function(r){return r.opsNet;});
+    let cumCash=0; pbInvW=Infinity;
+    for(let m=1;m<=T;m++){
+      cumCash+=monthPath(S,scheme,shareMode,m).invCash;
+      if(pbInvW===Infinity && cumCash>=capex) pbInvW=m;
+    }
+    return {
+      capex:capex, T:T, before:before, pathT:pathT, cumWear:cumWear, wearCfg:wCfg,
+      inv:{cumAtT:cumInv, cumCashAtT:cumCash, pbWithin:pbInvW, payback:pbInvW, recoveredWithin:pbInvW!==Infinity, basis:capex},
+      site:{cumAtT:cumSite, cumGrossAtT:cumSiteGross, cumElecAtT:cumElec, firstPos:siteFirstPos, maxM:siteMax, minM:siteMin,
+        basisLabel:scheme==="A"?"当月净现金＝学校分成收入−电费（未贴现）":"当月净现金＝场地分成收入−电费（未贴现）"},
+      ops:{cumAtT:cumOps, cumGrossAtT:cumOpsGross, cumOpexAtT:cumOpexPaid, firstPos:opsFirstPos, maxM:opsMax, minM:opsMin,
+        basisLabel:before?"当月净现金＝运营分成（运营成本已先从收入扣除；未贴现）":"当月净现金＝运营分成−自掏运营成本（未贴现）"},
+      m12:m12, m24:m24, mStab:mStabRow
+    };
+  }
+
+
+
+  var TABLE_DEFAULT_MONTHS=120; /* 残值不归零（后段不跌／继续涨）时表格默认月数 */
+  var TABLE_MAX_MONTHS=600; /* 归零路径过长时的硬上限；超过则改按默认 120 月出表 */
+
+  function wearCfg(S){
+    return {
+      riseYears: Math.max(0, n(S.wearRiseYears,0)),
+      risePct: clamp(n(S.wearRisePct,0),-50,50), /* 年% */
+      fallPct: clamp(n(S.wearFallPct,5),-50,50)  /* 年% */
+    };
+  }
+  /**
+   * 残值两段式（按年填写，年内摊月）
+   * 前 N 年：年复利 rise%，月因子＝(1+rise%/100)^(1/12)−1
+   * 自第 N+1 年：若 fall%>0，按转折点残值线性每年扣 fall%（÷12 摊月），至 0；若 fall%≤0，则按 |fall| 年复利继续涨（或持平）
+   * 月变动 = Residual(m-1) − Residual(m)（正＝损耗，负＝增值）
+   * 表格月数：fall%>0 且归零月≤TABLE_MAX → 至归零；否则默认 TABLE_DEFAULT
+   */
+  function residualAt(capex, cfg, m){
+    if(!(capex>0)) return 0;
+    if(m<=0) return capex;
+    var N=Math.max(0, Math.round(cfg.riseYears*12));
+    var riseM=annualToMonthlyCompoundPct(cfg.risePct)/100;
+    var fallAnn=cfg.fallPct/100;
+    var rTurn = N<=0 ? capex : capex*Math.pow(1+riseM, Math.min(m, N));
+    if(m<=N) return rTurn;
+    var k=m-N;
+    if(fallAnn>0){
+      var fallM=annualToMonthlyLinearPct(cfg.fallPct)/100; /* 线性年扣摊月 */
+      return Math.max(0, rTurn*(1-fallM*k));
+    }
+    if(fallAnn===0) return rTurn;
+    var growM=annualToMonthlyCompoundPct(-cfg.fallPct)/100; /* fall%<0 → 增值 */
+    return rTurn*Math.pow(1+growM, k);
+  }
+  function monthlyWear(capex, cfg, m, T){
+    var prev=residualAt(capex, cfg, m-1);
+    var cur=residualAt(capex, cfg, m);
+    if(cfg.fallPct>0 && T!=null && m===T && cur>0) return Math.max(0, prev);
+    return prev-cur;
+  }
+  function lifeMonths(cfg){
+    if(cfg.fallPct>0){
+      var fallM=annualToMonthlyLinearPct(cfg.fallPct); /* 月线性% */
+      var fallMonths=Math.max(1, Math.ceil(100/Math.max(fallM,1e-12) - 1e-12));
+      var t=Math.max(0, Math.round(cfg.riseYears*12)) + fallMonths;
+      if(t>TABLE_MAX_MONTHS) return TABLE_DEFAULT_MONTHS; /* 很慢：按默认 120 月出表 */
+      return Math.max(1, t);
+    }
+    return TABLE_DEFAULT_MONTHS;
+  }
+  function horizonPhrase(cfg, T){
+    if(cfg && cfg.fallPct>0){
+      var fallM=annualToMonthlyLinearPct(cfg.fallPct);
+      var fallMonths=Math.max(1, Math.ceil(100/Math.max(fallM,1e-12) - 1e-12));
+      var t0=Math.max(0, Math.round(cfg.riseYears*12)) + fallMonths;
+      if(t0<=TABLE_MAX_MONTHS && T>=t0-1) return "表格至残值归零（"+T+" 月）";
+      return "后段年跌 "+Number(cfg.fallPct).toFixed(2)+"%，表格 "+T+" 月";
+    }
+    return "残值不归零，表格默认 "+T+" 月";
+  }
+  function hitsZero(cfg){
+    if(!(cfg && cfg.fallPct>0)) return false;
+    var fallM=annualToMonthlyLinearPct(cfg.fallPct);
+    var t=Math.max(0, Math.round(cfg.riseYears*12)) + Math.ceil(100/Math.max(fallM,1e-9) - 1e-12);
+    return t<=TABLE_MAX_MONTHS;
+  }
+
+  function wearLabel(cfg){
+    cfg=cfg||{riseYears:0,risePct:0,fallPct:5};
+    return "前"+Number(cfg.riseYears).toFixed(2)+"年每年"+Number(cfg.risePct).toFixed(2)+"%／后每年"+Number(cfg.fallPct).toFixed(2)+"%";
+  }
+  function rentLabel(S){
+    var c=rentCfg(S);
+    return "前"+Number(c.riseYears).toFixed(2)+"年每年"+Number(c.risePct).toFixed(2)+"%／后每年"+Number(c.fallPct).toFixed(2)+"%";
+  }
+
+  function buildSeries(S, scheme, shareMode, useDebt){
+    const U=Math.max(0,n(S.units,16));
+    const Pv=Math.max(0,n(S.purchase,660));
+    const capex=U*Pv;
+    const wCfg=wearCfg(S);
+    const T=lifeMonths(wCfg);
+    const lev=clamp(n(S.leverage,0),0,90)/100;
+    const debt=useDebt?capex*lev:0;
+    const equity=capex-debt;
+    const rate=Math.max(0,n(S.debtRate,5))/100;
+    const tenor=Math.max(1,Math.round(n(S.debtTenor,60)));
+    const monthlyInt=debt>0?debt*rate/12:0;
+    const repayM=debt>0?Math.min(tenor,T):-1;
+    const months=[];
+    let cumOpsNet=0, cumInvCash=0, pbWithin=Infinity;
+    const cfsProject=new Array(T+1); cfsProject[0]=-capex;
+    const cfsEquity=new Array(T+1); cfsEquity[0]=-equity;
+    let cumWear=0;
+    for(let m=1;m<=T;m++){
+      const row=monthPath(S,scheme,shareMode,m);
+      const wear=monthlyWear(capex, wCfg, m, T);
+      cumWear+=wear;
+      const invOpsNet=row.invCash-wear; /* 经营净现金（扣月度损耗）· 展示与回本 */
+      cumInvCash+=row.invCash;
+      cumOpsNet+=invOpsNet;
+      /* 回本：分成现金累计≥CapEx（未贴现）。月损耗进经营净现金展示与表格，不从回本累计再扣，避免与期初 CapEx 双计 */
+      if(pbWithin===Infinity && cumInvCash>=capex) pbWithin=m;
+      /* IRR/NPV：名义现金（分成现金，扣利息还本）；不把非付现损耗／增值再扣一遍（避免与期初 CapEx 双计） */
+      let invCashDebt=row.invCash;
+      if(debt>0) invCashDebt-=monthlyInt;
+      if(m===repayM) invCashDebt-=debt;
+      const equityCf=invCashDebt;
+      cfsProject[m]=row.invCash;
+      cfsEquity[m]=equityCf;
+      months.push({
+        m:m, gross:row.gross, elec:row.elec, opex:row.opex,
+        wear:wear, residualEnd:residualAt(capex,wCfg,m),
+        invCash:row.invCash, invOpsNet:invOpsNet, invAfterDebt:invCashDebt, equityCf:equityCf,
+        opsNet:row.opsNet, schoolNet:row.schoolNet, siteNet:row.siteNet, util:row.util, fr:row.fr
+      });
+    }
+    /* r>0：末月摊尽后残值≈0；r≤0：期末残值＝Residual(T)，可≥CapEx */
+    const residualAtT=residualAt(capex, wCfg, T);
+    return {
+      capex:capex, equity:equity, debt:debt, residual:residualAtT, wearCfg:wCfg,
+      T:T, months:months, cfsProject:cfsProject, cfsEquity:cfsEquity,
+      payback:pbWithin, paybackWithin:pbWithin,
+      cumOpsUnlev:cumOpsNet, cumInvCash:cumInvCash, cumWear:cumWear,
+      recoveredWithinT:pbWithin!==Infinity,
+      monthlyInt:monthlyInt, repayM:repayM
+    };
+  }
+
+  function computeStaticSnapshot(S, scheme){
+    const U=Math.max(0,n(S.units,16)), Pv=Math.max(0,n(S.purchase,660)), R=Math.max(0,n(S.rent,14.25));
+    const utilPct=clamp(n(S.util,75),0,100)/100;
+    const intPct=scheme==="A"?clamp(n(S.internalShare,0),0,100)/100:0;
+    const zhe=scheme==="A"?Math.max(0,n(S.internalDiscount,5.5)):10;
+    const disc=zhe>1?zhe/10:zhe;
+    const effRent=R*((1-intPct)+disc*intPct);
+    const kw=Math.max(0,n(S.kwPerUnit,10.2)), pueV=Math.max(1,n(S.pue,1.3));
+    const opex=Math.max(0,n(S.opexMaint,0))+Math.max(0,n(S.opexBw,0))+Math.max(0,n(S.opexIns,0))+Math.max(0,n(S.opexStaff,0))+Math.max(0,n(S.opexOther,0));
+    return {U:U,P:Pv,R:R,utilPct:utilPct,effRent:effRent,capex:U*Pv,kwhItPerHour:kw,kwhFacilityPerHour:kw*pueV,opex:opex,intPct:intPct,disc:disc,zhe:zhe};
+  }
+
+  function breakevenSearch(S, scheme, shareMode, targetMonths, kind){
+    const base=Object.assign({},S);
+    function cum(val){
+      const s=Object.assign({},base);
+      if(kind==="util") s.util=val;
+      if(kind==="rent") s.rent=val;
+      if(kind==="purchase") s.purchase=val;
+      const U=Math.max(0,n(s.units,16)), Pv=Math.max(0,n(s.purchase,660)), capex=U*Pv;
+      let c=0; for(let m=1;m<=targetMonths;m++){
+        c+=monthPath(s,scheme,shareMode,m).invCash;
+      }
+      /* 回本条件：分成现金累计≥CapEx */
+      return {c:c,capex:capex,gap:c-capex};
+    }
+    let lo,hi;
+    if(kind==="util"){lo=1;hi=100;} else if(kind==="rent"){lo=1;hi=80;} else {lo=50;hi=2000;}
+    const gLo=cum(lo), gHi=cum(hi);
+    if(kind==="purchase"){
+      if(gLo.gap<0) return NaN;
+      if(gHi.gap>=0) return hi;
+      for(let i=0;i<50;i++){ const mid=(lo+hi)/2; if(cum(mid).gap>=0) lo=mid; else hi=mid; }
+      return (lo+hi)/2;
+    }
+    if(gHi.gap<0) return NaN;
+    if(gLo.gap>=0) return lo;
+    for(let i=0;i<50;i++){ const mid=(lo+hi)/2; if(cum(mid).gap>=0) hi=mid; else lo=mid; }
+    return (lo+hi)/2;
+  }
+
+  function metricCard(label, tipKey, value, detail, tone){
+    return '<div class="metric'+(tone?" "+tone:"")+'"><div class="k">'+label+(tipKey?" "+tipHtml(tipKey):"")+'</div><div class="v">'+value+'</div>'+(detail?'<div class="d">'+detail+"</div>":"")+"</div>";
+  }
+
+  function runCase(S, scheme, shareMode){
+    const discount=Math.max(0,n(S.discount,8))/100;
+    const snap=computeStaticSnapshot(S, scheme);
+    const ser=buildSeries(S,scheme,shareMode,true);
+    const serWo=buildSeries(Object.assign({},S,{wearRiseYears:0,wearRisePct:0,wearFallPct:0}),scheme,shareMode,true);
+    /* serWo：无损耗对照（表格默认 120 月；仅内部对照） */
+    const serProj=buildSeries(S,scheme,shareMode,false);
+    const irrEq=irrAnnual(ser.cfsEquity), irrEqWo=irrAnnual(serWo.cfsEquity), irrProj=irrAnnual(serProj.cfsProject);
+    const npvEq=npvOf(ser.cfsEquity,discount), npvEqWo=npvOf(serWo.cfsEquity,discount);
+    let sumEqPos=0; for(let m=1;m<=ser.T;m++) sumEqPos+=ser.cfsEquity[m];
+    const moicEq=ser.equity>0?sumEqPos/ser.equity:NaN;
+    let y1=0,y2=0;
+    for(let m=1;m<=Math.min(12,ser.T);m++) y1+=ser.months[m-1].invAfterDebt;
+    for(let m=13;m<=Math.min(24,ser.T);m++) y2+=ser.months[m-1].invAfterDebt;
+    const coc1=ser.equity>0?y1/ser.equity:NaN, coc2=ser.equity>0?y2/ser.equity:NaN;
+    const roiWith=ser.equity>0?(sumEqPos-ser.equity)/ser.equity:NaN;
+    let sumEqPosWo=0; for(let m=1;m<=serWo.T;m++) sumEqPosWo+=serWo.cfsEquity[m];
+    const roiWo=serWo.equity>0?(sumEqPosWo-serWo.equity)/serWo.equity:NaN;
+    const m1=monthPath(S,scheme,shareMode,1);
+    const mStab=monthPath(S,scheme,shareMode,Math.max(n(S.rampMonths,6),1));
+    const parties=computePartyStats(S,scheme,shareMode);
+    const horizonY=ser.T/12;
+    return {snap:snap,ser:ser,serWo:serWo,serProj:serProj,irrEq:irrEq,irrEqWo:irrEqWo,irrProj:irrProj,npvEq:npvEq,npvEqWo:npvEqWo,moicEq:moicEq,coc1:coc1,coc2:coc2,roiWith:roiWith,roiWo:roiWo,discount:discount,horizon:horizonY,pb:ser.payback,pbWithin:ser.paybackWithin,recoveredWithinT:ser.recoveredWithinT,cumOpsUnlev:ser.cumOpsUnlev,cumInvCash:ser.cumInvCash,parties:parties,m1:m1,mStab:mStab};
+  }
+
+
+
+
+  function buildMemo(res, S, scheme, shareMode){
+    const pb=res.pb;
+    const snap=res.snap, ser=res.ser, fr=res.mStab.fr;
+    const beU24=breakevenSearch(S,scheme,shareMode,24,"util");
+    const beR24=breakevenSearch(S,scheme,shareMode,24,"rent");
+    const beP24=breakevenSearch(S,scheme,shareMode,24,"purchase");
+    const beU36=breakevenSearch(S,scheme,shareMode,36,"util");
+    const beR36=breakevenSearch(S,scheme,shareMode,36,"rent");
+    const beP36=breakevenSearch(S,scheme,shareMode,36,"purchase");
+    const schemeName=scheme==="A"?"方案 A（校园）":"方案 B（发电企业）";
+    const modeName=shareMode==="fixed"?"固定比例分成":"阶段性分成";
+    const pbTxt=Number.isFinite(pb)?(Math.round(pb)+" 月（约 "+(pb/12).toFixed(1)+" 年）"):"在表格期内分成现金累计仍未盖过设备投资（CapEx）";
+    const parts=[];
+    parts.push("<p style=\"margin:0 0 10px\"><strong>一、测算范围</strong><br/>核心目标：帮<strong>资方（出设备资金）</strong>测算回本周期。方案 <strong>"+schemeName+"</strong>，分成 <strong>"+modeName+"</strong>。表格月数 <strong>"+ser.T+" 月（约 "+(ser.T/12).toFixed(1)+" 年）</strong>，"+horizonPhrase(ser.wearCfg, ser.T)+"；贴现率 <strong>"+(res.discount*100).toFixed(1)+"%</strong>（仅用于 NPV）。CapEx = "+snap.U+" × "+snap.P+" = <strong>"+fmtWan(snap.capex)+"</strong>。残值两段 <strong>"+wearLabel(ser.wearCfg)+"</strong>；月变动计入资方经营路径；期末残值 "+fmtWan(ser.residual)+"。"+(scheme==="A"?"对内折扣仅校园。":"企业无对内折扣。")+"</p>");
+    parts.push("<p style=\"margin:0 0 10px\"><strong>二、收入测算</strong><br/>起步 "+n(S.utilStart,40)+"%，目标 "+(snap.utilPct*100).toFixed(0)+"%，爬坡 "+n(S.rampMonths,6)+" 月；租金两段 "+rentLabel(S)+"。"+(scheme==="A"?"对内占比 "+(snap.intPct*100).toFixed(0)+"%，折扣 "+Number(snap.zhe).toFixed(1)+"，":"无对内折扣，")+"爬坡结束后有效月租 <strong>"+snap.effRent.toFixed(3)+"</strong>。爬坡结束后资方分成现金约 <strong>"+fmtWan(res.mStab.invCash)+"</strong>。</p>");
+    const shareMemo=(function(){
+      if(scheme==="A"){ const t=fmtGrossTriple(fr.invOfGross,fr.school,fr.opsOfGross,1); return "资方 "+t.a+"，学校 "+t.b+"，运营方 "+t.c+"（合计 "+t.sum+"）"; }
+      const t=fmtGrossTriple(fr.invOfGross,fr.siteOfGross,fr.opsOfGross,1); return "资方 "+t.a+"，场地方 "+t.b+"，运营方 "+t.c+"（合计 "+t.sum+"）";
+    })();
+    parts.push("<p style=\"margin:0 0 10px\"><strong>三、分成与 OpEx</strong><br/>"+shareMemo+"。OpEx "+fmtWan(snap.opex)+"/月。爬坡结束后三方当月净现金：资方分成 "+fmtWan(res.mStab.invCash)+" · 场地方 "+fmtWan(scheme==="A"?res.mStab.schoolNet:res.mStab.siteNet)+" · 运营方 "+fmtWan(res.mStab.opsNet)+"。</p>");
+    parts.push("<p style=\"margin:0 0 10px\"><strong>四、资方回本 · 场地方／运营方当月净现金</strong><br/>"
+      +"<strong>经营回本</strong>（未贴现；分成现金累计≥CapEx）：表格期内 "+(res.recoveredWithinT?("第 "+Math.round(res.pbWithin)+" 月回本（"+pbTxt+"）。"):("未回本；累计分成现金 "+fmtWan(res.cumInvCash)+"。"))
+      +" "
+      +paybackNote(res.pbWithin,res.recoveredWithinT,ser.T,ser.wearCfg,ser.capex)+"<br/>"
+      +"<strong>场地方（不称回本）</strong>："+siteCashLine(res.parties.site)+"；表格期内累计净现金（未贴现） "+fmtWan(res.parties.site.cumAtT)+"。<br/>"
+      +"<strong>运营方（不称回本）</strong>："+opsCashLine(res.parties.ops)+"；表格期内累计净现金（未贴现） "+fmtWan(res.parties.ops.cumAtT)+"。</p>");
+    parts.push("<p style=\"margin:0 0 10px\"><strong>五、资方回报</strong><br/>权益年化收益率（IRR） <strong>"+(Number.isFinite(res.irrEq)?fmtPct(res.irrEq,2):"—")+"</strong>；全资本年化收益率（IRR） <strong>"+(Number.isFinite(res.irrProj)?fmtPct(res.irrProj,2):"—")+"</strong>；NPV（贴现率 "+(res.discount*100).toFixed(1)+"%） <strong>"+fmtWan(res.npvEq)+"</strong>；MOIC <strong>"+fmtX(res.moicEq)+"</strong>。年化收益率（IRR）／NPV 对表格期整条名义现金流。回本不贴现；贴现率只用于 NPV。年化收益率（IRR）即该现金流的年化收益。</p>");
+    function beLine(label, v24, v36, unit, cur){ return label+"：24月 "+(Number.isFinite(v24)?v24+unit:"不可达")+"；36月 "+(Number.isFinite(v36)?v36+unit:"不可达")+"；现状 "+cur+"。"; }
+    parts.push("<p style=\"margin:0\"><strong>六、盈亏平衡（资方）</strong><br/>"
+      +beLine("利用率", Number.isFinite(beU24)?beU24.toFixed(0):NaN, Number.isFinite(beU36)?beU36.toFixed(0):NaN, "%", (snap.utilPct*100).toFixed(0)+"%")+"<br/>"
+      +beLine("月租", Number.isFinite(beR24)?beR24.toFixed(2):NaN, Number.isFinite(beR36)?beR36.toFixed(2):NaN, " 万", snap.R+" 万")+"<br/>"
+      +beLine("采购价", Number.isFinite(beP24)?beP24.toFixed(0):NaN, Number.isFinite(beP36)?beP36.toFixed(0):NaN, " 万", snap.P+" 万")+"</p>");
+    return parts.join("");
+  }
+
+
+  function recalc(){
+    const scheme=state.scheme, shareMode=state.shareMode;
+    const S=P();
+    const res=runCase(S,scheme,shareMode);
+    const snap=res.snap, ser=res.ser, pb=res.pb;
+    const parties=res.parties;
+    const strip=document.getElementById("paybackStrip");
+    if(strip){
+      strip.className="payback-strip "+(res.recoveredWithinT?"ok":"danger");
+      document.getElementById("psOpsMain").textContent=fmtPbMain(res.recoveredWithinT,res.pbWithin,pb);
+      document.getElementById("psOpsMainD").textContent="未贴现；回本看分成现金累计≥CapEx；当月经营净现金＝分成现金−月度损耗（展示）。表格期内："+(res.recoveredWithinT?(Math.round(res.pbWithin)+" 月已回本"):("未回本 · 累计分成现金 "+fmtWan(res.cumInvCash)+" / CapEx "+fmtWan(ser.capex)))+" · "+(scheme==="A"?"方案 A":"方案 B")+" · "+(shareMode==="fixed"?"固定比例":"阶段性");
+      document.getElementById("psOpsWithin").textContent=res.recoveredWithinT?(Math.round(res.pbWithin)+" 月"):"未回本";
+      document.getElementById("psOpsWithinD").textContent="表格 "+ser.T+" 月（约 "+(ser.T/12).toFixed(1)+" 年）· "+horizonPhrase(ser.wearCfg, ser.T);
+      document.getElementById("psLife").textContent=ser.T+" 月";
+      document.getElementById("psLifeD").textContent=wearLabel(ser.wearCfg)+" · 累计月变动 "+fmtWan(ser.cumWear)+" · 期末残值 "+fmtWan(ser.residual)+" · "+horizonPhrase(ser.wearCfg, ser.T);
+      document.getElementById("psDualNote").textContent=paybackNote(res.pbWithin,res.recoveredWithinT,ser.T,ser.wearCfg,ser.capex);
+      document.getElementById("psPartyInv").textContent=res.recoveredWithinT?fmtPbShort(res.pbWithin):"表格期内未回本";
+      document.getElementById("psPartyInvD").textContent="设备投资（CapEx）"+fmtWan(ser.capex)+"；表格期内累计经营净现金（未贴现，已扣损耗）"+fmtWan(parties.inv.cumAtT)+(res.recoveredWithinT?" · 已回本":" · 未回本");
+      document.getElementById("psSiteRoleSub").textContent=scheme==="A"?"方案 A · 学校（出场地与电）":"方案 B · 场地方（出场地与电）";
+      document.getElementById("psPartySite").textContent=fmtFirstPos(parties.site.firstPos);
+      document.getElementById("psPartySiteD").textContent="最高当月净现金 "+fmtWan(parties.site.maxM)+" · 最低当月净现金 "+fmtWan(parties.site.minM)+" · 表格期内累计净现金（未贴现）"+fmtWan(parties.site.cumAtT);
+      document.getElementById("psPartyOps").textContent=fmtFirstPos(parties.ops.firstPos);
+      document.getElementById("psPartyOpsD").textContent="最高当月净现金 "+fmtWan(parties.ops.maxM)+" · 最低当月净现金 "+fmtWan(parties.ops.minM)+" · 表格期内累计净现金（未贴现）"+fmtWan(parties.ops.cumAtT);
+      const ePrice = scheme==="A" ? n(S.elecA,0.56) : n(S.elecB,0.36);
+      const kwhStab = snap.kwhFacilityPerHour * n(S.hoursMonth,730) * snap.utilPct * snap.U;
+      const ec = document.getElementById("elecCallout");
+      if(ec){
+        ec.innerHTML = "<strong class=\"lead\">电费（当前方案）</strong>电价 <strong>"+ePrice.toFixed(2)+" 元/度</strong>（"+(scheme==="A"?"校方承担":"场地承担")+"）。PUE <strong>"+n(S.pue,1.3)+"</strong> · 单台设施侧约 <strong>"+snap.kwhFacilityPerHour.toFixed(2)+" kW</strong>。满利用率月用电约 <strong>"+Math.round(kwhStab).toLocaleString()+" 度</strong>，月电费约 <strong>"+fmtWan(res.mStab.elec)+"</strong>。"
+          +(scheme==="A"?("学校扣电后净额约 <strong>"+fmtWan(res.mStab.schoolNet)+"</strong>。"):("场地扣电后净额约 <strong>"+fmtWan(res.mStab.siteNet)+"</strong>。"));
+      }
+    }
+    const wEl=document.getElementById("windowCallout");
+    wEl.className="callout "+(res.recoveredWithinT?"ok":"danger");
+    wEl.innerHTML="<strong class=\"lead\">定案口径 · 资方经营回本（已扣月度损耗）· 场地方／运营方当月净现金</strong>"+(scheme==="A"?"方案 A":"方案 B")+" · "+(shareMode==="fixed"?"固定比例":"阶段性")+"。<br/><br/>"
+      +"<strong>一、资方回本（未贴现）</strong><br/>设备投资（CapEx）<strong>"+fmtWan(ser.capex)+"</strong>；残值两段 <strong>"+wearLabel(ser.wearCfg)+"</strong>；月变动＝上月末残值−本月末残值。表格月数 <strong>"+ser.T+" 月</strong>，"+horizonPhrase(ser.wearCfg, ser.T)+"；期末残值 "+fmtWan(ser.residual)+"。<br/>"
+      +"经营回本：表格期内 "+(res.recoveredWithinT?("第 <strong>"+Math.round(res.pbWithin)+" 月</strong> 分成现金累计盖过设备投资。"):("<strong>未回本</strong>——累计分成现金 "+fmtWan(res.cumInvCash)+"。"))
+      +"<br/>"
+      +paybackNote(res.pbWithin,res.recoveredWithinT,ser.T,ser.wearCfg,ser.capex)+"<br/><br/>"
+      +"<strong>二、场地方（不称回本 · 只看当月净现金）</strong><br/>"+siteCashLine(parties.site)+"。表格期内累计净现金（未贴现） <strong>"+fmtWan(parties.site.cumAtT)+"</strong>。"
+      +"<br/><br/><strong>三、运营方（不称回本 · 只看当月净现金）</strong><br/>"+opsCashLine(parties.ops)+"。表格期内累计净现金（未贴现） <strong>"+fmtWan(parties.ops.cumAtT)+"</strong>。";
+
+    document.getElementById("memoCallout").innerHTML="<strong class=\"lead\">投资备忘录（自动生成）</strong>"+buildMemo(res,S,scheme,shareMode);
+    const mStab=res.mStab;
+    const cs=document.getElementById("commonSummary");
+    if(cs) cs.textContent="当前方案：爬坡结束后有效月租 "+snap.effRent.toFixed(3)+" 万/台 · 利用率 "+fmtPct(res.m1.util,0)+"→"+fmtPct(snap.utilPct,0)+" · CapEx "+fmtWan(snap.capex)+" · 权益 "+fmtWan(ser.equity)+" · PUE "+n(S.pue,1.3)+" · OpEx "+fmtWan(snap.opex)+"/月"+(scheme==="A"?" · 对内占比 "+(snap.intPct*100).toFixed(0)+"%":" · 无对内折扣");
+    const opexNote=document.getElementById("opexNote");
+    if(opexNote) opexNote.innerHTML="<strong class=\"lead\">OpEx 口径</strong>"+(S.opexBeforeShare?"已勾选先扣再分成；合计 "+fmtWan(snap.opex)+"/月。":"未勾选先扣：OpEx "+fmtWan(snap.opex)+"/月由运营承担。爬坡结束后运营方当月净现金约 "+fmtWan(mStab.opsNet)+"。")+" 爬坡结束后资方当月净现金约 <strong>"+fmtWan(mStab.invCash)+"</strong>。";
+
+    (function renderPartyShare(){
+      const fr=mStab.fr;
+      const stageM=Math.max(1,Math.round(n(S.stageMonths,24)));
+      const frEarly=shareFracs(S,scheme,shareMode==="staged"?"staged":"fixed",1);
+      const frLate=shareFracs(S,scheme,shareMode==="staged"?"staged":"fixed",stageM+1);
+      const banner=document.getElementById("shareBanner");
+      let pills="";
+      if(shareMode==="fixed"){
+        if(scheme==="A"){
+          const t=fmtGrossTriple(fr.invOfGross, fr.school, fr.opsOfGross, 1);
+          pills='<span class="share-pill">固定</span><span class="share-pill">资方 '+t.a+'</span><span class="share-pill">学校 '+t.b+'</span><span class="share-pill">运营方 '+t.c+'</span><span class="share-pill">合计 '+t.sum+'</span>';
+        } else {
+          const t=fmtGrossTriple(fr.invOfGross, fr.siteOfGross, fr.opsOfGross, 1);
+          pills='<span class="share-pill">固定</span><span class="share-pill">资方 '+t.a+'</span><span class="share-pill">场地方 '+t.b+'</span><span class="share-pill">运营方 '+t.c+'</span><span class="share-pill">合计 '+t.sum+'</span>';
+        }
+      } else {
+        if(scheme==="A"){
+          const te=fmtGrossTriple(frEarly.invOfGross, frEarly.school, frEarly.opsOfGross, 1);
+          const tl=fmtGrossTriple(frLate.invOfGross, frLate.school, frLate.opsOfGross, 1);
+          pills='<span class="share-pill">阶段性 N='+stageM+'</span><span class="share-pill">前段 资/校/运营 '+te.a+'/'+te.b+'/'+te.c+'</span><span class="share-pill">后段 '+tl.a+'/'+tl.b+'/'+tl.c+'</span>';
+        } else {
+          const te=fmtGrossTriple(frEarly.invOfGross, frEarly.siteOfGross, frEarly.opsOfGross, 1);
+          const tl=fmtGrossTriple(frLate.invOfGross, frLate.siteOfGross, frLate.opsOfGross, 1);
+          pills='<span class="share-pill">阶段性 N='+stageM+'</span><span class="share-pill">前段 资/场/运营 '+te.a+'/'+te.b+'/'+te.c+'（'+te.sum+'）</span><span class="share-pill">后段 '+tl.a+'/'+tl.b+'/'+tl.c+'（'+tl.sum+'）</span>';
+        }
+      }
+      banner.innerHTML=pills;
+      const siteStab=scheme==="A"?mStab.schoolNet:mStab.siteNet;
+      const site12=scheme==="A"?parties.m12.schoolNet:parties.m12.siteNet;
+      const site24=scheme==="A"?parties.m24.schoolNet:parties.m24.siteNet;
+      const siteLabel=scheme==="A"?"学校（场地方）":"场地方";
+      function card(title, role, shareTxt, cum, stab, m12v, m24v, metricKey, metricVal, basisTxt){
+        return '<div class="share-rev-card"><h3>'+title+'</h3>'
+          +'<div class="sr-line"><span class="sr-k">角色</span> · '+role+'</div>'
+          +'<div class="sr-line"><span class="sr-k">当前分成</span> · <span class="sr-v">'+shareTxt+'</span></div>'
+          +'<div class="sr-line"><span class="sr-k">表格期内累计净现金（未贴现）</span> · <span class="sr-v">'+fmtWan(cum)+'</span></div>'
+          +'<div class="sr-line"><span class="sr-k">爬坡结束后满利用率月 · 当月净现金</span> · <span class="sr-v">'+fmtWan(stab)+'</span></div>'
+          +'<div class="sr-line"><span class="sr-k">第 12 月当月净现金</span> · <span class="sr-v">'+fmtWan(m12v)+'</span></div>'
+          +'<div class="sr-line"><span class="sr-k">第 24 月当月净现金</span> · <span class="sr-v">'+fmtWan(m24v)+'</span></div>'
+          +'<div class="sr-line"><span class="sr-k">'+metricKey+'</span> · <span class="sr-v">'+metricVal+'</span></div>'
+          +'<div class="sr-line muted" style="font-size:12px;margin-top:6px">'+basisTxt+' · 完整月序列见下方表格</div></div>';
+      }
+      let invShareTxt, siteShareTxt, opsShareTxt;
+      if(scheme==="A"){
+        const t=fmtGrossTriple(fr.invOfGross, fr.school, fr.opsOfGross, 1);
+        const te=fmtGrossTriple(frEarly.invOfGross, frEarly.school, frEarly.opsOfGross, 1);
+        const tl=fmtGrossTriple(frLate.invOfGross, frLate.school, frLate.opsOfGross, 1);
+        invShareTxt=shareMode==="fixed"?t.a:("前 "+te.a+" / 后 "+tl.a);
+        siteShareTxt=shareMode==="fixed"?t.b:("前 "+te.b+" / 后 "+tl.b);
+        opsShareTxt=shareMode==="fixed"?t.c:("前 "+te.c+" / 后 "+tl.c);
+      } else {
+        const t=fmtGrossTriple(fr.invOfGross, fr.siteOfGross, fr.opsOfGross, 1);
+        const te=fmtGrossTriple(frEarly.invOfGross, frEarly.siteOfGross, frEarly.opsOfGross, 1);
+        const tl=fmtGrossTriple(frLate.invOfGross, frLate.siteOfGross, frLate.opsOfGross, 1);
+        invShareTxt=shareMode==="fixed"?t.a:("前 "+te.a+" / 后 "+tl.a);
+        siteShareTxt=shareMode==="fixed"?t.b:("前 "+te.b+" / 后 "+tl.b);
+        opsShareTxt=shareMode==="fixed"?t.c:("前 "+te.c+" / 后 "+tl.c);
+      }
+      document.getElementById("partyShareGrid").innerHTML=[
+        card("资方","出设备资金",invShareTxt,parties.inv.cumAtT,mStab.invCash,parties.m12.invCash,parties.m24.invCash,"经营回本（已扣月度损耗）",fmtPbMain(res.recoveredWithinT,res.pbWithin,pb),"设备投资＝CapEx；当月经营净现金＝分成现金−月损耗；回本未贴现"),
+        card(siteLabel,"出场地与电",siteShareTxt,parties.site.cumAtT,siteStab,site12,site24,"当月净现金转正／最高／最低",siteCashLine(parties.site),parties.site.basisLabel),
+        card("运营方","负责运营、运维",opsShareTxt,parties.ops.cumAtT,mStab.opsNet,parties.m12.opsNet,parties.m24.opsNet,"当月净现金转正／最高／最低",opsCashLine(parties.ops),parties.ops.basisLabel)
+      ].join("");
+      const sumLine=scheme==="A"
+        ? (function(){ const t=fmtGrossTriple(fr.invOfGross,fr.school,fr.opsOfGross,1); return "资方 "+t.a+" + 学校 "+t.b+" + 运营方 "+t.c+" = <strong>"+t.sum+"</strong>"; })()
+        : (function(){ const t=fmtGrossTriple(fr.invOfGross,fr.siteOfGross,fr.opsOfGross,1); return "资方 "+t.a+" + 场地方 "+t.b+" + 运营方 "+t.c+" = <strong>"+t.sum+"</strong>"; })();
+      document.getElementById("partyShareNote").innerHTML="<strong class=\"lead\">占收入比例</strong>"+sumLine+"。下方表格为表格期逐月未贴现名义净现金；资方当月＝分成现金−月度损耗／增值；期末残值 "+fmtWan(ser.residual)+"。回本仅适用于资方。";
+    })();
+
+    const tonePb=res.recoveredWithinT?"ok":"danger";
+    const toneNpv=res.npvEq>=0?"ok":"danger";
+    const toneIrr=Number.isFinite(res.irrEq)&&res.irrEq>=res.discount?"ok":(Number.isFinite(res.irrEq)?"warn":"");
+    const toneMoic=res.moicEq>=1?"ok":"danger";
+    const frCore=mStab.fr;
+    const shareCoreTxt=(function(){
+      if(scheme==="A"){ const t=fmtGrossTriple(frCore.invOfGross,frCore.school,frCore.opsOfGross,1); return "资 "+t.a+" · 校 "+t.b+" · 运营 "+t.c+"（"+t.sum+"）"; }
+      const t=fmtGrossTriple(frCore.invOfGross,frCore.siteOfGross,frCore.opsOfGross,1); return "资 "+t.a+" · 场 "+t.b+" · 运营 "+t.c+"（"+t.sum+"）";
+    })();
+    document.getElementById("coreMetrics").innerHTML=[
+      metricCard("CapEx","capex",fmtWan(snap.capex),snap.U+"×"+snap.P+"万 · 权益 "+fmtWan(ser.equity),""),
+      metricCard("经营回本（已扣月度损耗）",null,fmtPbMain(res.recoveredWithinT,res.pbWithin,pb),horizonPhrase(ser.wearCfg, ser.T)+" · 未贴现",tonePb),
+      metricCard("表格月数",null,ser.T+" 月",horizonPhrase(ser.wearCfg, ser.T)+" · "+wearLabel(ser.wearCfg),""),
+      metricCard("当前生效分成",null,shareCoreTxt,shareMode==="fixed"?"固定比例":("阶段性 · N="+Math.round(n(S.stageMonths,24))),""),
+      metricCard("场地方 · 当月净现金转正",null,fmtFirstPos(parties.site.firstPos),"最高 "+fmtWan(parties.site.maxM)+" · 最低 "+fmtWan(parties.site.minM)+" · 不称回本",""),
+      metricCard("运营方 · 当月净现金转正",null,fmtFirstPos(parties.ops.firstPos),"最高 "+fmtWan(parties.ops.maxM)+" · 最低 "+fmtWan(parties.ops.minM)+" · 不称回本",""),
+      metricCard("权益年化收益率（IRR）","irr",Number.isFinite(res.irrEq)?fmtPct(res.irrEq,2):"—",horizonPhrase(ser.wearCfg, ser.T)+" · 仅资方",toneIrr),
+      metricCard("全资本年化收益率（IRR）","irr",Number.isFinite(res.irrProj)?fmtPct(res.irrProj,2):"—",horizonPhrase(ser.wearCfg, ser.T)+" · 仅资方",""),
+      metricCard("NPV @ 贴现率 "+(res.discount*100).toFixed(1)+"%","npv",fmtWan(res.npvEq),"按贴现率折现 · 仅资方 · "+ser.T+"月",toneNpv),
+      metricCard("MOIC（权益）","moic",fmtX(res.moicEq),"仅资方",toneMoic),
+      metricCard("Cash-on-Cash Y1","coc",fmtPct(res.coc1,1),"仅资方 · Y2 "+fmtPct(res.coc2,1),""),
+      metricCard("爬坡结束后三方当月净现金",null,"资方 "+fmtWan(mStab.invCash),"场地方 "+fmtWan(scheme==="A"?mStab.schoolNet:mStab.siteNet)+" · 运营方 "+fmtWan(mStab.opsNet),"")
+    ].join("");
+
+    const beU24=breakevenSearch(S,scheme,shareMode,24,"util");
+    const beR24=breakevenSearch(S,scheme,shareMode,24,"rent");
+    const beP24=breakevenSearch(S,scheme,shareMode,24,"purchase");
+    const beU36=breakevenSearch(S,scheme,shareMode,36,"util");
+    const beR36=breakevenSearch(S,scheme,shareMode,36,"rent");
+    const beP36=breakevenSearch(S,scheme,shareMode,36,"purchase");
+    document.getElementById("beMetrics").innerHTML=[
+      metricCard("BE 利用率 · 24月","be",Number.isFinite(beU24)?beU24.toFixed(0)+"%":"不可达","36月 "+(Number.isFinite(beU36)?beU36.toFixed(0)+"%":"不可达"),""),
+      metricCard("BE 月租 · 24月","be",Number.isFinite(beR24)?beR24.toFixed(2)+" 万":"不可达","36月 "+(Number.isFinite(beR36)?beR36.toFixed(2)+" 万":"不可达"),""),
+      metricCard("BE 采购价 · 24月","be",Number.isFinite(beP24)?beP24.toFixed(0)+" 万":"不可达","36月 "+(Number.isFinite(beP36)?beP36.toFixed(0)+" 万":"不可达"),""),
+      metricCard("年化简单 ROI","roi",fmtPct(res.roiWith/res.horizon,1)+"/年","资方","")
+    ].join("");
+
+    document.getElementById("roiIrrNote").className="callout info";
+    document.getElementById("roiIrrNote").innerHTML="<strong class=\"lead\">回报栈口径</strong><strong>经营回本</strong>＝未贴现分成现金累计≥CapEx（月变动入展示与表格）。表格月数 <strong>"+ser.T+" 月</strong>，"+horizonPhrase(ser.wearCfg, ser.T)+"；残值两段 <strong>"+wearLabel(ser.wearCfg)+"</strong>；期末残值 "+fmtWan(ser.residual)+"。贴现率 <strong>"+(res.discount*100).toFixed(1)+"%</strong>仅用于 NPV；年化收益率（IRR）即该现金流的年化收益。回本："+fmtPbMain(res.recoveredWithinT,res.pbWithin,pb)+"。场地方："+siteCashLine(parties.site)+"。运营方："+opsCashLine(parties.ops)+"。";
+
+    const needM=snap.capex/24, T=ser.T;
+    const cf24=new Array(T+1); cf24[0]=-snap.capex;
+    for(let m=1;m<=T;m++) cf24[m]=needM; /* 无期末残值 */
+    const roi24=((needM*T)-snap.capex)/snap.capex;
+    const irr24=irrAnnual(cf24), npv24=npvOf(cf24,res.discount);
+    document.getElementById("cf24Callout").innerHTML="<strong class=\"lead\">盈亏平衡：若资方每月固定拿到「设备投资÷24」</strong>，则当月净现金 = <strong>"+fmtWan(needM)+"</strong>；此时简单投资回报率 ROI≈<strong>"+fmtPct(roi24,1)+"</strong>；年化收益率（IRR）≈<strong>"+(Number.isFinite(irr24)?fmtPct(irr24,2):"—")+"</strong>；净现值 NPV≈<strong>"+fmtWan(npv24)+"</strong>。";
+    const gapStab=needM-mStab.invCash;
+    document.getElementById("need24Callout").innerHTML="<strong class=\"lead\">敏感性：按 24 个月等额回本所需的当月净现金</strong>为 "+fmtWan(needM)+"（即设备投资÷24）。爬坡结束后资方当月净现金约 "+fmtWan(mStab.invCash)+"；相对该等额目标的缺口为 <strong style=\"color:"+(gapStab>0?"var(--danger)":"var(--ok)")+"\">"+fmtWan(gapStab)+"</strong>。";
+
+
+    const baseIrr=res.irrEq;
+    const factors=[
+      {key:"purchase",label:"采购价"},{key:"rent",label:"挂牌月租"},{key:"util",label:"目标利用率"},
+      {key:"invShare",label:"资方分成"},{key:"wearFallPct",label:"残值后段每年变化"},{key:"rentFallPct",label:"租金后段每年变化"}
+    ];
+    function tweakState(key, mult){
+      const s=Object.assign({},S);
+      if(key==="purchase") s.purchase=n(S.purchase,660)*mult;
+      if(key==="rent") s.rent=n(S.rent,14.25)*mult;
+      if(key==="util") s.util=clamp(n(S.util,75)*mult,1,100);
+      if(key==="wearFallPct") s.wearFallPct=clamp(n(S.wearFallPct,5)*mult,-50,50);
+      if(key==="rentFallPct") s.rentFallPct=clamp(n(S.rentFallPct,10)*mult,-50,50);
+      if(key==="invShare"){
+        if(scheme==="A"){
+          s.schoolPct=clamp(n(S.schoolPct,23),0,100);
+          s.invPctA=clamp(n(S.invPctA,61.6)*mult,0,100);
+          if(s.invPctA+s.schoolPct>100) s.invPctA=+(100-s.schoolPct).toFixed(1);
+          s.opsPctA=+(100-s.invPctA-s.schoolPct).toFixed(1);
+          s.schoolEarlyA=clamp(n(S.schoolEarlyA,23),0,100);
+          s.invEarlyA=clamp(n(S.invEarlyA,73.2)*mult,0,100);
+          if(s.invEarlyA+s.schoolEarlyA>100) s.invEarlyA=+(100-s.schoolEarlyA).toFixed(1);
+          s.opsEarlyA=+(100-s.invEarlyA-s.schoolEarlyA).toFixed(1);
+          s.schoolLateA=clamp(n(S.schoolLateA,23),0,100);
+          s.invLateA=clamp(n(S.invLateA,38.5)*mult,0,100);
+          if(s.invLateA+s.schoolLateA>100) s.invLateA=+(100-s.schoolLateA).toFixed(1);
+          s.opsLateA=+(100-s.invLateA-s.schoolLateA).toFixed(1);
+        } else {
+          s.sitePctB=clamp(n(S.sitePctB,25),0,100);
+          s.invPctB=clamp(n(S.invPctB,55)*mult,0,100);
+          if(s.invPctB+s.sitePctB>100) s.invPctB=+(100-s.sitePctB).toFixed(1);
+          s.opsPctB=+(100-s.invPctB-s.sitePctB).toFixed(1);
+          s.siteEarlyB=clamp(n(S.siteEarlyB,20),0,100);
+          s.invEarlyB=clamp(n(S.invEarlyB,65)*mult,0,100);
+          if(s.invEarlyB+s.siteEarlyB>100) s.invEarlyB=+(100-s.siteEarlyB).toFixed(1);
+          s.opsEarlyB=+(100-s.invEarlyB-s.siteEarlyB).toFixed(1);
+          s.siteLateB=clamp(n(S.siteLateB,25),0,100);
+          s.invLateB=clamp(n(S.invLateB,40)*mult,0,100);
+          if(s.invLateB+s.siteLateB>100) s.invLateB=+(100-s.siteLateB).toFixed(1);
+          s.opsLateB=+(100-s.invLateB-s.siteLateB).toFixed(1);
+        }
+      }
+      return s;
+    }
+    let sensHtml="<table><thead><tr><th>扰动变量</th><th>变量−20%时权益年化收益率（IRR）</th><th>基准情景权益年化收益率（IRR）</th><th>变量+20%时权益年化收益率（IRR）</th><th>经营回本月数（已扣损耗；−20% / +20%）</th><th>相对基准的年化收益率变化（百分点）</th></tr></thead><tbody>";
+    factors.forEach(function(f){
+      const low=runCase(tweakState(f.key,0.8),scheme,shareMode);
+      const high=runCase(tweakState(f.key,1.2),scheme,shareMode);
+      const dLo=(Number.isFinite(low.irrEq)&&Number.isFinite(baseIrr))?(low.irrEq-baseIrr)*100:NaN;
+      const dHi=(Number.isFinite(high.irrEq)&&Number.isFinite(baseIrr))?(high.irrEq-baseIrr)*100:NaN;
+      const loColor=(dLo||0)>=0?"var(--ok)":"var(--danger)";
+      const hiColor=(dHi||0)>=0?"var(--ok)":"var(--danger)";
+      sensHtml+="<tr><td>"+f.label+"</td><td>"+(Number.isFinite(low.irrEq)?fmtPct(low.irrEq,1):"—")+"</td><td>"+(Number.isFinite(baseIrr)?fmtPct(baseIrr,1):"—")+"</td><td>"+(Number.isFinite(high.irrEq)?fmtPct(high.irrEq,1):"—")+"</td><td>"+(Number.isFinite(low.pb)?Math.round(low.pb):"—")+" / "+(Number.isFinite(high.pb)?Math.round(high.pb):"—")+"</td><td><span class=\"sens-val\" style=\"color:"+loColor+"\">"+(Number.isFinite(dLo)?((dLo>=0?"+":"")+dLo.toFixed(1)+"pt"):"—")+"</span> · <span class=\"sens-val\" style=\"color:"+hiColor+"\">"+(Number.isFinite(dHi)?((dHi>=0?"+":"")+dHi.toFixed(1)+"pt"):"—")+"</span></td></tr>";
+    });
+    sensHtml+="</tbody></table>";
+    document.getElementById("sensTable").innerHTML=sensHtml;
+
+    const resA=runCase(state.paramsA,"A",shareMode), resB=runCase(state.paramsB,"B",shareMode);
+    document.getElementById("abTable").innerHTML="<thead><tr><th>科目</th><th>方案 A（自有参数）</th><th>方案 B（自有参数）</th></tr></thead><tbody>"+[
+      ["台数",String(state.paramsA.units),String(state.paramsB.units)],
+      ["PUE",String(state.paramsA.pue),String(state.paramsB.pue)],
+      ["目标利用率%",String(state.paramsA.util),String(state.paramsB.util)],
+      ["设备 CapEx",fmtWan(resA.snap.capex),fmtWan(resB.snap.capex)],
+      ["满利用率月 · 项目收入",fmtWan(resA.mStab.gross),fmtWan(resB.mStab.gross)],
+      ["满利用率月 · 电费",fmtWan(resA.mStab.elec),fmtWan(resB.mStab.elec)],
+      ["运营成本 OpEx 合计（万元／月）",fmtWan(resA.snap.opex),fmtWan(resB.snap.opex)],
+      ["对内折扣",(state.paramsA.internalShare||0)+"% × "+state.paramsA.internalDiscount,"无（企业）"],
+      ["满利用率月分成占收入（合计100%）",
+        (function(){ var t=fmtGrossTriple(resA.mStab.fr.invOfGross,resA.mStab.fr.school,resA.mStab.fr.opsOfGross,1); return "资"+t.a+" / 校"+t.b+" / 运营"+t.c; })(),
+        (function(){ var t=fmtGrossTriple(resB.mStab.fr.invOfGross,resB.mStab.fr.siteOfGross,resB.mStab.fr.opsOfGross,1); return "资"+t.a+" / 场"+t.b+" / 运营"+t.c; })()],
+      ["满利用率月 · 资方净现金",fmtWan(resA.mStab.invCash),fmtWan(resB.mStab.invCash)],
+      ["满利用率月 · 场地方净现金",fmtWan(resA.mStab.schoolNet),fmtWan(resB.mStab.siteNet)],
+      ["满利用率月 · 运营方净现金",fmtWan(resA.mStab.opsNet),fmtWan(resB.mStab.opsNet)],
+      ["经营回本（已扣月度损耗）",fmtPbMain(resA.recoveredWithinT,resA.pbWithin,resA.pb),fmtPbMain(resB.recoveredWithinT,resB.pbWithin,resB.pb)],
+      ["表格月数",resA.ser.T+" 月（"+horizonPhrase(resA.ser.wearCfg, resA.ser.T)+"）",resB.ser.T+" 月（"+horizonPhrase(resB.ser.wearCfg, resB.ser.T)+"）"],
+      ["场地方当月净现金转正／最高／最低",siteCashLine(resA.parties.site),siteCashLine(resB.parties.site)],
+      ["运营方当月净现金转正／最高／最低",opsCashLine(resA.parties.ops),opsCashLine(resB.parties.ops)],
+      ["权益年化收益率（IRR）",Number.isFinite(resA.irrEq)?fmtPct(resA.irrEq,2):"—",Number.isFinite(resB.irrEq)?fmtPct(resB.irrEq,2):"—"],
+      ["现金倍数 MOIC（权益）",fmtX(resA.moicEq),fmtX(resB.moicEq)],
+      ["净现值 NPV（按当前贴现率）",fmtWan(resA.npvEq),fmtWan(resB.npvEq)]
+    ].map(function(r){return "<tr><td>"+r[0]+"</td><td>"+r[1]+"</td><td>"+r[2]+"</td></tr>";}).join("")+"</tbody>";
+
+    const rm=Math.pow(1+res.discount,1/12)-1;
+    const nYears=Math.ceil(ser.T/12);
+    let yRows="", cumCash=0, discRun=-ser.equity, cumSiteY=0, cumOpsY=0;
+    for(let y=1;y<=nYears;y++){
+      let yGross=0,yElec=0,yOpex=0,yWear=0,yInv=0,ySite=0,yOps=0;
+      for(let m=(y-1)*12+1; m<=y*12 && m<=ser.T; m++){
+        const row=ser.months[m-1];
+        yGross+=row.gross; yElec+=row.elec; yOpex+=row.opex; yWear+=row.wear||0;
+        ySite+=scheme==="A"?row.schoolNet:row.siteNet;
+        yOps+=row.opsNet;
+        const cf=ser.cfsEquity[m]; yInv+=cf; discRun+=cf/Math.pow(1+rm,m);
+      }
+      cumCash+=yInv; cumSiteY+=ySite; cumOpsY+=yOps;
+      yRows+="<tr><td>第"+y+"年"+(y===nYears?(hitsZero(ser.wearCfg)?"（残值归零）":"（表格期末）"):"")+"</td><td>"+fmtWan(yGross)+"</td><td>"+fmtWan(yElec)+"</td><td>"+fmtWan(yOpex)+"</td><td>"+fmtWan(yWear)+"</td><td>"+fmtWan(yInv)+"</td><td>"+fmtWan(ySite)+"</td><td>"+fmtWan(yOps)+"</td><td>"+fmtWan(cumCash)+"</td><td>"+fmtWan(cumSiteY)+"</td><td>"+fmtWan(cumOpsY)+"</td><td>"+fmtWan(discRun)+"</td><td>"+fmtX(cumCash/ser.equity)+"</td></tr>";
+    }
+    document.getElementById("yearTable").innerHTML="<thead><tr><th>年份</th><th>项目收入（万元）</th><th>电费（万元）</th><th>运营成本 OpEx（万元）</th><th>设备损耗（万元）</th><th>资方现金流（万元，未贴现；已扣损耗）</th><th>场地方净现金（万元，未贴现）</th><th>运营方净现金（万元，未贴现）</th><th>资方累计净现金（万元，未贴现）</th><th>场地方累计净现金（万元，未贴现）</th><th>运营方累计净现金（万元，未贴现）</th><th>资方折现累计（万元，按贴现率）</th><th>现金倍数 MOIC</th></tr></thead><tbody>"+yRows+"</tbody>";
+
+    (function(){
+      const pathN=ser.T; /* 行数＝表格月数 */
+      let mRows="", cumI=0, cumS=0, cumO=0;
+      for(let m=1;m<=pathN;m++){
+        const row=ser.months[m-1];
+        const siteNet=scheme==="A"?row.schoolNet:row.siteNet;
+        const invShow=row.invOpsNet; /* 已扣月度损耗 */
+        cumI+=invShow; cumS+=siteNet; cumO+=row.opsNet;
+        const rampM=Math.max(n(S.rampMonths,6),1);
+        let mark=m<rampM?"爬坡内":(m===rampM?"满利用率起":"");
+        if(m===ser.T) mark=(mark?mark+" · ":"")+(hitsZero(ser.wearCfg)?"残值归零":"表格期末");
+        mRows+="<tr><td>第"+m+"月"+(mark?"（"+mark+"）":"")+"</td><td>"+fmtWan(row.invCash)+"</td><td>"+fmtWan(row.wear)+"</td><td>"+fmtWan(invShow)+"</td><td>"+fmtWan(siteNet)+"</td><td>"+fmtWan(row.opsNet)+"</td><td>"+fmtWan(cumI)+"</td><td>"+fmtWan(cumS)+"</td><td>"+fmtWan(cumO)+"</td></tr>";
+      }
+      const pmt=document.getElementById("partyMonthTable");
+      if(pmt) pmt.innerHTML="<thead><tr><th>月份</th><th>资方分成现金（万元）</th><th>设备损耗（万元）</th><th>资方经营净现金（万元，未贴现）</th><th>场地方当月净现金（万元，未贴现）</th><th>运营方当月净现金（万元，未贴现）</th><th>资方累计经营净现金（万元，未贴现）</th><th>场地方累计净现金（万元，未贴现）</th><th>运营方累计净现金（万元，未贴现）</th></tr></thead><tbody>"+mRows+"</tbody>";
+
+      let dRows="", cI=0, cS=0, cO=0;
+      for(let m=1;m<=ser.T;m++){
+        const row=ser.months[m-1];
+        const siteNet=scheme==="A"?row.schoolNet:row.siteNet;
+        const invCf=ser.cfsEquity[m];
+        cI+=invCf; cS+=siteNet; cO+=row.opsNet;
+        dRows+="<tr><td>第"+m+"月"+(m===ser.T?(hitsZero(ser.wearCfg)?"（残值归零）":"（表格期末）"):"")+"</td><td>"+fmtWan(row.gross)+"</td><td>"+fmtWan(row.elec)+"</td><td>"+fmtWan(row.opex)+"</td><td>"+fmtWan(row.wear)+"</td><td>"+fmtPct(row.util,0)+"</td><td>"+fmtWan(invCf)+"</td><td>"+fmtWan(siteNet)+"</td><td>"+fmtWan(row.opsNet)+"</td><td>"+fmtWan(cI)+"</td><td>"+fmtWan(cS)+"</td><td>"+fmtWan(cO)+"</td></tr>";
+      }
+      const mdt=document.getElementById("monthDetailTable");
+      if(mdt) mdt.innerHTML="<thead><tr><th>月份</th><th>项目收入（万元）</th><th>电费（万元）</th><th>运营成本（万元）</th><th>设备损耗（万元）</th><th>利用率</th><th>资方现金流（万元，未贴现；已扣损耗）</th><th>场地方当月净现金（万元，未贴现）</th><th>运营方当月净现金（万元，未贴现）</th><th>资方累计净现金（万元，未贴现）</th><th>场地方累计净现金（万元，未贴现）</th><th>运营方累计净现金（万元，未贴现）</th></tr></thead><tbody>"+dRows+"</tbody>";
+    })();
+
+    document.getElementById("scaleTable").innerHTML="<thead><tr><th>台数（台）</th><th>设备投资 CapEx（万元）</th><th>经营回本（已扣损耗）</th><th>权益年化收益率（IRR）</th><th>现金倍数 MOIC</th><th>净现值 NPV（万元）</th></tr></thead><tbody>"+[16,32,64].map(function(u){
+      const r=runCase(Object.assign({},S,{units:u}),scheme,shareMode);
+      return "<tr><td>"+u+"</td><td>"+fmtWan(r.snap.capex)+"</td><td>"+fmtMonths(r.pb)+"</td><td>"+(Number.isFinite(r.irrEq)?fmtPct(r.irrEq,1):"—")+"</td><td>"+fmtX(r.moicEq)+"</td><td>"+fmtWan(r.npvEq)+"</td></tr>";
+    }).join("")+"</tbody>";
+
+    const baseFall=n(S.rentFallPct,10);
+    const scenDefs=[
+      {label:"乐观",purchase:Math.min(snap.P,530),rent:Math.max(snap.R,15),util:85,rentFall:clamp(baseFall*0.7,-50,50)},
+      {label:"基准",purchase:snap.P,rent:snap.R,util:snap.utilPct*100,rentFall:baseFall},
+      {label:"悲观",purchase:Math.max(snap.P,680),rent:Math.min(snap.R,12),util:60,rentFall:clamp(baseFall*1.3,-50,50)}
+    ];
+    document.getElementById("scenTable").innerHTML="<thead><tr><th>情景</th><th>采购单价（万元／台）</th><th>挂牌月租（万元／台／月）</th><th>目标利用率（%）</th><th>租金后段每年变化（%）</th><th>经营回本（已扣损耗）</th><th>权益年化收益率（IRR）</th><th>现金倍数 MOIC</th><th>净现值 NPV（万元）</th></tr></thead><tbody>"+scenDefs.map(function(sc){
+      const r=runCase(Object.assign({},S,{purchase:sc.purchase,rent:sc.rent,util:sc.util,rentFallPct:sc.rentFall}),scheme,shareMode);
+      return "<tr><td>"+sc.label+"</td><td>"+(+sc.purchase).toFixed(0)+"</td><td>"+(+sc.rent).toFixed(2)+"</td><td>"+(+sc.util).toFixed(0)+"</td><td>"+(+sc.rentFall).toFixed(3)+"</td><td>"+fmtMonths(r.pb)+"</td><td>"+(Number.isFinite(r.irrEq)?fmtPct(r.irrEq,1):"—")+"</td><td>"+fmtX(r.moicEq)+"</td><td>"+fmtWan(r.npvEq)+"</td></tr>";
+    }).join("")+"</tbody>";
+
+    const ledger=[
+      ["方案 A／B 各自一套参数","台数/采购价/利用率/PUE/OpEx/窗口等按方案独立","user"],
+      ["对内占比／对内折扣","仅方案 A（校园）；方案 B 无","contract"],
+      ["方案 A 默认分成","占收入：资 61.6% · 校 23% · 运营 15.4%","contract"],
+      ["方案 B 默认分成","占收入：资 55% · 场 25% · 运营 20%","user"],
+      ["设备残值两段 / 租金两段 / 贴现率","残值与租金均为前段年数＋前段每年%＋后段每年%；年内摊到月；后段正跌则表格至残值归零，否则默认 120 月；贴现率只用于 NPV；回本未贴现","model"],
+      ["场地方／运营方","只展示当月净现金转正与最高／最低，不称回本","model"],
+      ["市场租金/二手残值成交","未核实","unverified"]
+    ];
+    const tagName={contract:"合同",user:"用户假设",model:"建模假设",unverified:"未核实"};
+    document.getElementById("ledgerTable").innerHTML="<thead><tr><th>假设项</th><th>说明</th><th>标签</th></tr></thead><tbody>"+ledger.map(function(r){
+      return "<tr><td>"+r[0]+"</td><td style=\"text-align:left\">"+r[1]+"</td><td><span class=\"tag "+r[2]+"\">"+tagName[r[2]]+"</span></td></tr>";
+    }).join("")+"</tbody>";
+  }
+
+
+  let timer=null;
+  function schedule(){ clearTimeout(timer); timer=setTimeout(recalc,50); }
+  function syncStageNWrap(){
+    var w=document.getElementById("stageNWrap");
+    if(!w) return;
+    w.classList.toggle("show", state.shareMode==="staged");
+    var inp=document.getElementById("stageMonths");
+    if(inp) inp.value=P().stageMonths;
+  }
+  function syncDiscChips(){
+    var el=document.getElementById("discChips"); if(!el) return;
+    var v=String(P().discount);
+    el.querySelectorAll(".chip").forEach(function(x){ x.classList.toggle("active", x.getAttribute("data-v")===v); });
+  }
+  function setSeg(id,key,val){
+    document.querySelectorAll("#"+id+" button").forEach(function(b){ b.classList.toggle("active", b.getAttribute("data-v")===val); });
+    state[key]=val;
+    if(key==="scheme"||key==="shareMode"){ renderSchemeParams(); syncStageNWrap(); }
+    persistConfig(); schedule();
+  }
+  document.getElementById("schemeSeg").addEventListener("click",function(e){ if(e.target.closest(".tip")) return; const b=e.target.closest("button[data-v]"); if(!b)return; setSeg("schemeSeg","scheme",b.getAttribute("data-v")); });
+  document.getElementById("modeSeg").addEventListener("click",function(e){ if(e.target.closest(".tip")){ e.preventDefault(); e.stopPropagation(); return; } const b=e.target.closest("button[data-v]"); if(!b)return; setSeg("modeSeg","shareMode",b.getAttribute("data-v")); });
+  document.getElementById("modeSeg").addEventListener("pointerdown",function(e){ if(e.target.closest(".tip")){ e.stopPropagation(); } }, true);
+
+
+  function migrateShareParams(p, scheme){
+    if(!p) return;
+    if(scheme==="A"){
+      if(p.invPctA==null && p.investorOfBPool!=null){
+        var school=clamp(n(p.schoolPct,23),0,100);
+        var partyB=Math.max(0,100-school);
+        var invP=clamp(n(p.investorOfBPool,80),0,100);
+        var opsP=clamp(n(p.opsOfBPool,20),0,100);
+        var ps=invP+opsP; if(ps<=0){invP=80;opsP=20;ps=100;}
+        p.invPctA=+(partyB*invP/ps).toFixed(1);
+        p.opsPctA=+(partyB*opsP/ps).toFixed(1);
+        p.schoolPct=+school.toFixed(1);
+      }
+      if(p.invEarlyA==null && p.invEarly!=null){
+        var schoolE=clamp(n(p.schoolPct,23),0,100);
+        var partyBE=Math.max(0,100-schoolE);
+        var ie=clamp(n(p.invEarly,95),0,100);
+        var il=clamp(n(p.invLate,50),0,100);
+        p.invEarlyA=+(partyBE*ie/100).toFixed(1);
+        p.opsEarlyA=+(partyBE*(100-ie)/100).toFixed(1);
+        p.schoolEarlyA=+schoolE.toFixed(1);
+        p.invLateA=+(partyBE*il/100).toFixed(1);
+        p.opsLateA=+(partyBE*(100-il)/100).toFixed(1);
+        p.schoolLateA=+schoolE.toFixed(1);
+      }
+      if(p.invPctA==null) p.invPctA=61.6;
+      if(p.opsPctA==null) p.opsPctA=15.4;
+      if(p.invEarlyA==null) p.invEarlyA=73.2;
+      if(p.schoolEarlyA==null) p.schoolEarlyA=n(p.schoolPct,23);
+      if(p.opsEarlyA==null) p.opsEarlyA=3.8;
+      if(p.invLateA==null) p.invLateA=38.5;
+      if(p.schoolLateA==null) p.schoolLateA=n(p.schoolPct,23);
+      if(p.opsLateA==null) p.opsLateA=38.5;
+      enforceShareParams(p, "A");
+    } else {
+      enforceShareParams(p, "B");
+    }
+  }
+
+  function persistConfig(){
+    try{
+      localStorage.setItem("h200_calc_config_v2", JSON.stringify({
+        scheme:state.scheme, shareMode:state.shareMode,
+        paramsA:state.paramsA, paramsB:state.paramsB
+      }));
+    }catch(e){}
+  }
+  function migrateWearParams(p){
+    if(!p||typeof p!=="object") return;
+    /* 迁移旧「每月%」／「前段月数」→「每年%」／「前段年数」 */
+    if(!p._annualRates){
+      var hadMonthlyWear = ("wearRiseMonths" in p) || (p.wearFallPct!=null && Math.abs(n(p.wearFallPct,0))>0 && Math.abs(n(p.wearFallPct,0))<2.5);
+      var hadMonthlyRent = ("rentRiseMonths" in p) || (p.rentFallPct!=null && Math.abs(n(p.rentFallPct,0))>0 && Math.abs(n(p.rentFallPct,0))<2.5);
+      if(p.wearFallPct==null){
+        p.wearRiseYears = 0;
+        p.wearRisePct = 0;
+        p.wearFallPct = p.annualWearPct!=null ? n(p.annualWearPct,5) : 5;
+      } else if(hadMonthlyWear){
+        /* 旧月线性跌 → 年线性；旧月复利涨 → 年复利 */
+        p.wearRisePct = +(100*(Math.pow(1+n(p.wearRisePct,0)/100,12)-1)).toFixed(4);
+        p.wearFallPct = +(n(p.wearFallPct,0.4167)*12).toFixed(4);
+      }
+      if(p.wearRiseYears==null){
+        p.wearRiseYears = Math.max(0, Math.round(n(p.wearRiseMonths,0)/12));
+      }
+      if(p.rentFallPct==null){
+        p.rentRiseYears = 0;
+        p.rentRisePct = 0;
+        p.rentFallPct = p.rentDecay!=null ? clamp(n(p.rentDecay,10),-50,80) : 10;
+      } else if(hadMonthlyRent){
+        p.rentRisePct = +(100*(Math.pow(1+n(p.rentRisePct,0)/100,12)-1)).toFixed(4);
+        var mf=n(p.rentFallPct,0.874)/100;
+        if(mf>=1) p.rentFallPct = 100;
+        else if(mf<=-1) p.rentFallPct = -100;
+        else p.rentFallPct = +(100*(1-Math.pow(1-mf,12))).toFixed(4);
+      }
+      if(p.rentRiseYears==null){
+        p.rentRiseYears = Math.max(0, Math.round(n(p.rentRiseMonths,0)/12));
+      }
+      p._annualRates = true;
+    }
+    p.wearRiseYears = Math.max(0, n(p.wearRiseYears,0));
+    p.wearRisePct = clamp(n(p.wearRisePct,0),-50,50);
+    p.wearFallPct = clamp(n(p.wearFallPct,5),-50,50);
+    p.rentRiseYears = Math.max(0, n(p.rentRiseYears,0));
+    p.rentRisePct = clamp(n(p.rentRisePct,0),-50,50);
+    p.rentFallPct = clamp(n(p.rentFallPct,10),-50,50);
+    if("wearRiseMonths" in p) delete p.wearRiseMonths;
+    if("rentRiseMonths" in p) delete p.rentRiseMonths;
+    if("residualPct" in p) delete p.residualPct;
+    if("horizon" in p) delete p.horizon;
+    if("annualWearPct" in p) delete p.annualWearPct;
+    if("rentDecay" in p) delete p.rentDecay;
+  }
+  function loadConfig(){
+    try{
+      var raw=localStorage.getItem("h200_calc_config_v2");
+      if(!raw){
+        var old=localStorage.getItem("h200_calc_config_v1");
+        if(old){
+          var o=JSON.parse(old);
+          if(o&&o.discount!=null){ state.paramsA.discount=n(o.discount,8); state.paramsB.discount=n(o.discount,8); }
+          /* v1 残值率丢弃；两段式由 migrateWearParams 填默认 */
+        }
+        migrateWearParams(state.paramsA);
+        migrateWearParams(state.paramsB);
+        return;
+      }
+      var o=JSON.parse(raw);
+      if(o.scheme) state.scheme=o.scheme;
+      if(o.shareMode) state.shareMode=o.shareMode;
+      if(o.paramsA) Object.assign(state.paramsA, o.paramsA);
+      if(o.paramsB) Object.assign(state.paramsB, o.paramsB);
+      migrateShareParams(state.paramsA,"A");
+      migrateShareParams(state.paramsB,"B");
+      migrateWearParams(state.paramsA);
+      migrateWearParams(state.paramsB);
+    }catch(e){}
+  }
+
+  document.getElementById("btnReset").addEventListener("click",function(){
+    state.paramsA=Object.assign({}, DEFAULTS_A);
+    state.paramsB=Object.assign({}, DEFAULTS_B);
+    state.scheme="A"; state.shareMode="fixed";
+    document.querySelectorAll("#schemeSeg button").forEach(function(b){ b.classList.toggle("active", b.getAttribute("data-v")==="A"); });
+    document.querySelectorAll("#modeSeg button").forEach(function(b){ b.classList.toggle("active", b.getAttribute("data-v")==="fixed"); });
+    renderSchemeParams(); syncStageNWrap(); persistConfig(); recalc();
+  });
+
+  function downloadText(filename,text,mime){ const blob=new Blob(["\uFEFF"+text],{type:mime||"text/csv;charset=utf-8"}); const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download=filename; a.click(); URL.revokeObjectURL(url); }
+  function csvEscape(cell){ const s=String(cell); if(/[",\n]/.test(s)) return '"'+s.replace(/"/g,'""')+'"'; return s; }
+
+  document.getElementById("btnCsv").addEventListener("click",function(){
+    const r=runCase(P(),state.scheme,state.shareMode);
+    const lines=[["H200算电协同投资测算器"],["导出时间",new Date().toISOString()],["方案",state.scheme],["分成",state.shareMode],
+      ["CapEx万",r.snap.capex.toFixed(1)],["经营回本月",Number.isFinite(r.pb)?r.pb:"—"],["表格月数",r.ser.T],
+      ["权益年化收益率IRR",r.irrEq],["NPV万",r.npvEq.toFixed(1)],["MOIC",r.moicEq.toFixed(4)],
+      ["场地方当月净现金转正月",r.parties.site.firstPos],["场地方最高当月净现金",r.parties.site.maxM],["场地方最低当月净现金",r.parties.site.minM],
+      ["运营方当月净现金转正月",r.parties.ops.firstPos],["运营方最高当月净现金",r.parties.ops.maxM],["运营方最低当月净现金",r.parties.ops.minM]];
+    downloadText("H200-算电协同-投资测算.csv", lines.map(function(row){return row.map(csvEscape).join(",");}).join("\n"));
+  });
+  document.getElementById("btnJson").addEventListener("click",function(){
+    downloadText("H200-算电协同-参数模板.json", JSON.stringify({name:"H200算电协同估值模板",version:6,scheme:state.scheme,shareMode:state.shareMode,paramsA:state.paramsA,paramsB:state.paramsB},null,2), "application/json;charset=utf-8");
+  });
+
+  (function(){
+    const el=document.getElementById("stageMonths");
+    if(!el) return;
+    el.addEventListener("input",function(){ P().stageMonths=n(el.value,24); schedule(); });
+  })();
+
+  loadConfig();
+  document.querySelectorAll("#schemeSeg button").forEach(function(b){ b.classList.toggle("active", b.getAttribute("data-v")===state.scheme); });
+  document.querySelectorAll("#modeSeg button").forEach(function(b){ b.classList.toggle("active", b.getAttribute("data-v")===state.shareMode); });
+  renderSchemeParams(); syncStageNWrap();
+  recalc();
+})();
+
+</script>
+</body>
+</html>
