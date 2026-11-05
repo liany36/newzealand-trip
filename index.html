@@ -90,6 +90,37 @@
         white-space: nowrap;
       }
 
+      .contact {
+        margin: 0.95rem 0 0;
+        text-align: center;
+      }
+
+      .mail {
+        font-family: var(--font-latin);
+        font-size: 0.8125rem;
+        font-weight: 400;
+        letter-spacing: 0.01em;
+        line-height: 1.4;
+        color: var(--quiet);
+        text-decoration-line: underline;
+        text-decoration-thickness: 1px;
+        text-decoration-color: rgba(97, 97, 102, 0.45);
+        text-underline-offset: 0.28em;
+        -webkit-tap-highlight-color: rgba(29, 29, 31, 0.08);
+      }
+
+      .mail:hover {
+        color: var(--ink);
+        text-decoration-color: rgba(29, 29, 31, 0.4);
+      }
+
+      .mail:focus-visible {
+        color: var(--ink);
+        outline: 2px solid var(--ink);
+        outline-offset: 3px;
+        border-radius: 2px;
+      }
+
       ::selection {
         background: #d2d2d7;
         color: var(--ink);
@@ -121,6 +152,11 @@
         .name {
           color: CanvasText;
         }
+
+        .mail {
+          color: LinkText;
+          text-decoration-color: LinkText;
+        }
       }
 
       @media (max-height: 420px) {
@@ -135,6 +171,10 @@
         .name {
           margin-top: 0.85rem;
         }
+
+        .contact {
+          margin-top: 0.65rem;
+        }
       }
     </style>
   </head>
@@ -144,6 +184,9 @@
         <span class="word">mrlian</span>
         <span class="name">练翊</span>
       </h1>
+      <p class="contact">
+        <a class="mail" href="mailto:liany7666@gmail.com">liany7666@gmail.com</a>
+      </p>
     </main>
   </body>
 </html>
