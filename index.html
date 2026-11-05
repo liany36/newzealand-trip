@@ -2,23 +2,148 @@
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="dark" />
-    <title>mrlian.ai · 新西兰南岛</title>
-    <link rel="stylesheet" href="/trips/nz/visa/css/handbook.css?v=sync1" />
-    <link rel="stylesheet" href="/trips/nz/itinerary/css/itinerary.css?v=3" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#fbfbfd" />
+    <meta name="description" content="练翊" />
+    <title>练翊 · mrlian</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231d1d1f'/%3E%3C/svg%3E"
+    />
+    <style>
+      :root {
+        --canvas: #fbfbfd;
+        --ink: #1d1d1f;
+        --quiet: #616166;
+        --font-latin: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        --font-cjk: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html {
+        background: var(--canvas);
+        color: var(--ink);
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: grid;
+        place-items: center;
+        background: var(--canvas);
+        color: var(--ink);
+        font-family: var(--font-latin), var(--font-cjk);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+        font-synthesis: none;
+        padding:
+          max(28px, env(safe-area-inset-top))
+          max(24px, env(safe-area-inset-right))
+          max(28px, env(safe-area-inset-bottom))
+          max(24px, env(safe-area-inset-left));
+      }
+
+      main {
+        transform: translateY(-3vh);
+      }
+
+      h1 {
+        margin: 0;
+        font-weight: 400;
+        font-size: 1rem;
+        line-height: 1;
+        text-align: center;
+      }
+
+      .word {
+        display: block;
+        font-family: var(--font-latin);
+        font-weight: 500;
+        font-size: clamp(2.75rem, 7vw, 4.75rem);
+        letter-spacing: -0.028em;
+        text-indent: -0.028em;
+        line-height: 1.05;
+        color: var(--ink);
+        white-space: nowrap;
+      }
+
+      .name {
+        display: block;
+        margin-top: 1.25rem;
+        font-family: var(--font-cjk), var(--font-latin);
+        font-weight: 400;
+        font-size: 1rem;
+        letter-spacing: 0.28em;
+        text-indent: 0.28em;
+        line-height: 1;
+        color: var(--quiet);
+        white-space: nowrap;
+      }
+
+      ::selection {
+        background: #d2d2d7;
+        color: var(--ink);
+      }
+
+      @media (prefers-reduced-motion: no-preference) {
+        main {
+          animation: appear 1.15s cubic-bezier(0.4, 0, 0.2, 1) both;
+        }
+      }
+
+      @keyframes appear {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @media (forced-colors: active) {
+        html,
+        body {
+          background: Canvas;
+          color: CanvasText;
+        }
+
+        .word,
+        .name {
+          color: CanvasText;
+        }
+      }
+
+      @media (max-height: 420px) {
+        main {
+          transform: none;
+        }
+
+        .word {
+          font-size: clamp(2rem, 8vh, 3rem);
+        }
+
+        .name {
+          margin-top: 0.85rem;
+        }
+      }
+    </style>
   </head>
   <body>
-    <div class="gate">
-      <div class="gate__card hub-card">
-        <p class="gate__kicker">mrlian.ai</p>
-        <h1 class="gate__title">新西兰南岛</h1>
-        <p class="gate__hint">练翊 + 陆陶陶 · 2026-12-23 → 2027-01-02</p>
-        <div class="gate__choices">
-          <a class="gate__btn" href="/trips/nz/visa/">签证清单</a>
-          <a class="gate__btn" href="/trips/nz/itinerary/">行程 Final</a>
-        </div>
-      </div>
-    </div>
+    <main>
+      <h1>
+        <span class="word">mrlian</span>
+        <span class="name">练翊</span>
+      </h1>
+    </main>
   </body>
 </html>
