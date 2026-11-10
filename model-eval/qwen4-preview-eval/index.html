@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>四个模型同题实测</title>
+<style>
+  :root{--ink:#1b1b1b;--mute:#6b6b6b;--line:#e6e3dd;--bg:#f4f3f0}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);line-height:1.7;
+    font-family:"PingFang SC","Microsoft YaHei","Segoe UI",system-ui,sans-serif}
+  .wrap{max-width:980px;margin:0 auto;padding:64px 28px 96px}
+  h1{font-size:26px;margin:0 0 8px;letter-spacing:.01em}
+  .sub{color:var(--mute);font-size:14px;margin:0 0 8px}
+  .meta{color:var(--mute);font-size:13px;margin:0 0 36px}
+  table{border-collapse:separate;border-spacing:0;width:100%;background:#fff;
+    border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  th,td{padding:16px 18px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+  tr:last-child td{border-bottom:0}
+  th{background:#faf9f6;font-size:12.5px;color:var(--mute);font-weight:600;letter-spacing:.02em}
+  td.who{width:26%;white-space:nowrap;font-size:15px}
+  a.card{display:block;text-decoration:none;color:inherit;padding:10px 12px;border-radius:8px;
+    border:1px solid transparent;transition:.15s}
+  a.card:hover{background:#f7f6f2;border-color:var(--line)}
+  a.card .t{display:block;font-size:14.5px;color:#1f5fa8}
+  a.card .s{display:block;font-size:12px;color:var(--mute);margin-top:2px}
+  .note{margin-top:32px;font-size:13px;color:var(--mute);line-height:2}
+  .note b{color:var(--ink);font-weight:600}
+  code{background:#eceae4;padding:1px 5px;border-radius:3px;font-size:12px}
+</style></head>
+<body><div class="wrap">
+  <h1>四个模型同题实测</h1>
+  <p class="sub">同一套 harness、同一套 prompt、同一个 90 分钟限时。下面每个链接都是模型当时的原始产物，没有二次加工。</p>
+  <p class="meta">任务一：SVG 图纸 → 三维房间 → 拖拽家具 → 导出 glb/obj　|　任务三：火箭发射 / 火山喷发渲染</p>
+
+  <table>
+    <tr><th>模型</th><th>任务一 · 图纸变房间</th><th>任务三 · 场景渲染</th></tr>
+    <tr>
+      <td class="who"><b>Grok-bot 4.7</b></td>
+      <td><a class="card" href="A/answers/1/index.html"><span class="t">图纸 → 三维房间</span><span class="s">任务一 · 77.5</span></a></td>
+      <td><a class="card" href="A/answers/3/index.html"><span class="t">场景渲染</span><span class="s">任务三 · 76.0</span></a></td>
+    </tr>
+    <tr>
+      <td class="who"><b>Opus 5.5</b></td>
+      <td><a class="card" href="B/answers/1/index.html"><span class="t">图纸 → 三维房间</span><span class="s">任务一 · 92.0</span></a></td>
+      <td><a class="card" href="B/answers/3/index.html"><span class="t">场景渲染</span><span class="s">任务三 · 72.0</span></a></td>
+    </tr>
+    <tr>
+      <td class="who"><b>DeepSeek V4.1</b></td>
+      <td><a class="card" href="C/answers/1/index.html"><span class="t">图纸 → 三维房间</span><span class="s">任务一 · 87.0</span></a></td>
+      <td><a class="card" href="C/answers/3/index.html"><span class="t">场景渲染</span><span class="s">任务三 · 82.0</span></a></td>
+    </tr>
+    <tr>
+      <td class="who"><b>千问4预览版</b></td>
+      <td><a class="card" href="D/answers/1/index.html"><span class="t">图纸 → 三维房间</span><span class="s">任务一 · 80.0</span></a></td>
+      <td><a class="card" href="D/answers/3/index.html"><span class="t">场景渲染</span><span class="s">任务三 · 91.0</span></a></td>
+    </tr>
+  </table>
+
+  <div class="note">
+    <b>怎么看任务一：</b>从左侧面板把家具拖进中间的房间，选中后用方向键微调、按 <code>R</code> 旋转。<br/>
+    <b>怎么看任务三：</b>打开就会自己跑，不用点任何东西。<br/>
+    <b>提示：</b>这些页面都是模型一次性生成的静态文件，我们只做了原样部署，没有修过它们的代码。
+  </div>
+</div></body></html>
