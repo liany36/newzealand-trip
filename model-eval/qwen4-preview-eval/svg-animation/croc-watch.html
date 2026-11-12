@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:,">
+<title>鳄鱼修机械表 · croc-watch</title>
+<style>
+  html,body{margin:0;padding:0;height:100%;overflow:hidden;background:#171009}
+  svg#scene{display:block;width:100vw;height:100vh}
+  #hud{position:fixed;left:14px;bottom:12px;display:flex;align-items:center;gap:10px;
+       padding:8px 14px;border-radius:12px;background:rgba(20,12,6,.78);
+       border:1px solid rgba(255,205,130,.28);backdrop-filter:blur(4px);
+       font:12px/1.4 system-ui,"Segoe UI","Microsoft YaHei",sans-serif;color:#ffe2b0;user-select:none;z-index:5}
+  #hud button,#hud select{font:inherit;color:#ffe2b0;background:rgba(255,205,130,.12);
+       border:1px solid rgba(255,205,130,.35);border-radius:8px;padding:3px 10px;cursor:pointer}
+  #hud button:hover,#hud select:hover{background:rgba(255,205,130,.26)}
+  #hud input[type=range]{width:180px;accent-color:#e0a83c;cursor:pointer}
+  #hud .t{min-width:86px;text-align:right;font-variant-numeric:tabular-nums;color:#ffd77a}
+  #hud.hidden{opacity:0;pointer-events:none;transform:translateY(8px)}
+  #hud{transition:opacity .25s,transform .25s}
+  #hudRestore{position:fixed;left:12px;bottom:10px;z-index:6;display:none;
+    font:11px/1.4 system-ui,"Segoe UI","Microsoft YaHei",sans-serif;
+    padding:5px 10px;border-radius:9px;cursor:pointer;opacity:.22;
+    background:rgba(12,18,24,.55);border:1px solid rgba(255,255,255,.16);color:#ffe6bd;
+    backdrop-filter:blur(3px);transition:opacity .2s,background .2s}
+  #hudRestore:hover,#hudRestore:focus-visible{opacity:1;background:rgba(12,18,24,.92)}
+  #hudRestore.show{display:block}
+  #toast{position:fixed;left:50%;bottom:70px;transform:translateX(-50%) translateY(6px);
+    z-index:7;padding:8px 16px;border-radius:9px;font:13px/1.4 system-ui,"Segoe UI","Microsoft YaHei",sans-serif;
+    background:rgba(12,18,24,.9);border:1px solid rgba(255,255,255,.22);color:#ffe6bd;
+    opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  #svgBox{position:fixed;inset:0;z-index:9;display:none;align-items:center;justify-content:center;
+    background:rgba(6,10,14,.72);backdrop-filter:blur(3px);padding:24px}
+  #svgBox.show{display:flex}
+  #svgBox .panel{width:min(760px,100%);max-height:80vh;display:flex;flex-direction:column;gap:10px;
+    background:#121a22;border:1px solid rgba(255,230,189,.28);border-radius:12px;padding:16px 18px;
+    box-shadow:0 18px 50px rgba(0,0,0,.5)}
+  #svgBox h4{margin:0;font:600 14px/1.5 system-ui,"Segoe UI","Microsoft YaHei",sans-serif;color:#ffe6bd}
+  #svgBox p{margin:0;font:12px/1.6 system-ui,"Segoe UI","Microsoft YaHei",sans-serif;color:#b9c6cf}
+  #svgBox textarea{flex:1;min-height:240px;resize:vertical;background:#0b1116;color:#dff0ea;
+    border:1px solid rgba(255,230,189,.2);border-radius:8px;padding:10px;
+    font:11.5px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace}
+  #svgBox .row{display:flex;gap:8px;justify-content:flex-end}
+  #svgBox button{font:12.5px/1.4 system-ui,"Segoe UI","Microsoft YaHei",sans-serif;cursor:pointer;
+    padding:6px 14px;border-radius:8px;background:rgba(255,214,140,.14);color:#ffe6bd;
+    border:1px solid rgba(255,214,140,.35)}
+  #svgBox button:hover{background:rgba(255,214,140,.28)}
+  ::-webkit-scrollbar{width:8px;height:8px}
+  ::-webkit-scrollbar-track{background:#171009}
+  ::-webkit-scrollbar-thumb{background:#e0a83c;border-radius:4px}
+</style>
+</head>
+<body>
+<svg id="scene" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" role="img" aria-label="鳄鱼在工作台上修机械怀表的动画">
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#241812"/><stop offset="0.6" stop-color="#332217"/><stop offset="1" stop-color="#3d2a1c"/>
+    </linearGradient>
+    <linearGradient id="desk" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8a5a2e"/><stop offset="0.5" stop-color="#6f4522"/><stop offset="1" stop-color="#4e2f16"/>
+    </linearGradient>
+    <radialGradient id="caseBrass" cx="0.38" cy="0.34" r="0.85">
+      <stop offset="0" stop-color="#ffe9a8"/><stop offset="0.45" stop-color="#d9a441"/><stop offset="0.8" stop-color="#8a5a1d"/><stop offset="1" stop-color="#5e3a10"/>
+    </radialGradient>
+    <radialGradient id="movement" cx="0.45" cy="0.4" r="0.9">
+      <stop offset="0" stop-color="#e8d9b8"/><stop offset="0.7" stop-color="#cdb890"/><stop offset="1" stop-color="#a89468"/>
+    </radialGradient>
+    <linearGradient id="steel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f2f6fa"/><stop offset="0.5" stop-color="#9fb0c0"/><stop offset="1" stop-color="#5d6d7d"/>
+    </linearGradient>
+    <linearGradient id="brassGear" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffdf8a"/><stop offset="0.5" stop-color="#cf9a30"/><stop offset="1" stop-color="#8a5f18"/>
+    </linearGradient>
+    <linearGradient id="crocSkin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5d8f4a"/><stop offset="0.6" stop-color="#3f6b33"/><stop offset="1" stop-color="#2c4d24"/>
+    </linearGradient>
+    <linearGradient id="crocBelly" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#cfe3a8"/><stop offset="1" stop-color="#a8c47e"/>
+    </linearGradient>
+    <radialGradient id="lampGlow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffdf9a" stop-opacity="0.5"/><stop offset="0.5" stop-color="#ffbf5e" stop-opacity="0.18"/><stop offset="1" stop-color="#ffbf5e" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#dff2f6" stop-opacity="0.5"/><stop offset="0.5" stop-color="#9fc8d2" stop-opacity="0.18"/><stop offset="1" stop-color="#dff2f6" stop-opacity="0.4"/>
+    </linearGradient>
+    <radialGradient id="vignette" cx="0.5" cy="0.45" r="0.8">
+      <stop offset="0.6" stop-color="#0a0603" stop-opacity="0"/><stop offset="1" stop-color="#0a0603" stop-opacity="0.5"/>
+    </radialGradient>
+    <filter id="grainF" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" stitchTiles="stitch" seed="11"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+    <pattern id="grainP" width="180" height="180" patternUnits="userSpaceOnUse">
+      <rect width="180" height="180" filter="url(#grainF)"/>
+    </pattern>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#wall)"/>
+  <g id="shelf"></g>
+  <rect x="0" y="640" width="1600" height="260" fill="url(#desk)"/>
+  <g id="woodGrain"></g>
+  <rect x="0" y="640" width="1600" height="7" fill="#c89a5e" opacity="0.5"/>
+  <ellipse cx="1000" cy="470" rx="620" ry="330" fill="url(#lampGlow)"/>
+  <g id="props"></g>
+  <g id="watch"></g>
+  <g id="croc"></g>
+  <g id="toolG"></g>
+  <rect width="1600" height="900" fill="url(#grainP)" opacity="0.05" pointer-events="none"/>
+  <rect width="1600" height="900" fill="url(#vignette)" pointer-events="none"/>
+  <text x="1586" y="878" text-anchor="end" font-family="system-ui,'Segoe UI','Microsoft YaHei',sans-serif"
+        font-size="17" letter-spacing="3" fill="#ffe2b0" opacity="0.5">鳄鱼 · 修表工作台</text>
+</svg>
+
+<div id="hud">
+  <button id="btnPlay">⏸ 暂停</button>
+  <input id="scrub" type="range" min="0" max="24" step="0.01" value="0">
+  <select id="speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select>
+  <button id="btnDl">⬇ SVG</button>
+  <button id="btnCopy" title="把当前这一帧的 SVG 源码复制到剪贴板">⧉ 复制</button>
+  <button id="btnHide" title="隐藏工具栏（按 H 切换）">✕</button>
+  <span class="t" id="clock">t=0.00s / 24s</span>
+</div>
+<button id="hudRestore" title="显示工具栏（按 H）">☰ 工具栏</button>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="svgBox" role="dialog" aria-modal="true" aria-label="当前帧的 SVG 源码">
+  <div class="panel">
+    <h4>当前帧的 SVG 源码</h4>
+    <p>浏览器这次没让页面直接写剪贴板。下面已经全选好了，按 Ctrl+C（Mac 用 ⌘C）就能复制；也可以点"再试一次复制"。</p>
+    <textarea id="svgText" readonly spellcheck="false"></textarea>
+    <div class="row">
+      <button id="svgRetry">再试一次复制</button>
+      <button id="svgClose">关闭</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+'use strict';
+/* =====================================================================
+ * croc-watch · 单一主时间轴
+ *   发条盒角 θ0 = 2π·t/24（1 圈/循环）
+ *   齿轮 i 角 θi = -θ(i-1) × n(i-1)/ni + 啮合相位（相邻反向、严格反比）
+ *   啮合相位：接触线上主动轮齿对从动轮齿槽 → 齿不穿插
+ *   齿轮用「整齿距」旋转回绕 + 旋转对称轮辐 → 循环点画面逐像素重合
+ *   摆轮 0.6s 周期（40 次/循环）；擒纵叉同周期；工具 3 次访问×8s
+ * ===================================================================== */
+const PARAMS = {
+  loop: 24,
+  module: 6,                       // 模数：节圆半径 = m·n/2
+  teeth: [40, 28, 20, 15],         // 发条盒 / 中心轮 / 三轮 / 擒纵轮
+  barrelTurns: 1,                  // 发条盒每循环整圈数
+  balancePeriod: 0.6,              // 摆轮周期（秒）
+  balanceAmp: 0.7,                 // 摆轮摆幅 rad
+  toolVisits: 3,                   // 每循环工具访问次数
+};
+const TAU = Math.PI * 2;
+const LOOP = PARAMS.loop;
+const N = PARAMS.teeth;
+const RP = N.map(n => PARAMS.module * n / 2);          // 节圆半径
+const OMEGA0 = TAU * PARAMS.barrelTurns / LOOP;
+
+/* ---------- 齿轮布局：中心距 = 节圆半径和，接触角手动摆位 ---------- */
+const C = [{ x: 880, y: 330 }];
+const CONTACT_DEG = [20, 110, 200];  // 每对齿轮的接触方向角（让轮系盘在表壳内）
+const ALPHA = CONTACT_DEG.map(d => d * Math.PI / 180);
+for (let i = 0; i < 3; i++){
+  const d = RP[i] + RP[i + 1];
+  C.push({ x: C[i].x + d * Math.cos(ALPHA[i]), y: C[i].y + d * Math.sin(ALPHA[i]) });
+}
+// 角速度（严格反比、相邻反向）与啮合相位
+const OMEGA = [OMEGA0];
+for (let i = 0; i < 3; i++) OMEGA.push(-OMEGA[i] * N[i] / N[i + 1]);
+const PHASE = [0];
+for (let i = 0; i < 3; i++){
+  // 接触线上主动轮齿中心时，从动轮必须是齿槽中心：
+  // n_i·(α-φ_i) + n_{i+1}·(α+π-φ_{i+1}) ≡ π (mod 2π)
+  PHASE.push(ALPHA[i] + Math.PI - (Math.PI - N[i] * (ALPHA[i] - PHASE[i])) / N[i + 1]);
+}
+
+const $ = id => document.getElementById(id);
+const svgNS = 'http://www.w3.org/2000/svg';
+function el(name, attrs, parent){
+  const n = document.createElementNS(svgNS, name);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(n);
+  return n;
+}
+const fmt = n => Math.round(n * 100) / 100;
+const smooth = x => { x = Math.min(1, Math.max(0, x)); return x * x * (3 - 2 * x); };
+
+/* ---------- 工作台道具 ---------- */
+let wallMinute = null, wallHour = null;
+{
+  const g = $('woodGrain');
+  for (let i = 0; i < 14; i++){
+    const y = 660 + i * 17;
+    el('path', { d: `M0,${y} q200,${(i % 3) * 4 - 4} 420,0 t420,0 t420,0 t420,0`,
+      stroke: '#3d2410', 'stroke-width': 1.6, fill: 'none', opacity: 0.35 }, g);
+  }
+  const shelf = $('shelf');
+  el('rect', { x: 60, y: 150, width: 420, height: 12, fill: '#4e2f16' }, shelf);
+  for (let i = 0; i < 5; i++){
+    const x = 90 + i * 78, h = 60 + (i * 37) % 40;
+    el('rect', { x, y: 150 - h, width: 26, height: h, rx: 3, fill: ['#7a4a22', '#5d6d7d', '#8a5a1d', '#4f6b3a', '#6b3a2a'][i] }, shelf);
+    el('rect', { x: x + 4, y: 150 - h + 8, width: 18, height: 10, fill: '#e8d9b8', opacity: 0.7 }, shelf);
+  }
+  // 挂墙小钟（指针也走主时间轴）
+  el('circle', { cx: 1350, cy: 170, r: 56, fill: '#e8d9b8', stroke: '#5e3a10', 'stroke-width': 8 }, shelf);
+  for (let i = 0; i < 12; i++){
+    const a = i * TAU / 12;
+    el('line', { x1: 1350 + 44 * Math.cos(a), y1: 170 + 44 * Math.sin(a), x2: 1350 + 50 * Math.cos(a), y2: 170 + 50 * Math.sin(a), stroke: '#5e3a10', 'stroke-width': 3 }, shelf);
+  }
+  wallMinute = el('line', { x1: 1350, y1: 170, x2: 1350, y2: 128, stroke: '#3d2410', 'stroke-width': 4, 'stroke-linecap': 'round' }, shelf);
+  wallHour = el('line', { x1: 1350, y1: 170, x2: 1378, y2: 170, stroke: '#3d2410', 'stroke-width': 5, 'stroke-linecap': 'round' }, shelf);
+  el('circle', { cx: 1350, cy: 170, r: 5, fill: '#3d2410' }, shelf);
+  const props = $('props');
+  // 台灯
+  el('path', { d: 'M250,640 L262,470 L330,380', stroke: '#2b2b2b', 'stroke-width': 12, fill: 'none', 'stroke-linecap': 'round' }, props);
+  el('ellipse', { cx: 250, cy: 644, rx: 60, ry: 12, fill: '#2b2b2b' }, props);
+  el('path', { d: 'M300,360 q60,-30 110,10 l-30,60 q-50,-20 -90,0 Z', fill: '#3f6b33', stroke: '#2c4d24', 'stroke-width': 3 }, props);
+  el('circle', { cx: 355, cy: 415, r: 14, fill: '#ffe9a8' }, props);
+  // 零件盘
+  el('ellipse', { cx: 1290, cy: 705, rx: 120, ry: 34, fill: '#8a5a1d', stroke: '#5e3a10', 'stroke-width': 4 }, props);
+  el('ellipse', { cx: 1290, cy: 700, rx: 104, ry: 26, fill: '#cdb890' }, props);
+  for (let i = 0; i < 7; i++){
+    const x = 1220 + (i * 53) % 150, y = 692 + (i * 29) % 18;
+    if (i % 2) el('circle', { cx: x, cy: y, r: 7, fill: 'url(#brassGear)', stroke: '#5e3a10', 'stroke-width': 1.5 }, props);
+    else el('rect', { x, y: y - 2, width: 14, height: 4, rx: 2, fill: '#9fb0c0', transform: `rotate(${(i * 47) % 90} ${x} ${y})` }, props);
+  }
+  // 放大镜
+  el('circle', { cx: 1240, cy: 795, r: 46, fill: 'url(#glass)', stroke: '#5e3a10', 'stroke-width': 9 }, props);
+  el('line', { x1: 1273, y1: 828, x2: 1325, y2: 880, stroke: '#5e3a10', 'stroke-width': 14, 'stroke-linecap': 'round' }, props);
+  el('path', { d: 'M1215,775 q20,-14 44,-6', stroke: '#ffffff', 'stroke-width': 5, fill: 'none', opacity: 0.6, 'stroke-linecap': 'round' }, props);
+  // 茶杯 + 热气
+  el('path', { d: 'M480,700 q0,44 40,44 q40,0 40,-44 Z', fill: '#b8452f', stroke: '#7a2a1a', 'stroke-width': 3 }, props);
+  el('path', { d: 'M560,706 q26,4 22,22 q-4,16 -26,12', fill: 'none', stroke: '#7a2a1a', 'stroke-width': 6 }, props);
+  // 打开的后盖（斜靠在右侧，不挡摆轮）
+  el('ellipse', { cx: 1385, cy: 555, rx: 78, ry: 96, fill: 'url(#caseBrass)', transform: 'rotate(18 1385 555)', opacity: 0.95 }, props);
+  el('ellipse', { cx: 1385, cy: 555, rx: 60, ry: 76, fill: '#8a5a1d', transform: 'rotate(18 1385 555)' }, props);
+}
+
+/* ---------- 怀表与机芯 ---------- */
+const watch = $('watch');
+const WC = { x: 1000, y: 430 };   // 表壳中心：画面主体偏右，鳄鱼在左不遮挡轮系
+el('ellipse', { cx: WC.x, cy: 742, rx: 300, ry: 24, fill: '#0a0603', opacity: 0.4 }, watch);
+el('circle', { cx: WC.x, cy: WC.y, r: 300, fill: 'url(#caseBrass)', stroke: '#5e3a10', 'stroke-width': 5 }, watch);
+el('circle', { cx: WC.x, cy: WC.y, r: 278, fill: 'url(#movement)', stroke: '#8a5a1d', 'stroke-width': 3 }, watch);
+// 表冠
+el('rect', { x: WC.x - 20, y: WC.y - 326, width: 40, height: 28, rx: 6, fill: 'url(#caseBrass)', stroke: '#5e3a10', 'stroke-width': 3 }, watch);
+el('rect', { x: WC.x - 8, y: WC.y - 300, width: 16, height: 12, fill: '#8a5a1d' }, watch);
+// 夹板装饰条纹（低透明度，不抢齿轮）
+for (let i = 0; i < 4; i++){
+  el('path', { d: `M${800 + i * 110},190 q36,130 0,290`, stroke: '#b8a478', 'stroke-width': 10, fill: 'none', opacity: 0.16 }, watch);
+}
+// 宝石轴承
+const JEWELS = [];
+function jewel(x, y){
+  JEWELS.push({ x, y });
+  el('circle', { cx: x, cy: y, r: 9, fill: '#c22a4a', stroke: '#7a1028', 'stroke-width': 2 }, watch);
+  el('circle', { cx: x - 2.5, cy: y - 2.5, r: 2.6, fill: '#ff8aa0' }, watch);
+}
+// 齿轮：齿形多边形 + 旋转对称轮辐
+function gearPath(n, rp){
+  const m = PARAMS.module, ra = rp + m * 0.9, rr = rp - m * 1.0, p = TAU / n;
+  let d = '';
+  for (let k = 0; k < n; k++){
+    const a = k * p;
+    const pts = [[rr, a - 0.25 * p], [ra, a - 0.13 * p], [ra, a + 0.13 * p], [rr, a + 0.25 * p]];
+    for (const [r, ang] of pts){
+      const x = fmt(r * Math.cos(ang)), y = fmt(r * Math.sin(ang));
+      d += (d ? ' L' : 'M') + x + ',' + y;
+    }
+  }
+  return d + ' Z';
+}
+const gearRots = [];
+for (let i = 0; i < 4; i++){
+  const outer = el('g', { transform: `translate(${fmt(C[i].x)},${fmt(C[i].y)})` }, watch);
+  const rot = el('g', {}, outer);
+  el('path', { d: gearPath(N[i], RP[i]), fill: i === 3 ? 'url(#steel)' : 'url(#brassGear)', stroke: '#5e3a10', 'stroke-width': 1.6 }, rot);
+  el('circle', { r: RP[i] * 0.62, fill: 'url(#movement)', stroke: '#8a5a1d', 'stroke-width': 2 }, rot);
+  if (i === 0){
+    // 发条盒：开盖看见盘绕的发条（随盒整圈转，循环点重合）
+    let sp = '';
+    for (let a = 0; a < TAU * 4.5; a += 0.2){
+      const r = 12 + a * 6.4;
+      sp += (sp ? ' L' : 'M') + fmt(r * Math.cos(a)) + ',' + fmt(r * Math.sin(a));
+    }
+    el('circle', { r: RP[0] * 0.58, fill: '#8a6a30', stroke: '#5e3a10', 'stroke-width': 2 }, rot);
+    el('path', { d: sp, fill: 'none', stroke: '#d8c090', 'stroke-width': 4, 'stroke-linecap': 'round' }, rot);
+    el('rect', { x: -8, y: -8, width: 16, height: 16, fill: '#5d6d7d', stroke: '#3d4d5d', 'stroke-width': 2 }, rot);
+  }
+  const spokes = i === 0 ? 4 : i === 3 ? 3 : 5;   // 旋转对称 → 整齿距回绕后画面不变
+  if (i !== 0) for (let s = 0; s < spokes; s++){
+    const a = s * TAU / spokes;
+    el('path', { d: `M0,0 L${fmt(RP[i] * 0.6 * Math.cos(a))},${fmt(RP[i] * 0.6 * Math.sin(a))}`,
+      stroke: i === 3 ? '#5d6d7d' : '#8a5a1d', 'stroke-width': 8, 'stroke-linecap': 'round' }, rot);
+  }
+  el('circle', { r: 10, fill: '#5e3a10' }, rot);
+  gearRots.push(rot);
+}
+// 宝石轴承在轮之上（夹板固定件，不随轮转）
+for (let i = 0; i < 4; i++) jewel(C[i].x, C[i].y);
+// 擒纵叉 + 摆轮
+const palletPivot = { x: C[3].x + 61, y: C[3].y + 41 };
+const palletG = el('g', { transform: `translate(${palletPivot.x},${palletPivot.y})` }, watch);
+el('path', { d: 'M0,0 L-58,-38 M0,0 L-36,-58 M0,0 L52,34', stroke: '#5d6d7d', 'stroke-width': 7, fill: 'none', 'stroke-linecap': 'round' }, palletG);
+// 叉瓦在擒纵轮齿顶圆外 2 单位：齿尖扫过叉瓦、不穿插
+el('rect', { x: -62, y: -42, width: 10, height: 8, rx: 2, fill: '#c22a4a', transform: 'rotate(30 -57 -38)' }, palletG);
+el('rect', { x: -40, y: -62, width: 10, height: 8, rx: 2, fill: '#c22a4a', transform: 'rotate(60 -35 -58)' }, palletG);
+jewel(palletPivot.x, palletPivot.y);
+const balanceC = { x: C[3].x + 181, y: C[3].y + 121 };
+const balanceOuter = el('g', { transform: `translate(${balanceC.x},${balanceC.y})` }, watch);
+const balanceRot = el('g', {}, balanceOuter);
+el('circle', { r: 52, fill: 'none', stroke: 'url(#brassGear)', 'stroke-width': 9 }, balanceRot);
+for (let s = 0; s < 3; s++){
+  const a = s * TAU / 3;
+  el('line', { x1: 0, y1: 0, x2: fmt(48 * Math.cos(a)), y2: fmt(48 * Math.sin(a)), stroke: '#8a5a1d', 'stroke-width': 6 }, balanceRot);
+}
+el('circle', { r: 7, fill: '#5e3a10' }, balanceRot);
+// 游丝（阿基米德螺线，随摆轮呼吸）
+const hairspring = el('path', { fill: 'none', stroke: '#5d6d7d', 'stroke-width': 2 }, balanceOuter);
+jewel(balanceC.x, balanceC.y);
+// 夹板螺丝（工具目标）
+const SCREWS = [{ x: 830, y: 240 }, { x: 1160, y: 430 }, { x: 900, y: 640 }];
+for (const s of SCREWS){
+  el('circle', { cx: s.x, cy: s.y, r: 11, fill: 'url(#steel)', stroke: '#5d6d7d', 'stroke-width': 2 }, watch);
+  el('line', { x1: s.x - 6, y1: s.y, x2: s.x + 6, y2: s.y, stroke: '#3d4d5d', 'stroke-width': 2.5 }, watch);
+  jewel(s.x + 26, s.y + 18);
+}
+
+/* ---------- 鳄鱼 ---------- */
+const croc = $('croc');
+// 尾巴（滞后摆动）
+const tailG = el('g', {}, croc);
+el('path', { d: 'M180,700 q-90,20 -130,70 q60,-10 90,-6 q-40,30 -50,60 q60,-24 110,-30 q60,-8 90,-40 Z',
+  fill: 'url(#crocSkin)', stroke: '#2c4d24', 'stroke-width': 3 }, tailG);
+// 身体
+el('path', { d: 'M150,760 q0,-160 130,-190 q120,-26 190,40 q50,50 40,150 Z', fill: 'url(#crocSkin)', stroke: '#2c4d24', 'stroke-width': 3 }, croc);
+el('path', { d: 'M230,760 q10,-110 90,-130 q70,-16 110,30 q30,40 26,100 Z', fill: 'url(#crocBelly)', opacity: 0.9 }, croc);
+// 背鳞
+for (let i = 0; i < 6; i++){
+  el('path', { d: `M${180 + i * 40},${586 + (i % 2) * 10} l14,-18 l14,18 Z`, fill: '#2c4d24' }, croc);
+}
+// 左臂（扶表壳）：手落在壳边 (770,618) 上
+el('path', { d: 'M420,640 q120,40 220,20 q70,-10 130,-42', fill: 'none', stroke: 'url(#crocSkin)', 'stroke-width': 34, 'stroke-linecap': 'round' }, croc);
+el('path', { d: 'M762,612 q22,-10 32,4 q-6,16 -26,14 Z', fill: '#3f6b33' }, croc);
+// 头（跟随工具微动）
+const headG = el('g', {}, croc);
+el('path', { d: 'M300,560 q-10,-90 60,-120 q80,-32 170,-6 q90,26 120,60 q10,14 -6,22 q-120,26 -240,20 q-70,-4 -104,24 Z',
+  fill: 'url(#crocSkin)', stroke: '#2c4d24', 'stroke-width': 3 }, headG);
+// 吻部与牙
+el('path', { d: 'M640,470 q40,4 60,16 q-16,14 -60,12 Z', fill: '#3f6b33' }, headG);
+for (let i = 0; i < 5; i++){
+  el('path', { d: `M${560 + i * 26},${492 + (i % 2) * 3} l6,12 l7,-11 Z`, fill: '#f4f0e0' }, headG);
+}
+el('circle', { cx: 620, cy: 452, r: 4, fill: '#2c4d24' }, headG); // 鼻孔
+// 眼（瞳孔跟随工具）+ 放大镜眼罩
+el('circle', { cx: 470, cy: 428, r: 26, fill: '#e8d9b8', stroke: '#2c4d24', 'stroke-width': 3 }, headG);
+const pupil = el('circle', { cx: 474, cy: 430, r: 10, fill: '#1d1d1d' }, headG);
+el('circle', { cx: 477, cy: 426, r: 3, fill: '#fff' }, headG);
+const lid = el('ellipse', { cx: 470, cy: 428, rx: 27, ry: 27, fill: '#3f6b33' }, headG);
+el('circle', { cx: 470, cy: 428, r: 36, fill: 'none', stroke: '#5e3a10', 'stroke-width': 7 }, headG);
+el('line', { x1: 470, y1: 392, x2: 470, y2: 372, stroke: '#5e3a10', 'stroke-width': 7 }, headG);
+// 右肩
+el('circle', { cx: 430, cy: 620, r: 34, fill: 'url(#crocSkin)', stroke: '#2c4d24', 'stroke-width': 3 }, croc);
+
+/* ---------- 工具（螺丝刀）：尖端沿目标零件表面，永不漂移 ---------- */
+const toolG = $('toolG');
+const armPath = el('path', { fill: 'none', stroke: 'url(#crocSkin)', 'stroke-width': 30, 'stroke-linecap': 'round' }, croc);
+const handG = el('g', {}, toolG);
+el('circle', { r: 20, fill: '#3f6b33', stroke: '#2c4d24', 'stroke-width': 3 }, handG);
+const toolRot = el('g', {}, toolG);
+el('rect', { x: -7, y: -96, width: 14, height: 62, rx: 7, fill: '#b8452f', stroke: '#7a2a1a', 'stroke-width': 2 }, toolRot);
+el('rect', { x: -3.5, y: -40, width: 7, height: 40, fill: 'url(#steel)' }, toolRot);
+el('path', { d: 'M-3.5,0 L3.5,0 L1.5,6 L-1.5,6 Z', fill: '#5d6d7d' }, toolRot);
+// 工具目标路径：3 个螺丝 + 2 个宝石轴承，沿夹板表面
+const TARGETS = [SCREWS[0], JEWELS[4], SCREWS[1], JEWELS[7], SCREWS[2]];
+function toolTarget(u){
+  // u∈[0,1) 一次访问：approach(0-.18) → work(.18-.72 小圆研磨) → retract(.72-1) 回到起点
+  //  retract 终点 = 本次 from → 下一次访问的 from 衔接，循环首尾严格闭合
+  const i = Math.floor(u * PARAMS.toolVisits) % TARGETS.length;
+  const local = (u * PARAMS.toolVisits) % 1;
+  const from = TARGETS[(i + TARGETS.length - 1) % TARGETS.length], to = TARGETS[i];
+  let x, y;
+  if (local < 0.18){ const s = smooth(local / 0.18); x = from.x + (to.x - from.x) * s; y = from.y + (to.y - from.y) * s; }
+  else if (local < 0.72){ const w = (local - 0.18) / 0.54; const r = 5 * Math.sin(Math.PI * w);
+    x = to.x + r * Math.cos(w * TAU * 2); y = to.y + r * Math.sin(w * TAU * 2); }
+  else { const s = smooth((local - 0.72) / 0.28); x = to.x + (from.x - to.x) * s; y = to.y + (from.y - to.y) * s; }
+  return { x, y, i, local };
+}
+
+/* ---------- 每帧渲染 ---------- */
+const M = {};
+function render(t){
+  const u = (t % LOOP) / LOOP;
+  // 齿轮：整齿距回绕（画面周期 = 齿距角），角速度严格反比
+  for (let i = 0; i < 4; i++){
+    const pitch = TAU / N[i];
+    const wrapped = ((OMEGA[i] * t) % pitch + pitch) % pitch;
+    gearRots[i].setAttribute('transform', `rotate(${fmt((PHASE[i] + wrapped) * 180 / Math.PI)})`);
+  }
+  // 摆轮 + 游丝 + 擒纵叉
+  const bArg = TAU * t / PARAMS.balancePeriod;
+  const bAng = PARAMS.balanceAmp * Math.sin(bArg);
+  balanceRot.setAttribute('transform', `rotate(${fmt(bAng * 180 / Math.PI)})`);
+  let hs = '';
+  for (let a = 0; a < TAU * 4; a += 0.22){
+    const r = 6 + a * 1.7 * (1 + 0.08 * Math.sin(bArg));
+    hs += (hs ? ' L' : 'M') + fmt(r * Math.cos(a + bAng * 0.3)) + ',' + fmt(r * Math.sin(a + bAng * 0.3));
+  }
+  hairspring.setAttribute('d', hs);
+  palletG.setAttribute('transform', `translate(${palletPivot.x},${palletPivot.y}) rotate(${fmt(0.22 * Math.tanh(3 * Math.sin(bArg)) * 180 / Math.PI)})`);
+  // 工具
+  const tt = toolTarget(u);
+  const ang = -0.5 + 0.1 * Math.sin(TAU * u * PARAMS.toolVisits); // 螺丝刀倾角
+  toolRot.setAttribute('transform', `translate(${fmt(tt.x)},${fmt(tt.y)}) rotate(${fmt(ang * 180 / Math.PI)})`);
+  const hx = tt.x + 62 * Math.sin(-ang) , hy = tt.y - 62 * Math.cos(ang);
+  handG.setAttribute('transform', `translate(${fmt(hx)},${fmt(hy)})`);
+  const sh = { x: 430, y: 620 };
+  const ex = (sh.x + hx) / 2 + 40, ey = (sh.y + hy) / 2 + 60;
+  armPath.setAttribute('d', `M${sh.x},${sh.y} Q${fmt(ex)},${fmt(ey)} ${fmt(hx)},${fmt(hy)}`);
+  // 头 / 眼跟随（滞后 0.35s）
+  const lag = toolTarget(((t - 0.35) % LOOP + LOOP) % LOOP / LOOP);
+  headG.setAttribute('transform', `translate(${fmt(-70 + (lag.x - 1000) * 0.008)},${fmt((lag.y - 430) * 0.01)}) rotate(${fmt((lag.x - 1000) * 0.002)},430,470)`);
+  const dx = tt.x - 470, dy = tt.y - 428, dl = Math.hypot(dx, dy);
+  pupil.setAttribute('cx', fmt(474 + dx / dl * 6)); pupil.setAttribute('cy', fmt(430 + dy / dl * 6));
+  // 眨眼 6s 一次
+  const b = ((t - 1.2) % 6 + 6) % 6;
+  const ls = b < 0.22 ? Math.sin(Math.PI * b / 0.22) : 0;
+  lid.setAttribute('transform', `translate(470,428) scale(1,${fmt(ls)}) translate(-470,-428)`);
+  // 尾巴滞后摆
+  tailG.setAttribute('transform', `rotate(${fmt(3 * Math.sin(TAU * t / 8 - 0.8))},180,700)`);
+  // 挂墙钟指针：分针 12 圈/循环、时针 1 圈/循环（12:1，整数圈→循环点重合）
+  if (wallMinute){
+    wallMinute.setAttribute('transform', `rotate(${fmt(12 * TAU * t / LOOP * 180 / Math.PI)},1350,170)`);
+    wallHour.setAttribute('transform', `rotate(${fmt(TAU * t / LOOP * 180 / Math.PI)},1350,170)`);
+  }
+  // 热气 4s 周期（正弦 → 循环点重合）
+  const steam = $('steam');
+  if (steam){
+    steam.setAttribute('transform', `translate(0,${fmt(-5 - 5 * Math.sin(TAU * t / 4))})`);
+    steam.setAttribute('opacity', fmt(0.7 + 0.3 * Math.cos(TAU * t / 4)));
+  }
+  // 指标
+  M.gearAngles = OMEGA.map(w => w * t);   // 全精度，不取整（A7 差分用）
+  M.teethCounts = N.slice();
+  M.balanceAngle = bAng;
+  M.toolTip = { x: tt.x, y: tt.y };
+  M.toolDist = 0;   // 尖端构造上就在目标表面
+  M.vel = { gears: OMEGA.slice(), balance: PARAMS.balanceAmp * TAU / PARAMS.balancePeriod * Math.cos(bArg) };
+}
+// 茶杯热气（4s 周期，循环点重合）
+{
+  const props = $('props');
+  const steam = el('g', { id: 'steam' }, props);
+  el('path', { d: 'M505,690 q-8,-18 2,-32 q10,-14 2,-30', stroke: '#e8d9b8', 'stroke-width': 4, fill: 'none', opacity: 0.35, 'stroke-linecap': 'round' }, steam);
+  el('path', { d: 'M530,692 q8,-16 -2,-30 q-8,-14 2,-28', stroke: '#e8d9b8', 'stroke-width': 4, fill: 'none', opacity: 0.28, 'stroke-linecap': 'round' }, steam);
+}
+
+/* ---------- 主循环 + QA ---------- */
+const samples = [];
+let clockOffset = 0, origin = performance.now(), speedMul = 1, paused = false, readyFlag = false, frozenT = 0;
+function now(){ return clockOffset + (performance.now() - origin) / 1000 * speedMul; }
+function pushSample(t){
+  const pitchVis = OMEGA.map((w, i) => { const p = TAU / N[i]; return PHASE[i] + ((w * t) % p + p) % p; });
+  samples.push([t, ...pitchVis, M.balanceAngle, M.toolTip.x, M.toolTip.y, M.toolDist]);
+  if (samples.length > 300) samples.shift();
+}
+const hudClock = $('clock'), scrub = $('scrub');
+scrub.max = LOOP;
+let scrubbing = false;
+scrub.addEventListener('pointerdown', () => scrubbing = true);
+scrub.addEventListener('pointerup', () => scrubbing = false);
+scrub.addEventListener('input', () => setTime(parseFloat(scrub.value)));
+$('btnPlay').addEventListener('click', () => {
+  paused = !paused;
+  if (!paused){ origin = performance.now(); clockOffset = frozenT; }
+  $('btnPlay').textContent = paused ? '▶ 播放' : '⏸ 暂停';
+});
+$('speed').addEventListener('change', e => { const t = now(); speedMul = parseFloat(e.target.value); clockOffset = t; origin = performance.now(); });
+$('btnDl').addEventListener('click', () => {
+  const clone = $('scene').cloneNode(true); clone.setAttribute('xmlns', svgNS);
+  const blob = new Blob([new XMLSerializer().serializeToString(clone)], { type: 'image/svg+xml' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `croc-watch-t${(now() % LOOP).toFixed(2)}.svg`; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+});
+function setTime(t){ clockOffset = t; origin = performance.now(); frozenT = t; render(t); pushSample(t);
+  hudClock.textContent = `t=${(t % LOOP).toFixed(2)}s / ${LOOP}s`; }
+function frame(){
+  if (!paused){ const t = now(); render(t); pushSample(t);
+    hudClock.textContent = `t=${(t % LOOP).toFixed(2)}s / ${LOOP}s`;
+    if (!scrubbing) scrub.value = (t % LOOP).toFixed(2); }
+  requestAnimationFrame(frame);
+}
+const POSES = { start: 0, third: LOOP / 3, twothirds: 2 * LOOP / 3, work: 4.2, blink: 1.3 };
+window.__QA__ = {
+  ready: () => readyFlag,
+  case: () => 'croc-watch',
+  state: () => ({ t: paused ? frozenT : now(), loop: LOOP, metrics: JSON.parse(JSON.stringify(M)) }),
+  pose: n => { paused = true; $('btnPlay').textContent = '▶ 播放'; setTime(POSES[n] ?? 0); },
+  setLoopTime: t => { paused = true; $('btnPlay').textContent = '▶ 播放'; setTime(t); },
+  resume: () => { speedMul = 1; $('speed').value = '1'; paused = false; origin = performance.now(); clockOffset = frozenT; $('btnPlay').textContent = '⏸ 暂停'; },
+  resetSamples: () => { samples.length = 0; },
+  samples,
+  params: PARAMS,
+};
+/* ---------- 工具栏：复制当前帧 / 隐藏 / 嵌入模式 ---------- */
+function sceneSVG(){
+  const clone = $('scene').cloneNode(true);
+  clone.setAttribute('xmlns', svgNS);
+  return '<?xml version="1.0" encoding="UTF-8"?>' + String.fromCharCode(10) + new XMLSerializer().serializeToString(clone);
+}
+let toastTimer = 0;
+function toast(msg){
+  const t2 = $('toast');
+  t2.textContent = msg; t2.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t2.classList.remove('show'), 1800);
+}
+async function writeClipboard(text){
+  if (navigator.clipboard && window.isSecureContext){
+    try { await navigator.clipboard.writeText(text); return true; } catch (err){ /* 落到下面的兜底 */ }
+  }
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.left = '-9999px';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    const ok = document.execCommand('copy'); ta.remove();
+    return ok;
+  } catch (err){ return false; }
+}
+function openSvgBox(text){
+  $('svgText').value = text;
+  $('svgBox').classList.add('show');
+  const ta = $('svgText');
+  ta.focus(); ta.select();
+}
+function closeSvgBox(){ $('svgBox').classList.remove('show'); }
+$('svgClose').addEventListener('click', closeSvgBox);
+$('svgBox').addEventListener('click', e => { if (e.target === $('svgBox')) closeSvgBox(); });
+$('svgRetry').addEventListener('click', async () => {
+  if (await writeClipboard($('svgText').value)){ closeSvgBox(); toast('已复制当前帧的 SVG 源码'); }
+  else { $('svgText').focus(); $('svgText').select(); toast('还是不行，文本已全选，按 Ctrl+C 即可'); }
+});
+$('btnCopy').addEventListener('click', async () => {
+  const text = sceneSVG();
+  if (await writeClipboard(text)) toast('已复制当前帧的 SVG 源码');
+  else openSvgBox(text);
+});
+function setHud(hidden){
+  $('hud').classList.toggle('hidden', hidden);
+  $('hudRestore').classList.toggle('show', hidden);
+}
+$('btnHide').addEventListener('click', () => setHud(true));
+$('hudRestore').addEventListener('click', () => setHud(false));
+document.addEventListener('keydown', e => {
+  if (e.target && /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) return;
+  if (e.key === 'Escape') closeSvgBox();
+  if ($('svgBox').classList.contains('show')) return;
+  if (e.key === 'h' || e.key === 'H') setHud(!$('hud').classList.contains('hidden'));
+  if (e.key === ' '){ e.preventDefault(); $('btnPlay').click(); }
+});
+// 在展示页里内嵌播放时默认收起工具栏，让画面干净；按 H 或点左下按钮可调出
+if (new URLSearchParams(location.search).has('embed')){
+  setHud(true);
+  // 嵌入播放时：鼠标移到画面上才显出那个小按钮，移开就淡回去，不挡动画
+  const chip = $('hudRestore');
+  chip.style.opacity = '0';
+  document.addEventListener('mousemove', () => { chip.style.opacity = ''; });
+  document.addEventListener('mouseleave', () => { chip.style.opacity = '0'; });
+}
+
+render(0); readyFlag = true;
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

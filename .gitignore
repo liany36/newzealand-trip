@@ -6,3 +6,6 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
+
+# 部署验证脚本跑出来的临时截图
+model-eval/qwen4-preview-eval/svg-animation/qa/shots-verify/

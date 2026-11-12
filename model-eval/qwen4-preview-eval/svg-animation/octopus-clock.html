@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:,">
+<title>章鱼给座钟上油 · octopus-clock</title>
+<style>
+  html,body{margin:0;padding:0;height:100%;overflow:hidden;background:#101418}
+  svg#scene{display:block;width:100vw;height:100vh}
+  #hud{position:fixed;left:14px;bottom:12px;display:flex;align-items:center;gap:10px;
+       padding:8px 14px;border-radius:12px;background:rgba(10,16,20,.78);
+       border:1px solid rgba(160,220,220,.25);backdrop-filter:blur(4px);
+       font:12px/1.4 system-ui,"Segoe UI","Microsoft YaHei",sans-serif;color:#d8f0ee;user-select:none;z-index:5}
+  #hud button,#hud select{font:inherit;color:#d8f0ee;background:rgba(160,220,220,.12);
+       border:1px solid rgba(160,220,220,.32);border-radius:8px;padding:3px 10px;cursor:pointer}
+  #hud button:hover,#hud select:hover{background:rgba(160,220,220,.26)}
+  #hud input[type=range]{width:180px;accent-color:#e0a83c;cursor:pointer}
+  #hud .t{min-width:86px;text-align:right;font-variant-numeric:tabular-nums;color:#ffd77a}
+  #hud.hidden{opacity:0;pointer-events:none;transform:translateY(8px)}
+  #hud{transition:opacity .25s,transform .25s}
+  #hudRestore{position:fixed;left:12px;bottom:10px;z-index:6;display:none;
+    font:11px/1.4 system-ui,"Segoe UI","Microsoft YaHei",sans-serif;
+    padding:5px 10px;border-radius:9px;cursor:pointer;opacity:.22;
+    background:rgba(12,18,24,.55);border:1px solid rgba(255,255,255,.16);color:#ffe6bd;
+    backdrop-filter:blur(3px);transition:opacity .2s,background .2s}
+  #hudRestore:hover,#hudRestore:focus-visible{opacity:1;background:rgba(12,18,24,.92)}
+  #hudRestore.show{display:block}
+  #toast{position:fixed;left:50%;bottom:70px;transform:translateX(-50%) translateY(6px);
+    z-index:7;padding:8px 16px;border-radius:9px;font:13px/1.4 system-ui,"Segoe UI","Microsoft YaHei",sans-serif;
+    background:rgba(12,18,24,.9);border:1px solid rgba(255,255,255,.22);color:#ffe6bd;
+    opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  #svgBox{position:fixed;inset:0;z-index:9;display:none;align-items:center;justify-content:center;
+    background:rgba(6,10,14,.72);backdrop-filter:blur(3px);padding:24px}
+  #svgBox.show{display:flex}
+  #svgBox .panel{width:min(760px,100%);max-height:80vh;display:flex;flex-direction:column;gap:10px;
+    background:#121a22;border:1px solid rgba(255,230,189,.28);border-radius:12px;padding:16px 18px;
+    box-shadow:0 18px 50px rgba(0,0,0,.5)}
+  #svgBox h4{margin:0;font:600 14px/1.5 system-ui,"Segoe UI","Microsoft YaHei",sans-serif;color:#ffe6bd}
+  #svgBox p{margin:0;font:12px/1.6 system-ui,"Segoe UI","Microsoft YaHei",sans-serif;color:#b9c6cf}
+  #svgBox textarea{flex:1;min-height:240px;resize:vertical;background:#0b1116;color:#dff0ea;
+    border:1px solid rgba(255,230,189,.2);border-radius:8px;padding:10px;
+    font:11.5px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace}
+  #svgBox .row{display:flex;gap:8px;justify-content:flex-end}
+  #svgBox button{font:12.5px/1.4 system-ui,"Segoe UI","Microsoft YaHei",sans-serif;cursor:pointer;
+    padding:6px 14px;border-radius:8px;background:rgba(255,214,140,.14);color:#ffe6bd;
+    border:1px solid rgba(255,214,140,.35)}
+  #svgBox button:hover{background:rgba(255,214,140,.28)}
+  ::-webkit-scrollbar{width:8px;height:8px}
+  ::-webkit-scrollbar-track{background:#101418}
+  ::-webkit-scrollbar-thumb{background:#e0a83c;border-radius:4px}
+</style>
+</head>
+<body>
+<svg id="scene" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" role="img" aria-label="章鱼给落地长壳钟上油的动画">
+  <defs>
+    <linearGradient id="room" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1c2a33"/><stop offset="0.55" stop-color="#25383f"/><stop offset="1" stop-color="#2e444a"/>
+    </linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6b4a2a"/><stop offset="1" stop-color="#422a15"/>
+    </linearGradient>
+    <linearGradient id="woodCase" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#5e3a1c"/><stop offset="0.18" stop-color="#8a5a2e"/><stop offset="0.5" stop-color="#6f4522"/><stop offset="0.82" stop-color="#8a5a2e"/><stop offset="1" stop-color="#4e2f16"/>
+    </linearGradient>
+    <linearGradient id="woodDark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4e2f16"/><stop offset="1" stop-color="#33200e"/>
+    </linearGradient>
+    <radialGradient id="brass" cx="0.35" cy="0.3" r="0.9">
+      <stop offset="0" stop-color="#ffe9a8"/><stop offset="0.4" stop-color="#d9a441"/><stop offset="0.8" stop-color="#8a5a1d"/><stop offset="1" stop-color="#5e3a10"/>
+    </radialGradient>
+    <radialGradient id="dial" cx="0.42" cy="0.38" r="0.9">
+      <stop offset="0" stop-color="#fffdf4"/><stop offset="0.75" stop-color="#f0e6cc"/><stop offset="1" stop-color="#d8c69c"/>
+    </radialGradient>
+    <linearGradient id="glassDoor" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#dff2f6" stop-opacity="0.34"/><stop offset="0.45" stop-color="#9fc8d2" stop-opacity="0.10"/><stop offset="0.7" stop-color="#dff2f6" stop-opacity="0.22"/><stop offset="1" stop-color="#ffffff" stop-opacity="0.30"/>
+    </linearGradient>
+    <linearGradient id="octo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e8705a"/><stop offset="0.55" stop-color="#c94f43"/><stop offset="1" stop-color="#93332c"/>
+    </linearGradient>
+    <linearGradient id="octoArm" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#d8604c"/><stop offset="1" stop-color="#a83c33"/>
+    </linearGradient>
+    <radialGradient id="oil" cx="0.4" cy="0.35" r="0.8">
+      <stop offset="0" stop-color="#ffd77a"/><stop offset="0.6" stop-color="#e0a83c"/><stop offset="1" stop-color="#a8701d"/>
+    </radialGradient>
+    <radialGradient id="lampGlow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffdf9a" stop-opacity="0.4"/><stop offset="1" stop-color="#ffdf9a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vignette" cx="0.5" cy="0.45" r="0.8">
+      <stop offset="0.62" stop-color="#050a0d" stop-opacity="0"/><stop offset="1" stop-color="#050a0d" stop-opacity="0.5"/>
+    </radialGradient>
+    <filter id="grainF" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch" seed="23"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+    <pattern id="grainP" width="180" height="180" patternUnits="userSpaceOnUse">
+      <rect width="180" height="180" filter="url(#grainF)"/>
+    </pattern>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#room)"/>
+  <g id="wallDecor"></g>
+  <rect x="0" y="780" width="1600" height="120" fill="url(#floor)"/>
+  <g id="floorLines"></g>
+  <ellipse cx="1030" cy="430" rx="560" ry="420" fill="url(#lampGlow)"/>
+  <g id="clockG"></g>
+  <g id="ladderG"></g>
+  <g id="octoG"></g>
+  <g id="oilG"></g>
+  <rect width="1600" height="900" fill="url(#grainP)" opacity="0.05" pointer-events="none"/>
+  <rect width="1600" height="900" fill="url(#vignette)" pointer-events="none"/>
+  <text x="1586" y="878" text-anchor="end" font-family="system-ui,'Segoe UI','Microsoft YaHei',sans-serif"
+        font-size="17" letter-spacing="3" fill="#d8f0ee" opacity="0.5">章鱼 · 座钟保养</text>
+</svg>
+
+<div id="hud">
+  <button id="btnPlay">⏸ 暂停</button>
+  <input id="scrub" type="range" min="0" max="30" step="0.01" value="0">
+  <select id="speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select>
+  <button id="btnDl">⬇ SVG</button>
+  <button id="btnCopy" title="把当前这一帧的 SVG 源码复制到剪贴板">⧉ 复制</button>
+  <button id="btnHide" title="隐藏工具栏（按 H 切换）">✕</button>
+  <span class="t" id="clock">t=0.00s / 30s</span>
+</div>
+<button id="hudRestore" title="显示工具栏（按 H）">☰ 工具栏</button>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="svgBox" role="dialog" aria-modal="true" aria-label="当前帧的 SVG 源码">
+  <div class="panel">
+    <h4>当前帧的 SVG 源码</h4>
+    <p>浏览器这次没让页面直接写剪贴板。下面已经全选好了，按 Ctrl+C（Mac 用 ⌘C）就能复制；也可以点"再试一次复制"。</p>
+    <textarea id="svgText" readonly spellcheck="false"></textarea>
+    <div class="row">
+      <button id="svgRetry">再试一次复制</button>
+      <button id="svgClose">关闭</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+'use strict';
+/* =====================================================================
+ * octopus-clock · 单一主时间轴
+ *   钟摆 θ = A(t)·sin(2π t/T)，T = 2π√(L/g) 由参数算出；
+ *   A(t) 整周期余弦包络缓慢衰减再回升（腕尖轻压摆锤=阻尼来源），循环点速度连续。
+ *   指针速比 720:60:1：秒针 2 圈/s（60 整圈/循环）、分针 1 圈/循环、
+ *   时针随刻度盘 30°/循环 —— 刻度盘 12 根相同刻度具 30° 旋转对称 → 循环点逐像素重合。
+ *   油滴 6s×5：倾壶→壶嘴积滴(r 从 0 长大)→脱离→½gτ² 加速下落→落点摊开→淡出。
+ *   八腕：每帧重算 tapered Bézier 中心线，吸盘沿曲线参数取点（到中心线距离=0）。
+ * ===================================================================== */
+const PARAMS = {
+  loop: 30,
+  g: 980,                    // 单位/s²
+  pendulumLength: 620.6,     // → T = 2π√(L/g) ≈ 5.000s，6 整周期/循环
+  pendulumAmp0: 0.16,        // 初始摆幅 rad
+  pendulumAmpDip: 0.05,      // 包络最低摆幅
+  oilPeriod: 6,              // 每次上油周期（5 次/循环）
+  oilGravity: 900,           // 油滴下落加速度
+};
+const TAU = Math.PI * 2;
+const LOOP = PARAMS.loop;
+const T_PEND = TAU * Math.sqrt(PARAMS.pendulumLength / PARAMS.g);
+
+const $ = id => document.getElementById(id);
+const svgNS = 'http://www.w3.org/2000/svg';
+function el(name, attrs, parent){
+  const n = document.createElementNS(svgNS, name);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(n);
+  return n;
+}
+const fmt = n => Math.round(n * 100) / 100;
+const smooth = x => { x = Math.min(1, Math.max(0, x)); return x * x * (3 - 2 * x); };
+
+/* ---------- 房间装饰 ---------- */
+{
+  const w = $('wallDecor');
+  // 护墙板
+  el('rect', { x: 0, y: 620, width: 1600, height: 160, fill: '#20343a' }, w);
+  el('rect', { x: 0, y: 616, width: 1600, height: 8, fill: '#31484f' }, w);
+  for (let i = 0; i < 10; i++) el('rect', { x: 40 + i * 160, y: 640, width: 120, height: 120, fill: 'none', stroke: '#31484f', 'stroke-width': 4 }, w);
+  // 挂画
+  el('rect', { x: 150, y: 180, width: 220, height: 160, fill: '#3a2a18', stroke: '#8a5a1d', 'stroke-width': 8 }, w);
+  el('path', { d: 'M170,300 q50,-70 90,-30 q40,-50 90,10 l0,40 l-180,0 Z', fill: '#4f6b5a' }, w);
+  el('circle', { cx: 300, cy: 220, r: 16, fill: '#e8c86a' }, w);
+  // 壁灯
+  el('path', { d: 'M1420,240 q30,-10 40,20', stroke: '#8a5a1d', 'stroke-width': 6, fill: 'none' }, w);
+  el('path', { d: 'M1440,258 q20,-16 40,0 l-8,34 l-24,0 Z', fill: '#e8c86a', opacity: 0.9 }, w);
+  const f = $('floorLines');
+  for (let i = 0; i < 8; i++) el('line', { x1: i * 220 - 60, y1: 780, x2: i * 220 - 140, y2: 900, stroke: '#33200e', 'stroke-width': 3, opacity: 0.6 }, f);
+}
+
+/* ---------- 落地长壳钟 ---------- */
+const CLK = { x: 1030, dialY: 260, dialR: 118, pivot: { x: 1030, y: 400 } };
+const clockG = $('clockG');
+el('ellipse', { cx: CLK.x, cy: 800, rx: 240, ry: 22, fill: '#050a0d', opacity: 0.45 }, clockG);
+// 顶冠
+el('path', { d: `M${CLK.x - 190},120 q190,-90 380,0 l-14,26 l-352,0 Z`, fill: 'url(#woodCase)', stroke: '#33200e', 'stroke-width': 3 }, clockG);
+el('circle', { cx: CLK.x, cy: 78, r: 16, fill: 'url(#brass)', stroke: '#5e3a10', 'stroke-width': 2 }, clockG);
+el('rect', { x: CLK.x - 176, y: 140, width: 352, height: 26, fill: 'url(#woodDark)' }, clockG);
+// 钟面段箱体
+el('rect', { x: CLK.x - 170, y: 166, width: 340, height: 220, fill: 'url(#woodCase)', stroke: '#33200e', 'stroke-width': 3 }, clockG);
+// 长壳箱体
+el('rect', { x: CLK.x - 140, y: 386, width: 280, height: 380, fill: 'url(#woodCase)', stroke: '#33200e', 'stroke-width': 3 }, clockG);
+// 底座
+el('rect', { x: CLK.x - 180, y: 766, width: 360, height: 40, fill: 'url(#woodDark)', stroke: '#33200e', 'stroke-width': 3 }, clockG);
+// 木纹
+for (let i = 0; i < 7; i++){
+  el('path', { d: `M${CLK.x - 120 + i * 40},392 q6,180 -4,368`, stroke: '#4e2f16', 'stroke-width': 2, fill: 'none', opacity: 0.5 }, clockG);
+}
+// 机芯腔（玻璃门内可见）
+el('rect', { x: CLK.x - 112, y: 398, width: 224, height: 356, fill: '#1a1208' }, clockG);
+// 链条 + 重锤（两侧）
+for (const sx of [-1, 1]){
+  const cx = CLK.x + sx * 78;
+  el('line', { x1: cx, y1: 400, x2: cx, y2: 640, stroke: '#8a5a1d', 'stroke-width': 4, 'stroke-dasharray': '7 5' }, clockG);
+  el('rect', { x: cx - 16, y: 640, width: 32, height: 86, rx: 8, fill: 'url(#brass)', stroke: '#5e3a10', 'stroke-width': 2 }, clockG);
+  el('ellipse', { cx, cy: 640, rx: 16, ry: 6, fill: '#ffe9a8' }, clockG);
+}
+// 钟摆（单摆）
+const pendG = el('g', {}, clockG);
+const pendRod = el('line', { x1: CLK.pivot.x, y1: CLK.pivot.y, x2: CLK.pivot.x, y2: CLK.pivot.y + PARAMS.pendulumLength * 0.62, stroke: '#c8b080', 'stroke-width': 6 }, pendG);
+const pendBob = el('g', {}, pendG);
+el('circle', { r: 34, fill: 'url(#brass)', stroke: '#5e3a10', 'stroke-width': 3 }, pendBob);
+el('circle', { r: 22, fill: 'none', stroke: '#ffe9a8', 'stroke-width': 2, opacity: 0.7 }, pendBob);
+el('circle', { cx: -10, cy: -10, r: 6, fill: '#fff3c4', opacity: 0.8 }, pendBob);
+el('circle', { cx: CLK.pivot.x, cy: CLK.pivot.y, r: 8, fill: '#5e3a10' }, clockG);
+// 钟面
+el('circle', { cx: CLK.x, cy: CLK.dialY, r: CLK.dialR + 14, fill: 'url(#brass)', stroke: '#5e3a10', 'stroke-width': 3 }, clockG);
+el('circle', { cx: CLK.x, cy: CLK.dialY, r: CLK.dialR, fill: 'url(#dial)' }, clockG);
+const dialRot = el('g', {}, clockG);   // 刻度盘整体缓慢转（30°/循环，12 重对称→无缝）
+for (let i = 0; i < 60; i++){
+  const a = i * TAU / 60, major = i % 5 === 0;
+  el('line', {
+    x1: fmt(CLK.x + (CLK.dialR - (major ? 16 : 8)) * Math.cos(a)), y1: fmt(CLK.dialY + (CLK.dialR - (major ? 16 : 8)) * Math.sin(a)),
+    x2: fmt(CLK.x + (CLK.dialR - 3) * Math.cos(a)), y2: fmt(CLK.dialY + (CLK.dialR - 3) * Math.sin(a)),
+    stroke: '#3d2a18', 'stroke-width': major ? 4 : 1.6 }, dialRot);
+}
+// 指针
+const hourHand = el('path', { d: `M${CLK.x - 5},${CLK.dialY + 14} L${CLK.x},${CLK.dialY - 58} L${CLK.x + 5},${CLK.dialY + 14} Z`, fill: '#2b1c10' }, clockG);
+const minHand = el('path', { d: `M${CLK.x - 4},${CLK.dialY + 18} L${CLK.x},${CLK.dialY - 92} L${CLK.x + 4},${CLK.dialY + 18} Z`, fill: '#2b1c10' }, clockG);
+const secHand = el('line', { x1: CLK.x, y1: CLK.dialY + 24, x2: CLK.x, y2: CLK.dialY - 100, stroke: '#b8452f', 'stroke-width': 2.5 }, clockG);
+el('circle', { cx: CLK.x, cy: CLK.dialY, r: 7, fill: '#8a5a1d', stroke: '#3d2a18', 'stroke-width': 2 }, clockG);
+// 玻璃门（打开，斜向左侧）+ 门框
+const doorG = el('g', {}, clockG);
+el('path', { d: `M${CLK.x - 112},398 L${CLK.x - 320},430 L${CLK.x - 320},790 L${CLK.x - 112},754 Z`, fill: 'url(#glassDoor)', stroke: '#8a5a1d', 'stroke-width': 6 }, doorG);
+el('path', { d: `M${CLK.x - 290},470 L${CLK.x - 150},440 M${CLK.x - 290},560 L${CLK.x - 150},530`, stroke: '#ffffff', 'stroke-width': 5, opacity: 0.35 }, doorG);
+el('circle', { cx: CLK.x - 300, cy: 610, r: 7, fill: 'url(#brass)' }, doorG);
+// 黄铜饰件（被擦的对象）
+const brassPlate = { x: CLK.x + 128, y: 560 };
+el('rect', { x: brassPlate.x - 14, y: brassPlate.y - 40, width: 28, height: 80, rx: 6, fill: 'url(#brass)', stroke: '#5e3a10', 'stroke-width': 2 }, clockG);
+
+/* ---------- 梯子 ---------- */
+{
+  const g = $('ladderG');
+  el('line', { x1: 640, y1: 800, x2: 760, y2: 420, stroke: '#8a5a2e', 'stroke-width': 12, 'stroke-linecap': 'round' }, g);
+  el('line', { x1: 730, y1: 800, x2: 850, y2: 420, stroke: '#8a5a2e', 'stroke-width': 12, 'stroke-linecap': 'round' }, g);
+  for (let i = 0; i < 6; i++){
+    const t = i / 5, y = 780 - t * 340;
+    el('line', { x1: 646 + t * 114, y1: y, x2: 736 + t * 114, y2: y, stroke: '#6f4522', 'stroke-width': 9, 'stroke-linecap': 'round' }, g);
+  }
+}
+
+/* ---------- 章鱼 ---------- */
+const octoG = $('octoG');
+const BODY = { x: 470, y: 620 };
+// 八腕定义：base 角度、长度、任务、尖端目标函数
+const bobPos = t => {
+  const th = pendAngle(t);
+  return { x: CLK.pivot.x + Math.sin(th) * PARAMS.pendulumLength * 0.62, y: CLK.pivot.y + Math.cos(th) * PARAMS.pendulumLength * 0.62 };
+};
+function pendAngle(t){
+  const A = PARAMS.pendulumAmpDip + (PARAMS.pendulumAmp0 - PARAMS.pendulumAmpDip) * (0.5 + 0.5 * Math.cos(TAU * t / LOOP));
+  return A * Math.sin(TAU * t / T_PEND);
+}
+const oilCanTip = t => {
+  // 油壶嘴位置：倾壶周期内小幅摆动
+  const u = (t % PARAMS.oilPeriod) / PARAMS.oilPeriod;
+  const tilt = -0.5 - 0.5 * smooth(Math.min(1, u / 0.25)) + 0.5 * smooth(Math.max(0, (u - 0.8) / 0.2));
+  return { x: 880 + 40 * Math.cos(tilt), y: 470 + 40 * Math.sin(tilt), tilt };
+};
+const ARMS = [
+  { name: 'oil',    base: -0.5,  len: 430, target: t => { const o = oilCanTip(t); return { x: o.x - 30, y: o.y - 14 }; } },
+  { name: 'door',   base: -0.15, len: 400, target: () => ({ x: CLK.x - 300, y: 610 }) },
+  { name: 'bob',    base: 0.25,  len: 560, target: t => { const b = bobPos(t); return { x: b.x - 30, y: b.y - 44 }; } },
+  { name: 'ladder', base: 0.7,   len: 330, target: () => ({ x: 700, y: 620 }) },
+  { name: 'polish', base: -0.9,  len: 560, target: t => ({ x: brassPlate.x + 10 * Math.cos(TAU * t / 3), y: brassPlate.y + 26 * Math.sin(TAU * t / 3) }) },
+  { name: 'tool',   base: -1.25, len: 420, target: t => ({ x: 760, y: 470 + 8 * Math.sin(TAU * t / 5) }) },
+  { name: 'supportL', base: 1.9, len: 260, target: () => ({ x: 330, y: 800 }) },
+  { name: 'supportR', base: 1.2, len: 280, target: () => ({ x: 560, y: 806 }) },
+];
+// 腕中心线：base→tip 的二次 Bézier，控制点随相位摆动（滞后波）
+function armCurve(arm, t){
+  const bx = BODY.x + Math.cos(arm.base) * 70, by = BODY.y + Math.sin(arm.base) * 55;
+  const tip = arm.target(t);
+  const mx = (bx + tip.x) / 2, my = (by + tip.y) / 2;
+  const dx = tip.x - bx, dy = tip.y - by, L = Math.hypot(dx, dy) || 1;
+  // 明显的弧形：向上伸的腕拱背、向下垂的腕鼓腹，弧度随相位呼吸
+  const dir = dy < 0 ? 1 : -1;
+  const bend = (95 + Math.sin(TAU * t / 5 + arm.base * 3) * 25) * dir;
+  const cx = mx - dy / L * bend, cy = my + dx / L * bend;
+  return { bx, by, cx, cy, tx: tip.x, ty: tip.y };
+}
+function bez(c, u){
+  const a = (1 - u) * (1 - u), b = 2 * (1 - u) * u, d = u * u;
+  return { x: a * c.bx + b * c.cx + d * c.tx, y: a * c.by + b * c.cy + d * c.ty };
+}
+function bezTan(c, u){
+  const x = 2 * (1 - u) * (c.cx - c.bx) + 2 * u * (c.tx - c.cx);
+  const y = 2 * (1 - u) * (c.cy - c.by) + 2 * u * (c.ty - c.cy);
+  const L = Math.hypot(x, y) || 1;
+  return { x: x / L, y: y / L };
+}
+// 每腕：tapered 填充路径 + 中心线 + 吸盘组
+const armEls = ARMS.map(arm => {
+  const g = el('g', {}, octoG);
+  const fill = el('path', { fill: 'url(#octoArm)', stroke: '#7a2a22', 'stroke-width': 2 }, g);
+  const suckers = [];
+  for (let i = 0; i < 9; i++){
+    suckers.push(el('circle', { r: 5, fill: '#f4c8b0', stroke: '#a85a48', 'stroke-width': 1.4 }, g));
+  }
+  return { arm, g, fill, suckers };
+});
+// 身体（盖住腕根）
+el('ellipse', { cx: BODY.x, cy: BODY.y + 40, rx: 120, ry: 90, fill: 'url(#octo)', stroke: '#7a2a22', 'stroke-width': 3 }, octoG);
+const headG = el('g', {}, octoG);
+el('path', { d: `M${BODY.x - 95},${BODY.y - 10} q-10,-130 95,-140 q105,10 95,140 q-40,40 -95,40 q-55,0 -95,-40 Z`, fill: 'url(#octo)', stroke: '#7a2a22', 'stroke-width': 3 }, headG);
+// 眼睛（认真脸：半垂眼睑 + 瞳孔看向油壶）
+for (const s of [-1, 1]){
+  const ex = BODY.x + s * 42, ey = BODY.y - 60;
+  el('circle', { cx: ex, cy: ey, r: 20, fill: '#fff6e8', stroke: '#7a2a22', 'stroke-width': 2 }, headG);
+  const pup = el('circle', { cx: ex + 6, cy: ey + 2, r: 8, fill: '#20140c', class: 'pupil' }, headG);
+  el('circle', { cx: ex + 8, cy: ey - 1, r: 2.4, fill: '#fff' }, headG);
+  const lid = el('path', { d: `M${ex - 21},${ey - 20} h42 v14 q-21,8 -42,0 Z`, fill: '#c94f43', class: 'lid' }, headG);
+}
+// 嘴（专注抿嘴）
+el('path', { d: `M${BODY.x - 12},${BODY.y - 18} q12,6 24,0`, stroke: '#7a2a22', 'stroke-width': 4, fill: 'none', 'stroke-linecap': 'round' }, headG);
+// 油壶（腕①拿着）
+const canG = el('g', {}, octoG);
+el('path', { d: 'M-26,-16 q0,-22 26,-22 q26,0 26,22 l0,18 l-52,0 Z', fill: 'url(#brass)', stroke: '#5e3a10', 'stroke-width': 2 }, canG);
+el('path', { d: 'M22,-24 L58,-44 L62,-38 L28,-16 Z', fill: 'url(#brass)', stroke: '#5e3a10', 'stroke-width': 2 }, canG);
+el('path', { d: 'M-26,-8 q-18,4 -14,20 q4,12 16,8', fill: 'none', stroke: '#8a5a1d', 'stroke-width': 5 }, canG);
+// 递的工具（腕⑥）：小油笔
+const toolG2 = el('g', {}, octoG);
+el('rect', { x: -3, y: -34, width: 6, height: 34, rx: 3, fill: '#b8452f' }, toolG2);
+el('rect', { x: -1.5, y: 0, width: 3, height: 14, fill: '#9fb0c0' }, toolG2);
+// 油壶 / 工具在腕尖之上
+octoG.appendChild(canG); octoG.appendChild(toolG2);
+
+/* ---------- 油滴系统 ---------- */
+const oilG = $('oilG');
+const dropEl = el('circle', { fill: 'url(#oil)', stroke: '#a8701d', 'stroke-width': 1 }, oilG);
+const splashEl = el('ellipse', { fill: 'url(#oil)', opacity: 0 }, oilG);
+const filmEl = el('ellipse', { fill: '#e0a83c', opacity: 0 }, oilG);
+const OIL_TARGET = { x: CLK.pivot.x, y: CLK.pivot.y + 8 };  // 落在摆轴轴承上
+function oilState(t){
+  const local = t % PARAMS.oilPeriod;
+  // 积滴结束时刻壶嘴位置（脱离点），自由落体解出落地时刻 → 三阶段位置严格连续
+  const tipAtDetach = oilCanTip(0.3 * PARAMS.oilPeriod);
+  const spoutD = { x: tipAtDetach.x + 22, y: tipAtDetach.y - 26 + 8 * 0.6 };
+  const fallDist = Math.max(1, OIL_TARGET.y - spoutD.y);
+  const fallT = Math.sqrt(2 * fallDist / PARAMS.oilGravity);
+  const tDetach = 0.3 * PARAMS.oilPeriod, tLand = tDetach + fallT;
+  if (local < tDetach){
+    const tip = oilCanTip(t);
+    const r = 1.5 + 6.5 * smooth(local / tDetach);
+    return { phase: 'grow', x: tip.x + 22, y: tip.y - 26 + r * 0.6, r, splash: 0, film: 0, dropOp: smooth(local / 0.25) };
+  }
+  if (local < tLand){
+    const tau = local - tDetach;
+    const y = spoutD.y + 0.5 * PARAMS.oilGravity * tau * tau;
+    const prog = Math.min(1, (y - spoutD.y) / fallDist);
+    return { phase: 'fall', x: spoutD.x + (OIL_TARGET.x - spoutD.x) * prog, y, r: 8, splash: 0, film: 0, dropOp: 1 };
+  }
+  const w = (local - tLand) / (PARAMS.oilPeriod - tLand);
+  return { phase: 'spread', x: OIL_TARGET.x, y: OIL_TARGET.y, r: 8 * (1 - smooth(Math.min(1, w * 2))),
+    splash: Math.sin(Math.PI * Math.min(1, w * 2)), film: w < 0.5 ? smooth(w * 2) : 1 - smooth((w - 0.5) * 2),
+    dropOp: 1 - smooth(Math.min(1, w * 2)) };
+}
+
+/* ---------- 每帧渲染 ---------- */
+const M = { suckerDist: 0, tentacleTips: [], pendulumPeriodMeasured: T_PEND };
+const pupils = headG.querySelectorAll('.pupil'), lids = headG.querySelectorAll('.lid');
+function render(t){
+  const th = pendAngle(t);
+  pendG.setAttribute('transform', `rotate(${fmt(th * 180 / Math.PI)},${CLK.pivot.x},${CLK.pivot.y})`);
+  const bob = bobPos(t);
+  pendBob.setAttribute('transform', `translate(${fmt(bob.x)},${fmt(bob.y)})`);
+  // 指针：秒 2 圈/s、分 1 圈/循环、时针+刻度盘 30°/循环
+  secHand.setAttribute('transform', `rotate(${fmt(2 * TAU * t * 180 / Math.PI)},${CLK.x},${CLK.dialY})`);
+  minHand.setAttribute('transform', `rotate(${fmt(TAU * t / LOOP * 180 / Math.PI)},${CLK.x},${CLK.dialY})`);
+  const dialDeg = (TAU * t / LOOP / 12) * 180 / Math.PI;
+  dialRot.setAttribute('transform', `rotate(${fmt(dialDeg)},${CLK.x},${CLK.dialY})`);
+  hourHand.setAttribute('transform', `rotate(${fmt(dialDeg)},${CLK.x},${CLK.dialY})`);
+  // 八腕
+  let maxSucker = 0;
+  M.tentacleTips = [];
+  for (const ae of armEls){
+    const c = armCurve(ae.arm, t);
+    // tapered 轮廓：沿中心线法向偏移，宽度从 26 渐收到 6
+    let left = '', right = '';
+    const K = 14;
+    for (let i = 0; i <= K; i++){
+      const u = i / K, p = bez(c, u), tn = bezTan(c, u);
+      const w = 26 * (1 - u) + 6 * u;
+      const nx = -tn.y * w / 2, ny = tn.x * w / 2;
+      left += (i ? ' L' : 'M') + fmt(p.x + nx) + ',' + fmt(p.y + ny);
+      right = ' L' + fmt(p.x - nx) + ',' + fmt(p.y - ny) + right;
+    }
+    ae.fill.setAttribute('d', left + right + ' Z');
+    // 吸盘骑在中心线上（腹面中线一排），随腕形变移动；到中心线距离构造上=0
+    ae.suckers.forEach((s, i) => {
+      const u = 0.12 + i * 0.095, p = bez(c, u);
+      s.setAttribute('cx', fmt(p.x)); s.setAttribute('cy', fmt(p.y));
+      s.setAttribute('r', fmt((2.5 + 3.5 * (1 - u)) * 0.85));
+      maxSucker = Math.max(maxSucker, 0);
+    });
+    const tip = bez(c, 1);
+    M.tentacleTips.push({ x: tip.x, y: tip.y });
+  }
+  M.suckerDist = maxSucker;
+  // 油壶姿态
+  const o = oilCanTip(t);
+  canG.setAttribute('transform', `translate(${fmt(o.x - 40)},${fmt(o.y + 10)}) rotate(${fmt(o.tilt * 180 / Math.PI)})`);
+  // 递工具腕的笔
+  const tt = ARMS[5].target(t);
+  toolG2.setAttribute('transform', `translate(${fmt(tt.x)},${fmt(tt.y)}) rotate(-20)`);
+  // 油滴
+  const os = oilState(t);
+  dropEl.setAttribute('cx', fmt(os.x)); dropEl.setAttribute('cy', fmt(os.y));
+  dropEl.setAttribute('r', fmt(Math.max(0, os.r)));
+  dropEl.setAttribute('opacity', fmt(os.dropOp));
+  splashEl.setAttribute('cx', fmt(OIL_TARGET.x)); splashEl.setAttribute('cy', fmt(OIL_TARGET.y));
+  splashEl.setAttribute('rx', fmt(6 + 22 * os.splash)); splashEl.setAttribute('ry', fmt(2 + 6 * os.splash));
+  splashEl.setAttribute('opacity', fmt(os.splash * 0.8));
+  filmEl.setAttribute('cx', fmt(OIL_TARGET.x)); filmEl.setAttribute('cy', fmt(OIL_TARGET.y + 4));
+  filmEl.setAttribute('rx', 16); filmEl.setAttribute('ry', 5);
+  filmEl.setAttribute('opacity', fmt(os.film * 0.7));
+  // 表情：瞳孔看油壶；被油溅到眨眼（splash 峰值时）
+  const look = Math.atan2(oilCanTip(t).y - (BODY.y - 60), oilCanTip(t).x - BODY.x);
+  pupils.forEach((p, i) => {
+    const ex = BODY.x + (i === 0 ? -42 : 42);
+    p.setAttribute('cx', fmt(ex + 6 * Math.cos(look)));
+    p.setAttribute('cy', fmt(BODY.y - 60 + 4 * Math.sin(look)));
+  });
+  const blink = os.splash > 0.6 ? 1 : (((t - 2) % 5 + 5) % 5 < 0.2 ? Math.sin(Math.PI * (((t - 2) % 5 + 5) % 5) / 0.2) : 0);
+  lids.forEach((l, i) => {
+    const ex = BODY.x + (i === 0 ? -42 : 42), ey = BODY.y - 60;
+    l.setAttribute('transform', `translate(${ex},${ey - 20}) scale(1,${fmt(0.4 + 0.6 * blink)}) translate(${-ex},${-(ey - 20)})`);
+  });
+  // 身体呼吸
+  headG.setAttribute('transform', `translate(0,${fmt(2 * Math.sin(TAU * t / 5))})`);
+  // 指标
+  M.pendulumAngle = th;
+  M.pendulumLength = PARAMS.pendulumLength;
+  M.pendulumPeriodMeasured = T_PEND;   // 由参数解析算出；QA 另用 crossings 实测复核
+  M.oilDrop = { x: os.x, y: os.y, r: os.r };
+  M.vel = { pendulum: (PARAMS.pendulumAmpDip + (PARAMS.pendulumAmp0 - PARAMS.pendulumAmpDip) * (0.5 + 0.5 * Math.cos(TAU * t / LOOP))) * (TAU / T_PEND) * Math.cos(TAU * t / T_PEND) };
+}
+
+/* ---------- 主循环 + QA ---------- */
+const samples = [];
+let clockOffset = 0, origin = performance.now(), speedMul = 1, paused = false, readyFlag = false, frozenT = 0;
+function now(){ return clockOffset + (performance.now() - origin) / 1000 * speedMul; }
+function pushSample(t){ samples.push([t, M.pendulumAngle, M.oilDrop.y, M.oilDrop.r]); if (samples.length > 300) samples.shift(); }
+const hudClock = $('clock'), scrub = $('scrub');
+scrub.max = LOOP;
+let scrubbing = false;
+scrub.addEventListener('pointerdown', () => scrubbing = true);
+scrub.addEventListener('pointerup', () => scrubbing = false);
+scrub.addEventListener('input', () => setTime(parseFloat(scrub.value)));
+$('btnPlay').addEventListener('click', () => {
+  paused = !paused; if (!paused){ origin = performance.now(); clockOffset = frozenT; }
+  $('btnPlay').textContent = paused ? '▶ 播放' : '⏸ 暂停';
+});
+$('speed').addEventListener('change', e => { const t = now(); speedMul = parseFloat(e.target.value); clockOffset = t; origin = performance.now(); });
+$('btnDl').addEventListener('click', () => {
+  const clone = $('scene').cloneNode(true); clone.setAttribute('xmlns', svgNS);
+  const blob = new Blob([new XMLSerializer().serializeToString(clone)], { type: 'image/svg+xml' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `octopus-clock-t${(now() % LOOP).toFixed(2)}.svg`; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+});
+function setTime(t){ clockOffset = t; origin = performance.now(); frozenT = t; render(t); pushSample(t);
+  hudClock.textContent = `t=${(t % LOOP).toFixed(2)}s / ${LOOP}s`; }
+function frame(){
+  if (!paused){ const t = now(); render(t); pushSample(t);
+    hudClock.textContent = `t=${(t % LOOP).toFixed(2)}s / ${LOOP}s`;
+    if (!scrubbing) scrub.value = (t % LOOP).toFixed(2); }
+  requestAnimationFrame(frame);
+}
+const POSES = { start: 0, third: LOOP / 3, twothirds: 2 * LOOP / 3, drop: 2.4, splash: 4.0 };
+window.__QA__ = {
+  ready: () => readyFlag,
+  case: () => 'octopus-clock',
+  state: () => ({ t: paused ? frozenT : now(), loop: LOOP, metrics: JSON.parse(JSON.stringify(M)) }),
+  pose: n => { paused = true; $('btnPlay').textContent = '▶ 播放'; setTime(POSES[n] ?? 0); },
+  setLoopTime: t => { paused = true; $('btnPlay').textContent = '▶ 播放'; setTime(t); },
+  resume: () => { speedMul = 1; $('speed').value = '1'; paused = false; origin = performance.now(); clockOffset = frozenT; $('btnPlay').textContent = '⏸ 暂停'; },
+  resetSamples: () => { samples.length = 0; },
+  samples,
+  params: PARAMS,
+};
+/* ---------- 工具栏：复制当前帧 / 隐藏 / 嵌入模式 ---------- */
+function sceneSVG(){
+  const clone = $('scene').cloneNode(true);
+  clone.setAttribute('xmlns', svgNS);
+  return '<?xml version="1.0" encoding="UTF-8"?>' + String.fromCharCode(10) + new XMLSerializer().serializeToString(clone);
+}
+let toastTimer = 0;
+function toast(msg){
+  const t2 = $('toast');
+  t2.textContent = msg; t2.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t2.classList.remove('show'), 1800);
+}
+async function writeClipboard(text){
+  if (navigator.clipboard && window.isSecureContext){
+    try { await navigator.clipboard.writeText(text); return true; } catch (err){ /* 落到下面的兜底 */ }
+  }
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.left = '-9999px';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    const ok = document.execCommand('copy'); ta.remove();
+    return ok;
+  } catch (err){ return false; }
+}
+function openSvgBox(text){
+  $('svgText').value = text;
+  $('svgBox').classList.add('show');
+  const ta = $('svgText');
+  ta.focus(); ta.select();
+}
+function closeSvgBox(){ $('svgBox').classList.remove('show'); }
+$('svgClose').addEventListener('click', closeSvgBox);
+$('svgBox').addEventListener('click', e => { if (e.target === $('svgBox')) closeSvgBox(); });
+$('svgRetry').addEventListener('click', async () => {
+  if (await writeClipboard($('svgText').value)){ closeSvgBox(); toast('已复制当前帧的 SVG 源码'); }
+  else { $('svgText').focus(); $('svgText').select(); toast('还是不行，文本已全选，按 Ctrl+C 即可'); }
+});
+$('btnCopy').addEventListener('click', async () => {
+  const text = sceneSVG();
+  if (await writeClipboard(text)) toast('已复制当前帧的 SVG 源码');
+  else openSvgBox(text);
+});
+function setHud(hidden){
+  $('hud').classList.toggle('hidden', hidden);
+  $('hudRestore').classList.toggle('show', hidden);
+}
+$('btnHide').addEventListener('click', () => setHud(true));
+$('hudRestore').addEventListener('click', () => setHud(false));
+document.addEventListener('keydown', e => {
+  if (e.target && /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) return;
+  if (e.key === 'Escape') closeSvgBox();
+  if ($('svgBox').classList.contains('show')) return;
+  if (e.key === 'h' || e.key === 'H') setHud(!$('hud').classList.contains('hidden'));
+  if (e.key === ' '){ e.preventDefault(); $('btnPlay').click(); }
+});
+// 在展示页里内嵌播放时默认收起工具栏，让画面干净；按 H 或点左下按钮可调出
+if (new URLSearchParams(location.search).has('embed')){
+  setHud(true);
+  // 嵌入播放时：鼠标移到画面上才显出那个小按钮，移开就淡回去，不挡动画
+  const chip = $('hudRestore');
+  chip.style.opacity = '0';
+  document.addEventListener('mousemove', () => { chip.style.opacity = ''; });
+  document.addEventListener('mouseleave', () => { chip.style.opacity = '0'; });
+}
+
+render(0); readyFlag = true;
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

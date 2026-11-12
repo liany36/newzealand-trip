@@ -2,6 +2,7 @@
 <html lang="zh-CN"><head><meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <meta name="robots" content="noindex, nofollow"/>
+<link rel="icon" href="data:,"/>
 <title>五个模型同题实测</title>
 <style>
   :root{--ink:#1b1b1b;--mute:#6b6b6b;--line:#e6e3dd;--bg:#f4f3f0}
@@ -26,11 +27,14 @@
   .note{margin-top:32px;font-size:13px;color:var(--mute);line-height:2}
   .note b{color:var(--ink);font-weight:600}
   code{background:#eceae4;padding:1px 5px;border-radius:3px;font-size:12px}
+  h2.sec{font-size:18px;margin:44px 0 6px;letter-spacing:.01em}
+  p.secsub{color:var(--mute);font-size:13px;margin:0 0 16px}
+  td.na{color:#b9b5ac;font-size:13px;padding-left:30px}
 </style></head>
 <body><div class="wrap">
   <h1>五个模型同题实测</h1>
   <p class="sub">同一套 harness、同一套 prompt、同一个 90 分钟限时。下面每个链接都是模型当时的原始产物，没有二次加工。</p>
-  <p class="meta">任务一：SVG 图纸 → 三维房间 → 拖拽家具 → 导出 glb/obj　|　任务三：火箭发射 / 火山喷发渲染</p>
+  <p class="meta">任务一：SVG 图纸 → 三维房间 → 拖拽家具 → 导出 glb/obj　|　任务三：火箭发射 / 火山喷发渲染　|　附加题 D：内联 SVG 动画三题（见表下）</p>
 
   <table>
     <tr><th>模型</th><th>任务一 · 图纸变房间</th><th>任务三 · 场景渲染</th></tr>
@@ -61,9 +65,36 @@
     </tr>
   </table>
 
+  <h2 class="sec">附加题 D · 内联 SVG 动画三题</h2>
+  <p class="secsub">千问 4 的会话补测，不计入上表。规则：只用内联 SVG 和一条时间轴，不许 canvas、不许图片、不许联网取素材。三个场景各一个 HTML，打开就自己播，循环首尾无缝。</p>
+  <table>
+    <tr><th>场景</th><th>点进去会看到什么</th><th>入口</th></tr>
+    <tr>
+      <td class="who"><b>鹈鹕骑自行车</b></td>
+      <td style="font-size:13.5px;color:var(--mute)">海岸公路视差背景；脚始终踩在踏板上、膝盖屈伸，车轮转速与地面滚动严格相等，喉囊滞后摆动。循环 20 秒。</td>
+      <td><a class="card" href="svg-animation/pelican-bike.html"><span class="t">播放动画</span><span class="s">pelican-bike.html</span></a></td>
+    </tr>
+    <tr>
+      <td class="who"><b>鳄鱼修机械表</b></td>
+      <td style="font-size:13.5px;color:var(--mute)">工作台上打开后盖的怀表；四个齿轮真实啮合（40/28/20/15 齿，相邻反向、转速与齿数成反比），摆轮擒纵在动，螺丝刀尖全程贴着零件。循环 24 秒。</td>
+      <td><a class="card" href="svg-animation/croc-watch.html"><span class="t">播放动画</span><span class="s">croc-watch.html</span></a></td>
+    </tr>
+    <tr>
+      <td class="who"><b>章鱼给座钟上油</b></td>
+      <td style="font-size:13.5px;color:var(--mute)">落地长壳钟前八条腕分工干活；油滴从壶嘴攒大、脱落、加速滴落、摊开，钟摆周期符合 2π√(L/g)，被油溅到会眨眼。循环 30 秒。</td>
+      <td><a class="card" href="svg-animation/octopus-clock.html"><span class="t">播放动画</span><span class="s">octopus-clock.html</span></a></td>
+    </tr>
+    <tr>
+      <td class="who"><b>三题总览</b></td>
+      <td style="font-size:13.5px;color:var(--mute)">带静帧预览的展示页：每张卡片可直接内嵌播放、全屏打开或下载 HTML，附机构参数与自检结果（30 项断言全绿）。</td>
+      <td><a class="card" href="svg-animation/index.html"><span class="t">打开展示页</span><span class="s">含预览图与说明</span></a></td>
+    </tr>
+  </table>
+
   <div class="note">
     <b>怎么看任务一：</b>从左侧面板把家具拖进中间的房间，选中后用方向键微调、按 <code>R</code> 旋转。<br/>
     <b>怎么看任务三：</b>打开就会自己跑，不用点任何东西。<br/>
+    <b>怎么看附加题 D：</b>打开就自己播；画面左下角有暂停、相位滑杆（定格任意一秒）、倍速和"下载当前帧 SVG"。<br/>
     <b>提示：</b>这些页面都是模型一次性生成的静态文件，我们只做了原样部署，没有修过它们的代码。
   </div>
 </div></body></html>
