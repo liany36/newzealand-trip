@@ -1,4 +1,4 @@
-/* verify.mjs —— 部署页验证：对比表入口、展示页交互、三个动画的运行时行为。
+/* verify.mjs —— 部署页验证：对比表入口与三个动画页的运行时行为。
  * 零第三方依赖（Node 内置模块 + 本机 Chrome/Edge 的 CDP）。
  * 用法：node qa/verify.mjs                      # 自动起本地服务，跑完关掉
  *       node qa/verify.mjs --base https://mrlian.ai/model-eval/qwen4-preview-eval   # 直接验线上
@@ -57,13 +57,14 @@ const idx = await ws.eval(`(() => {
   const links = [...document.querySelectorAll('a[href]')].map(a => a.getAttribute('href'));
   return { title: document.title, svgLinks: links.filter(h => h.startsWith('svg-animation/')),
     rows: document.querySelectorAll('table tr').length,
+    hasOverview: links.some(h => h === 'svg-animation/index.html'),
     hasOverflow: document.documentElement.scrollWidth > window.innerWidth + 1 };
 })()`);
-ok('首页 · 附加题 D 入口存在', idx.svgLinks.length === 4, `${idx.svgLinks.length} 个链接`);
+ok('首页 · 三个动画入口存在', idx.svgLinks.length === 3, `${idx.svgLinks.length} 个链接`);
+ok('首页 · 无总览入口', !idx.hasOverview);
 ok('首页 · 无横向溢出', !idx.hasOverflow);
 await shot('01-index-desktop');
 
-// 链接可达性（含返回链接）
 const reach = await ws.eval(`(async () => {
   const hs = [...new Set([...document.querySelectorAll('a[href]')].map(a => a.getAttribute('href')))];
   const out = [];
@@ -73,96 +74,13 @@ const reach = await ws.eval(`(async () => {
 ok('首页 · 所有链接可达', reach.every(([, s]) => s === 200), reach.filter(([, s]) => s !== 200).map(x => x.join('=')).join(',') || `${reach.length} 个全部 200`);
 ok('首页 · 控制台干净', errors.length === 0, errors.join(' | '));
 
-/* ---------------- 2. 展示页 ---------------- */
-errors.length = 0;
-await goto(BASE + '/svg-animation/index.html');
-await viewport(1440, 900);
-const gal = await ws.eval(`(() => ({
-  imgs: [...document.images].map(i => ({ src: i.getAttribute('src'), ok: i.complete && i.naturalWidth > 0 })),
-  cards: document.querySelectorAll('.scene').length,
-  back: document.querySelector('.back').getAttribute('href'),
-  overflow: document.documentElement.scrollWidth > window.innerWidth + 1,
-}))()`);
-ok('展示页 · 三张预览图都加载', gal.imgs.length === 3 && gal.imgs.every(i => i.ok), JSON.stringify(gal.imgs.map(i => i.ok)));
-ok('展示页 · 三张卡片', gal.cards === 3);
-ok('展示页 · 无横向溢出', !gal.overflow);
-await shot('02-gallery-desktop');
-
-// 内嵌播放：第一张
-await ws.eval(`document.querySelectorAll('[data-play]')[0].click()`);
-await sleep(1600);
-const play1 = await ws.eval(`(() => {
-  const s = document.querySelectorAll('.scene')[0];
-  const f = s.querySelector('iframe');
-  return { live: s.classList.contains('live'), src: f && f.getAttribute('src'),
-    label: s.querySelector('[data-play]').textContent.trim(),
-    badge: s.querySelector('.badge-t').textContent.trim(),
-    innerReady: !!(f && f.contentWindow.__QA__ && f.contentWindow.__QA__.ready()),
-    innerHudHidden: !!(f && f.contentDocument.getElementById('hud').classList.contains('hidden')),
-    innerT: f && f.contentWindow.__QA__ ? f.contentWindow.__QA__.state().t : null };
-})()`);
-ok('展示页 · 内嵌播放起来', play1.live && play1.innerReady, JSON.stringify({ src: play1.src, ready: play1.innerReady }));
-ok('展示页 · 嵌入时工具栏自动收起', play1.innerHudHidden);
-ok('展示页 · 按钮与角标同步', play1.label.includes('停止') && play1.badge === '正在播放', play1.label + ' / ' + play1.badge);
-await sleep(900);
-const t2 = await ws.eval(`document.querySelectorAll('.scene')[0].querySelector('iframe').contentWindow.__QA__.state().t`);
-ok('展示页 · 内嵌动画真的在走', t2 > play1.innerT, `${play1.innerT?.toFixed(2)} → ${t2.toFixed(2)}`);
-await shot('03-gallery-playing');
-
-// 切到第二张：第一张必须停掉、iframe 移除
-await ws.eval(`document.querySelectorAll('[data-play]')[1].click()`);
-await sleep(1500);
-const sw = await ws.eval(`(() => {
-  const ss = [...document.querySelectorAll('.scene')];
-  return { live: ss.map(s => s.classList.contains('live')), frames: document.querySelectorAll('iframe').length,
-    labels: ss.map(s => s.querySelector('[data-play]').textContent.trim()),
-    case2: ss[1].querySelector('iframe').contentWindow.__QA__.case() };
-})()`);
-ok('展示页 · 同时只播一个', sw.live.filter(Boolean).length === 1 && sw.frames === 1, JSON.stringify(sw.live));
-ok('展示页 · 切换后第二个场景正确', sw.case2 === 'croc-watch', sw.case2);
-
-// 停止：iframe 移除、回到静帧
-await ws.eval(`document.querySelectorAll('[data-play]')[1].click()`);
-await sleep(500);
-const stopped = await ws.eval(`(() => ({ frames: document.querySelectorAll('iframe').length,
-  live: [...document.querySelectorAll('.scene')].some(s => s.classList.contains('live')),
-  imgVisible: getComputedStyle(document.querySelectorAll('.scene')[1].querySelector('img')).opacity }))()`);
-ok('展示页 · 停止后回到静帧', stopped.frames === 0 && !stopped.live && stopped.imgVisible === '1', JSON.stringify(stopped));
-
-// 反复切 6 次，确认不堆积 iframe / 定时器
-for (let i = 0; i < 6; i++){
-  await ws.eval(`document.querySelectorAll('[data-play]')[${i % 3}].click()`);
-  await sleep(320);
-}
-const stress = await ws.eval(`document.querySelectorAll('iframe').length`);
-ok('展示页 · 反复切换不堆积 iframe', stress <= 1, `当前 ${stress} 个`);
-await ws.eval(`[...document.querySelectorAll('.scene')].forEach(s => { if (s.classList.contains('live')) s.querySelector('[data-play]').click(); })`);
-
-// 返回链接
-const backStatus = await ws.eval(`fetch(document.querySelector('.back').getAttribute('href')).then(r => r.status)`, true);
-ok('展示页 · 返回对比表可达', backStatus === 200, String(backStatus));
-
-// 手机布局
 await viewport(390, 844);
-const mob = await ws.eval(`(() => {
-  const r = document.querySelector('.frame').getBoundingClientRect();
-  const btn = document.querySelector('[data-play]').getBoundingClientRect();
-  return { overflow: document.documentElement.scrollWidth > window.innerWidth + 1,
-    frameW: Math.round(r.width), frameH: Math.round(r.height), btnW: Math.round(btn.width),
-    ratio: +(r.width / r.height).toFixed(2) };
-})()`);
-ok('展示页 · 手机无横向溢出', !mob.overflow, JSON.stringify(mob));
-ok('展示页 · 手机画面保持 16:9', Math.abs(mob.ratio - 16 / 9) < 0.05, String(mob.ratio));
-await shot('04-gallery-mobile');
-await ws.eval(`document.querySelectorAll('[data-play]')[2].click()`);
-await sleep(1600);
-await shot('05-gallery-mobile-playing');
-const mobPlay = await ws.eval(`!!document.querySelectorAll('.scene')[2].querySelector('iframe').contentWindow.__QA__.ready()`);
-ok('展示页 · 手机内嵌播放可用', mobPlay);
-await ws.eval(`document.querySelectorAll('[data-play]')[2].click()`);
-ok('展示页 · 控制台干净', errors.length === 0, errors.join(' | '));
+const mobIdx = await ws.eval(`document.documentElement.scrollWidth > window.innerWidth + 1`);
+ok('首页 · 手机无横向溢出', !mobIdx);
+await shot('02-index-mobile');
+await viewport(1600, 900);
 
-/* ---------------- 3. 三个场景各自的全屏页 ---------------- */
+/* ---------------- 2. 三个动画页 ---------------- */
 for (const [file, name, loop] of [['pelican-bike.html', 'pelican-bike', 20], ['croc-watch.html', 'croc-watch', 24], ['octopus-clock.html', 'octopus-clock', 30]]){
   errors.length = 0;
   await goto(BASE + '/svg-animation/' + file);
