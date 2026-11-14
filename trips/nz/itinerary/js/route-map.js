@@ -3,8 +3,13 @@
    Mossburn Country Park (-45.65171, 168.26847; OSM way 671813997,
    333 Mossburn Five Rivers Road) /
    Portobello Village Tourist Park (-45.8430073, 170.6508896; OSM way 385971196
-   centroid via Nominatim, 27 Hereweka Street, Portobello).
+   centroid via Nominatim, 27 Hereweka Street, Portobello) /
+   DOC Moke Lake Campsite (-44.99811782, 168.57308923; DOC page
+   https://www.doc.govt.nz/parks-and-recreation/places-to-go/otago/places/queenstown-area/things-to-do/moke-lake-campsite/
+   NZTM2000 E1251305-N5007714, read 2026-11-14).
    Line: OSRM driving geometry. Cromwell forced between Wanaka and Queenstown.
+   12/28 overnight marker is Moke Lake at the DOC coordinate. The highway line
+   stays SH6 via Cromwell through Queenstown; no Moke Lake Road spur is added.
    12/31 overnight path leaves SH1 at Dunedin, follows Portobello Road (low road)
    to the camp, then returns to the same SH1 line toward Christchurch. */
 (function () {
@@ -13,7 +18,8 @@
     { zh: "特卡波", en: "Tekapo", meta: "1 晚", lat: -44.0046, lng: 170.4771, kind: "stay" },
     { zh: "瓦纳卡", en: "Wanaka", meta: "2 晚", lat: -44.6949, lng: 169.1417, kind: "stay" },
     { zh: "克伦威尔", en: "Cromwell", meta: "经 SH6", lat: -45.0375, lng: 169.1985, kind: "via" },
-    { zh: "皇后镇", en: "Queenstown", meta: "1 晚", lat: -45.0312, lng: 168.6626, kind: "stay" },
+    { zh: "皇后镇", en: "Queenstown", meta: "12/28 下午", lat: -45.0312, lng: 168.6626, kind: "day" },
+    { zh: "莫克湖", en: "Moke Lake", meta: "1 晚 · 无电", lat: -44.99811782, lng: 168.57308923, kind: "stay" },
     { zh: "Cascade Creek", en: "DOC", meta: "1 晚 · 无电", lat: -44.89421, lng: 168.07529, kind: "stay" },
     { zh: "米尔福德", en: "Milford Sound", meta: "12/30 当日", lat: -44.6714, lng: 167.9256, kind: "day" },
     { zh: "莫斯本", en: "Mossburn Country Park", meta: "1 晚 · 有电", lat: -45.65171, lng: 168.26847, kind: "stay" },
